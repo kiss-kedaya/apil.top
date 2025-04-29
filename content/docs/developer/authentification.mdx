@@ -1,0 +1,54 @@
+---
+title: Authentification
+description: How to config the authentification.
+---
+
+<Callout type="note" twClass="mt-0">
+  The auth part is similar at the [authjs](https://authjs.dev/) documentation.
+  You can follow the official documentation
+  [here](https://authjs.dev/getting-started/installation#setup-environment) if
+  you want.
+</Callout>
+
+<Callout type="danger" twClass="mt-3">
+  After upgrade Auth.js to v5: `NEXTAUTH_URL` has removed from `.env` file. Same
+  thing **in production**.
+</Callout>
+
+## Update auth_secret variable
+
+The only environment variable that is mandatory is the `AUTH_SECRET`. This is a random value used by the library to encrypt tokens and email verification hashes. You can generate one via running:
+
+```bash
+npx auth secret
+```
+
+Alternatively, you can use the `openssl` CLI, `openssl rand -base64 33`.
+
+Then add it to your `.env` file:
+
+```js title=".env"
+AUTH_SECRET = secret;
+```
+
+## Google config
+
+In this section, you can update these variables:
+
+```js title=".env"
+GOOGLE_CLIENT_ID = your_secret_client_id.apps.googleusercontent.com;
+GOOGLE_CLIENT_SECRET = your_secret_client;
+```
+
+See config tutorial in [Authjs - Google OAuth](https://authjs.dev/getting-started/providers/google).
+
+## Github config
+
+In this section, you can update these variables:
+
+```js title=".env"
+GITHUB_ID = your_secret_client_id;
+GITHUB_SECRET = your_secret_client;
+```
+
+See config tutorial in [Authjs - Github OAuth](https://authjs.dev/getting-started/providers/github).

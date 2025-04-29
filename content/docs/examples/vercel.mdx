@@ -1,0 +1,30 @@
+---
+title: Vercel Custom Domain
+description: Free parsing of Vercel custom domain names.
+---
+
+After deploy your any project with vercel, you can use your custom domain name.
+
+First follow https://vercel.com/[account]/[project]/settings/domains.
+
+And add your custom domain name like `beta.wr.do`:
+
+![](/_static/examples/vercel_01.png)
+
+Then config the CNAME content on WR.DO: 
+
+![](/_static/examples/vercel_02.png)
+
+Waiting for DNS records to take effect on vercel:
+
+![](/_static/examples/vercel_03.png)
+
+Done!
+
+### Domain verification
+
+You need add a `TXT` record to verify the domain ownership on `dashboard/records` when you first apply a custom domain.
+
+The `TXT` record's `name` is `_vercel` and `value` is `vs-domain-verify=xxxxxx`, you can find them in `https://vercel.com/[account]/[project]/settings/domains`.
+
+

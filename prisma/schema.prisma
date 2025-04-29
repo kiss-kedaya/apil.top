@@ -1,0 +1,249 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?  @db.Text
+  access_token      String?  @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?  @db.Text
+  session_state     String?
+  createdAt         DateTime @default(now()) @map(name: "created_at")
+  updatedAt         DateTime @default(now()) @map(name: "updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map(name: "accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map(name: "sessions")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  active        Int       @default(1) // 0 封禁，1 正常
+  team          String?   @default("free")
+  apiKey        String?
+  createdAt     DateTime  @default(now()) @map(name: "created_at")
+  updatedAt     DateTime  @default(now()) @map(name: "updated_at")
+  role          UserRole  @default(USER)
+
+  accounts      Account[]
+  sessions      Session[]
+  UserRecord    UserRecord[]
+  UserUrl       UserUrl[]
+  ScrapeMeta    ScrapeMeta[]
+  UserEmail     UserEmail[]
+  UserSendEmail UserSendEmail[]
+
+  @@index([createdAt])
+  @@map(name: "users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map(name: "verification_tokens")
+}
+
+model UserRecord {
+  id          String    @id @default(cuid())
+  userId      String
+  record_id   String    @unique
+  zone_id     String
+  zone_name   String
+  name        String
+  type        String
+  content     String
+  proxiable   Boolean?
+  proxied     Boolean?
+  ttl         Int?
+  comment     String?
+  tags        String
+  created_on  DateTime?
+  modified_on DateTime?
+  active      Int?      @default(1)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, created_on])
+  @@map(name: "user_records")
+}
+
+model UserUrl {
+  id         String   @id @default(cuid())
+  userId     String
+  userName   String
+  target     String
+  url        String   @unique // slug
+  prefix     String
+  visible    Int      @default(0)
+  active     Int      @default(1)
+  expiration String   @default("-1")
+  password   String   @default("")
+  createdAt  DateTime @default(now()) @map(name: "created_at")
+  updatedAt  DateTime @default(now()) @map(name: "updated_at")
+
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  UrlMeta UrlMeta[]
+
+  @@index([userId, createdAt])
+  @@map(name: "user_urls")
+}
+
+model UrlMeta {
+  id    String @id @default(cuid())
+  urlId String
+  click Int
+
+  ip        String  @default("127.0.0.1")
+  city      String?
+  country   String?
+  region    String?
+  latitude  String?
+  longitude String?
+  referer   String?
+  lang      String?
+  device    String?
+  browser   String?
+
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @default(now()) @map(name: "updated_at")
+
+  userUrl UserUrl @relation(fields: [urlId], references: [id], onDelete: Cascade)
+
+  @@unique([urlId, ip])
+  @@index([urlId])
+  @@map(name: "url_metas")
+}
+
+model ScrapeMeta {
+  id    String @id @default(cuid())
+  type  String
+  link  String
+  click Int
+
+  userId String
+  apiKey String
+
+  ip        String  @default("127.0.0.1")
+  city      String?
+  country   String?
+  region    String?
+  latitude  String?
+  longitude String?
+  referer   String?
+  lang      String?
+  device    String?
+  browser   String?
+
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @default(now()) @map(name: "updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([type, ip, link])
+  @@index([userId, type, apiKey])
+  @@map(name: "scrape_metas")
+}
+
+model ForwardEmail {
+  id        String  @id @default(uuid())
+  from      String
+  fromName  String
+  to        String
+  subject   String? @default("No Subject")
+  text      String? @default("")
+  html      String? @default("")
+  date      String? @default("")
+  messageId String? @default("")
+  replyTo   String? @default("")
+
+  cc          String? @default("[]")
+  headers     String? @default("[]")
+  attachments String? @default("[]")
+
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  UserEmail UserEmail? @relation(fields: [to], references: [emailAddress])
+
+  @@index([createdAt])
+  @@map(name: "forward_emails")
+}
+
+model UserEmail {
+  id           String @id @default(uuid())
+  userId       String
+  emailAddress String @unique
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  forwardEmails ForwardEmail[] // 与 ForwardEmail 的 from 字段关联
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([createdAt])
+  @@map("user_emails")
+}
+
+model UserSendEmail {
+  id     String @id @default(uuid())
+  userId String
+
+  from     String
+  fromName String? @default("")
+  to       String
+  subject  String? @default("No Subject")
+  text     String? @default("")
+  html     String? @default("")
+  replyTo  String? @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@map("user_send_emails")
+}
