@@ -8,18 +8,18 @@ const email_domains = env.NEXT_PUBLIC_EMAIL_DOMAINS || "";
 const email_r2_domain = env.NEXT_PUBLIC_EMAIL_R2_DOMAIN || "";
 
 export const siteConfig: SiteConfig = {
-  name: "WR.DO",
-  description: "A DNS record distribution system",
+  name: "kedaya.xyz",
+  description: "DNS记录分发系统",
   url: site_url,
   ogImage: `${site_url}/_static/og.jpg`,
   links: {
     twitter: "https://twitter.com/yesmoree",
-    github: "https://github.com/oiov/wr.do",
-    feedback: "https://github.com/oiov/wr.do/issues",
+    github: "https://github.com/oiov/kedaya.xyz",
+    feedback: "https://github.com/oiov/kedaya.xyz/issues",
     discord: "https://discord.gg/AHPQYuZu3m",
-    oichat: "https://oi.wr.do",
+    oichat: "https://oi.kedaya.xyz",
   },
-  mailSupport: "support@wr.do",
+  mailSupport: "kedaya0226@qq.com",
   openSignup: open_signup === "1" ? true : false,
   shortDomains: short_domains.split(","),
   emailDomains: email_domains.split(","),
@@ -28,32 +28,32 @@ export const siteConfig: SiteConfig = {
 
 export const footerLinks: SidebarNavItem[] = [
   {
-    title: "Company",
+    title: "公司",
     items: [
-      { title: "About", href: "/docs" },
-      { title: "Terms", href: "/terms" },
-      { title: "Privacy", href: "/privacy" },
-      { title: "Blog", href: "https://www.oiov.dev" },
-      { title: "Feedback", href: siteConfig.links.feedback },
+      { title: "关于", href: "/docs" },
+      { title: "条款", href: "/terms" },
+      { title: "隐私", href: "/privacy" },
+      { title: "博客", href: "https://www.oiov.dev" },
+      { title: "反馈", href: siteConfig.links.feedback },
     ],
   },
   {
-    title: "Products",
+    title: "产品",
     items: [
       { title: "Vmail", href: "https://vmail.dev" },
       { title: "Moise", href: "https://moise.oiov.dev" },
-      // { title: "Inke", href: "https://inke.wr.do" },
+      // { title: "Inke", href: "https://inke.kedaya.xyz" },
       { title: "Iconce", href: "https://iconce.com" },
       { title: "OiChat", href: siteConfig.links.oichat },
     ],
   },
   {
-    title: "Docs",
+    title: "文档",
     items: [
-      { title: "Introduction", href: "/docs" },
-      { title: "Guide", href: "/docs/quick-start" },
-      { title: "Developer", href: "/docs/developer" },
-      { title: "Contact", href: "mailto:support@wr.do" },
+      { title: "介绍", href: "/docs" },
+      { title: "指南", href: "/docs/quick-start" },
+      { title: "开发者", href: "/docs/developer" },
+      { title: "联系我们", href: "mailto:kedaya0226@qq.com" },
     ],
   },
 ];

@@ -21,7 +21,7 @@ export const metadata = constructMetadata();
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <ViewTransitions>
-      <html lang="en" suppressHydrationWarning>
+      <html lang="zh" suppressHydrationWarning>
         <head>
           <script
             defer

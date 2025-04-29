@@ -969,7 +969,7 @@ export default function ChatRoom() {
           Powered by{" "}
           <Link
             className="hover:underline"
-            href={"https://wr.do"}
+            href={"https://kedaya.xyz"}
             target="_blank"
             style={{ fontFamily: "Bahamas Bold" }}
           >

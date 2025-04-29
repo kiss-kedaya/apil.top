@@ -6,7 +6,7 @@ description: Step by step installation
 ## 0. Installation
 
 ```bash
-git clone https://github.com/oiov/wr.do
+git clone https://github.com/oiov/kedaya.xyz
 ```
 
 Enter in the folder and install dependencies for your project:
@@ -137,7 +137,7 @@ Before you start, you must have a Cloudflare account and be hosted on Cloudflare
 
 This is the unique identifier for your Cloudflare zone. You can find it in the Cloudflare dashboard under the Overview section of your domain.
 
-> Follow [this way](https://dash.cloudflare.com/Your_Acount_Id/wr.do), and scroll down to `Zone ID`.
+> Follow [this way](https://dash.cloudflare.com/Your_Acount_Id/kedaya.xyz), and scroll down to `Zone ID`.
 
 ### Add the CLOUDFLARE_API_KEY Environment Variable
 
@@ -157,7 +157,7 @@ In this section, you can update these variables:
 
 ```js title=".env"
 CLOUDFLARE_ZONE_ID=abcdef1234567890
-CLOUDFLARE_ZONE_NAME=wr.do
+CLOUDFLARE_ZONE_NAME=kedaya.xyz
 CLOUDFLARE_API_KEY=1234567890abcdef1234567890abcdef
 CLOUDFLARE_EMAIL=user@example.com
 ```
@@ -177,7 +177,7 @@ Via:
 ![](/_static/docs/r2-domain.png)
 
 ```js title=".env"
-NEXT_PUBLIC_EMAIL_R2_DOMAIN=https://email-attachment.wr.do
+NEXT_PUBLIC_EMAIL_R2_DOMAIN=https://email-attachment.kedaya.xyz
 ```
 
 ## 5. Add the Bussiness Configs
@@ -187,10 +187,10 @@ NEXT_PUBLIC_EMAIL_R2_DOMAIN=https://email-attachment.wr.do
 NEXT_PUBLIC_OPEN_SIGNUP=1
 
 # Short domains. Separated by `,`
-NEXT_PUBLIC_SHORT_DOMAINS=wr.do,uv.do
+NEXT_PUBLIC_SHORT_DOMAINS=kedaya.xyz,uv.do
 
 # Email domains. Separated by `,`
-NEXT_PUBLIC_EMAIL_DOMAINS=wr.do,uv.do
+NEXT_PUBLIC_EMAIL_DOMAINS=kedaya.xyz,uv.do
 ```
 
 ## 6. Add the SCREENSHOTONE_BASE_URL Environment Variable

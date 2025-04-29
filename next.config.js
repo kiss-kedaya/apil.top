@@ -22,7 +22,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "email-attachment.wr.do",
+        hostname: "email-attachment.kedaya.xyz",
       },
     ],
   },
@@ -43,42 +43,42 @@ const nextConfig = {
       },
       {
         source: "/0",
-        destination: "https://wr.do/s/0",
+        destination: "https://kedaya.xyz/s/0",
         permanent: true,
       },
       {
         source: "/9",
-        destination: "https://wr.do/s/9",
+        destination: "https://kedaya.xyz/s/9",
         permanent: true,
       },
       {
         source: "/ai",
-        destination: "https://wr.do/s/ai?ref=wrdo",
+        destination: "https://kedaya.xyz/s/ai?ref=wrdo",
         permanent: true,
       },
       {
         source: "/cps",
-        destination: "https://wr.do/s/cps",
+        destination: "https://kedaya.xyz/s/cps",
         permanent: true,
       },
       {
         source: "/x",
-        destination: "https://wr.do/s/x",
+        destination: "https://kedaya.xyz/s/x",
         permanent: true,
       },
       {
         source: "/solo",
-        destination: "https://wr.do/s/solo",
+        destination: "https://kedaya.xyz/s/solo",
         permanent: true,
       },
       {
         source: "/rmbg",
-        destination: "https://wr.do/s/rmbg",
+        destination: "https://kedaya.xyz/s/rmbg",
         permanent: true,
       },
       {
         source: "/llk",
-        destination: "https://wr.do/s/llk",
+        destination: "https://kedaya.xyz/s/llk",
         permanent: true,
       },
     ];

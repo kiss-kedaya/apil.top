@@ -22,7 +22,7 @@ export default function UrlShotenerExp() {
           <path d="M15 7h2a5 5 0 1 1 0 10h-2"></path>
           <line x1="8" x2="16" y1="12" y2="12"></line>
         </svg>
-        Try it out
+        立即尝试
       </div>
       <div className="w-full">
         <div className="space-y-3">
@@ -30,7 +30,7 @@ export default function UrlShotenerExp() {
             <div className="flex items-center">
               <input
                 type="text"
-                placeholder="Shorten any link..."
+                placeholder="缩短任意链接..."
                 className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 dark:border-gray-600"
               />
               <Link
@@ -66,7 +66,7 @@ export default function UrlShotenerExp() {
                 <div>
                   <div className="flex items-center gap-2">
                     <p className="text-base font-bold text-gray-700 dark:text-gray-50">
-                      wr.do/s/try
+                      kedaya.xyz/s/try
                     </p>
                     <div className="flex gap-1">
                       <button className="rounded-full border p-1.5 transition-colors hover:bg-gray-100 dark:bg-gray-600/50">
@@ -102,7 +102,7 @@ export default function UrlShotenerExp() {
                         ></polyline>
                       </g>
                     </svg>
-                    wr.do/dashboard
+                    kedaya.xyz/dashboard
                   </div>
                 </div>
               </div>
@@ -110,7 +110,7 @@ export default function UrlShotenerExp() {
                 <div className="flex items-center gap-1 rounded-lg border bg-gray-50 px-3 py-1 dark:bg-gray-600/50">
                   <Icons.mousePointerClick className="size-4" />
                   <p className="text-sm font-medium text-gray-700 dark:text-gray-50">
-                    12.6K <span className="hidden sm:inline">clicks</span>
+                    12.6K <span className="hidden sm:inline">点击</span>
                   </p>
                 </div>
                 <button className="hidden rounded-lg p-2 transition-colors hover:bg-gray-100 sm:block">

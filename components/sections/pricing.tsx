@@ -14,47 +14,47 @@ import { Button } from "../ui/button";
 
 const getBenefits = (plan) => [
   {
-    text: `${nFormatter(plan.SL_TrackedClicks)} tracked clicks/mo`,
+    text: `每月 ${nFormatter(plan.SL_TrackedClicks)} 次点击追踪`,
     checked: true,
     icon: <Icons.mousePointerClick className="size-4" />,
   },
   {
-    text: `${nFormatter(plan.SL_NewLinks)} new links/mo`,
+    text: `每月 ${nFormatter(plan.SL_NewLinks)} 个新链接`,
     checked: true,
     icon: <Icons.link className="size-4" />,
   },
   {
-    text: `${plan.SL_AnalyticsRetention}-day analytics retention`,
+    text: `${plan.SL_AnalyticsRetention} 天数据保留期`,
     checked: true,
     icon: <Icons.calendar className="size-4" />,
   },
   {
-    text: `${nFormatter(plan.EM_EmailAddresses)} email addresses/mo`,
+    text: `每月 ${nFormatter(plan.EM_EmailAddresses)} 个邮箱地址`,
     checked: true,
-    icon: <Icons.mail className="size-4" />, // Updated icon to be more relevant
+    icon: <Icons.mail className="size-4" />,
   },
   {
-    text: `${nFormatter(plan.EM_SendEmails)} send emails/mo`,
+    text: `每月 ${nFormatter(plan.EM_SendEmails)} 封发送邮件`,
     checked: true,
-    icon: <Icons.send className="size-4" />, // Updated icon to be more relevant
+    icon: <Icons.send className="size-4" />,
   },
   {
-    text: `${plan.SL_Domains === 1 ? "One" : plan.SL_Domains} domain${plan.SL_Domains > 1 ? "s" : ""}`,
+    text: `${plan.SL_Domains === 1 ? "一个" : plan.SL_Domains + "个"}域名`,
     checked: true,
     icon: <Icons.globe className="size-4" />,
   },
   {
-    text: "Advanced analytics",
+    text: "高级数据分析",
     checked: plan.SL_AdvancedAnalytics,
     icon: <Icons.lineChart className="size-4" />,
   },
   {
-    text: `${plan.APP_Support.charAt(0).toUpperCase() + plan.APP_Support.slice(1)} support`,
+    text: `${plan.APP_Support === "community" ? "社区" : plan.APP_Support === "email" ? "邮件" : "专属"}支持`,
     checked: true,
     icon: <Icons.help className="size-4" />,
   },
   {
-    text: "API Access",
+    text: "API 访问权限",
     checked: plan.APP_ApiAccess,
     icon: <Icons.unplug className="size-4" />,
   },
@@ -70,49 +70,48 @@ export const PricingSection = () => {
       <div className="relative z-10 mx-auto max-w-5xl px-4 py-20 md:px-8">
         <div className="mb-12 space-y-3">
           <h2 className="text-center text-xl font-semibold leading-tight sm:text-3xl sm:leading-tight md:text-4xl md:leading-tight">
-            Pricing
+            价格方案
           </h2>
           <p className="text-center text-base text-zinc-600 dark:text-zinc-400 md:text-lg">
-            Use it for free for yourself, upgrade when your team needs advanced
-            control.
+            个人可免费使用，团队需要高级控制时再升级
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <PriceCard
-            tier="Free"
-            price="$0/mo"
-            bestFor="For hobbyists and individuals looking to manage their links"
+            tier="免费版"
+            price="¥0/月"
+            bestFor="适合个人爱好者和需要管理链接的个人用户"
             CTA={
               <Link href={"/dashboard"}>
                 <Button className="w-full" variant={"default"}>
-                  Get started free
+                  免费开始使用
                 </Button>
               </Link>
             }
             benefits={getBenefits(TeamPlanQuota.free)}
           />
           <PriceCard
-            tier="Premium"
-            price="$5/mo"
-            bestFor="Best for 5-50 users"
+            tier="高级版"
+            price="¥35/月"
+            bestFor="适合5-50人的团队"
             CTA={
               <Link href={"/pricing"}>
                 <Button className="w-full bg-zinc-800 text-zinc-50 hover:bg-zinc-700 hover:text-zinc-50 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 dark:hover:text-zinc-900">
-                  14-day free trial
+                  14天免费试用
                 </Button>
               </Link>
             }
             benefits={getBenefits(TeamPlanQuota.premium)}
           />
           <PriceCard
-            tier="Enterprise"
-            price="Contact us"
-            bestFor="For large organizations with custom needs"
+            tier="企业版"
+            price="联系我们"
+            bestFor="适合有定制需求的大型组织"
             CTA={
-              <Link href={"mailto:support@wr.do"}>
+              <Link href={"mailto:kedaya0226@qq.com"}>
                 <Button className="w-full" variant="outline">
-                  Contact us
+                  联系我们
                 </Button>
               </Link>
             }

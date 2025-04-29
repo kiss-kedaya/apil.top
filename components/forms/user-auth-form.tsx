@@ -49,13 +49,13 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
     setIsLoading(false);
 
     if (!signInResult?.ok) {
-      return toast.error("Something went wrong.", {
-        description: "Your sign in request failed. Please try again.",
+      return toast.error("出错了", {
+        description: "您的登录请求失败。请重试。",
       });
     }
 
-    return toast.success("Check your email", {
-      description: "We sent you a login link. Be sure to check your spam too.",
+    return toast.success("检查您的邮箱", {
+      description: "我们已发送登录链接。请同时检查垃圾邮件。",
     });
   }
 
@@ -138,7 +138,7 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
         </div>
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-background px-2 text-muted-foreground">
-            Or continue with
+            或继续使用
           </span>
         </div>
       </div>
@@ -146,7 +146,7 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
         <div className="grid gap-2">
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
-              Email
+              邮箱
             </Label>
             <Input
               id="email"
@@ -176,7 +176,7 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
             {isLoading && (
               <Icons.spinner className="mr-2 size-4 animate-spin" />
             )}
-            {type === "register" ? "Sign Up with Email" : "Sign In with Email"}
+            {type === "register" ? "使用邮箱注册" : "使用邮箱登录"}
           </button>
         </div>
       </form>

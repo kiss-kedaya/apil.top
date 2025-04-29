@@ -62,10 +62,9 @@ function DeleteAccountModal({
             image: session?.user?.image || null,
           }}
         />
-        <h3 className="text-lg font-semibold">Delete Account</h3>
+        <h3 className="text-lg font-semibold">删除账户</h3>
         <p className="text-center text-sm text-muted-foreground">
-          <b>Warning:</b> This will permanently delete your account and your
-          active subscription!
+          <b>警告：</b>这将永久删除您的账户和活跃的订阅！
         </p>
 
         {/* TODO: Use getUserSubscriptionPlan(session.user.id) to display the user's subscription if he have a paid plan */}
@@ -75,8 +74,8 @@ function DeleteAccountModal({
         onSubmit={async (e) => {
           e.preventDefault();
           toast.promise(deleteAccount(), {
-            loading: "Deleting account...",
-            success: "Account deleted successfully!",
+            loading: "正在删除账户...",
+            success: "账户删除成功！",
             error: (err) => err,
           });
         }}
@@ -84,11 +83,11 @@ function DeleteAccountModal({
       >
         <div>
           <label htmlFor="verification" className="block text-sm">
-            To verify, type{" "}
+            确认删除，请输入{" "}
             <span className="font-semibold text-black dark:text-white">
               confirm delete account
             </span>{" "}
-            below
+            在下方
           </label>
           <Input
             type="text"
@@ -106,7 +105,7 @@ function DeleteAccountModal({
           variant={deleting ? "disable" : "destructive"}
           disabled={deleting}
         >
-          Confirm delete account
+          确认删除账户
         </Button>
       </form>
     </Modal>

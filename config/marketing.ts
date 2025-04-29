@@ -9,11 +9,11 @@ export const marketingConfig: MarketingConfig = {
     //   href: siteConfig.links.oichat,
     // },
     {
-      title: "Docs",
+      title: "文档",
       href: "/docs",
     },
     {
-      title: "Feedback",
+      title: "反馈",
       href: siteConfig.links.feedback,
     },
     {
@@ -21,7 +21,7 @@ export const marketingConfig: MarketingConfig = {
       href: "https://discord.gg/AHPQYuZu3m",
     },
     {
-      title: "Pricing",
+      title: "价格",
       href: "/#pricing",
     },
   ],

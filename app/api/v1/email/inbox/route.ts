@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   const user = await checkApiKey(custom_api_key);
   if (!user?.id) {
     return Response.json(
-      "Invalid API key. You can get your API key from https://wr.do/dashboard/settings.",
+      "Invalid API key. You can get your API key from https://kedaya.xyz/dashboard/settings.",
       { status: 401 },
     );
   }

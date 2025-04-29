@@ -6,7 +6,7 @@ import { constructMetadata } from "@/lib/utils";
 import { EmailDashboard } from "./email";
 
 export const metadata = constructMetadata({
-  title: "Emails - WR.DO",
+  title: "Emails - kedaya.xyz",
   description: "List and manage emails.",
 });
 

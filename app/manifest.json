@@ -1,8 +1,8 @@
 {
-  "name": "WR.DO",
-  "short_name": "WR.DO",
-  "description": "A DNS record distribution system",
-  "appid": "com.wr.do",
+  "name": "kedaya.xyz",
+  "short_name": "kedaya.xyz",
+  "description": "DNS记录分发系统",
+  "appid": "com.kedaya.xyz",
   "versionName": "1.0.0",
   "versionCode": "1",
   "start_url": "/",

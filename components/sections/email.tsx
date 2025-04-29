@@ -27,7 +27,7 @@ export default function EmailManagerInnovate() {
           <path d="M15 7h2a5 5 0 1 1 0 10h-2"></path>
           <line x1="8" x2="16" y1="12" y2="12"></line>
         </svg>
-        Try it out
+        立即尝试
       </div>
       <div className="mb-4 flex w-full items-center justify-between">
         <div className="flex items-center gap-2 rounded-full bg-blue-100/50 px-3 py-1 text-sm text-blue-700 dark:bg-blue-900/50 dark:text-blue-200">
@@ -46,7 +46,7 @@ export default function EmailManagerInnovate() {
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
             <polyline points="22,6 12,13 2,6"></polyline>
           </svg>
-          Email Manager
+          邮件管理
         </div>
         <div className="flex gap-2 rounded-full border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-800">
           <button
@@ -57,7 +57,7 @@ export default function EmailManagerInnovate() {
                 : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
             }`}
           >
-            Inbox
+            收件箱
           </button>
           <button
             onClick={() => setViewMode("sent")}
@@ -67,7 +67,7 @@ export default function EmailManagerInnovate() {
                 : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
             }`}
           >
-            Sent
+            已发送
           </button>
         </div>
       </div>
@@ -77,7 +77,7 @@ export default function EmailManagerInnovate() {
         <div className="flex items-center">
           <input
             type="text"
-            placeholder={`Search ${viewMode === "inbox" ? "received" : "sent"} emails...`}
+            placeholder={`搜索${viewMode === "inbox" ? "接收" : "发送"}的邮件...`}
             className="w-full rounded-full border border-gray-200 bg-white/80 px-4 py-2.5 text-sm text-gray-700 shadow-sm transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-800/80 dark:text-gray-200 dark:placeholder:text-gray-400 dark:focus:ring-blue-500"
           />
           <Link
@@ -99,7 +99,7 @@ export default function EmailManagerInnovate() {
             <div>
               <div className="flex items-center gap-2">
                 <p className="text-base font-semibold text-gray-800 dark:text-gray-100">
-                  {viewMode === "inbox" ? "example@gmail.com" : "app@wr.do"}
+                  {viewMode === "inbox" ? "example@gmail.com" : "app@kedaya.xyz"}
                 </p>
                 <div className="flex gap-1">
                   <button className="rounded-full border border-gray-200 p-1.5 text-gray-500 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700">
@@ -133,7 +133,7 @@ export default function EmailManagerInnovate() {
                     strokeWidth="1.5"
                   ></polyline>
                 </svg>
-                {viewMode === "inbox" ? "app@wr.do" : "example@gmail.com"}
+                {viewMode === "inbox" ? "app@kedaya.xyz" : "example@gmail.com"}
               </div>
             </div>
           </div>
@@ -142,7 +142,7 @@ export default function EmailManagerInnovate() {
               <Icons.mail className="size-4" />
               <p>
                 {viewMode === "inbox" ? "5.2K" : "3.8K"}{" "}
-                <span className="hidden sm:inline">emails</span>
+                <span className="hidden sm:inline">封邮件</span>
               </p>
             </div>
             <button className="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">
@@ -169,7 +169,7 @@ export default function EmailManagerInnovate() {
                   strokeLinejoin="round"
                 />
                 <path
-                  d="M12 20C12.5523 20 13 19.5523 13 19C13 18.4477 12.5523 18 12 18C11.4477 18 11 19C11 19.5523 11.4477 20 12 20Z"
+                  d="M12 20C12.5523 20 13 19.5523 13 19C13 18.4477 12.5523 18 12 18C11.4477 18 11 19 11 19.5523 11.4477 20 12 20Z"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"

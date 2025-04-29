@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 
 const FormSchema = z.object({
   email: z.string().email({
-    message: "Enter a valid email.",
+    message: "请输入有效的邮箱地址。",
   }),
 });
 
@@ -32,7 +32,7 @@ export function NewsletterForm() {
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     // form.reset();
-    toast.warning(`Work in progress...`);
+    toast.warning(`正在开发中...`);
     // toast({
     //   title: "You submitted the following values:",
     //   description: (
@@ -54,7 +54,7 @@ export function NewsletterForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Subscribe to our newsletter</FormLabel>
+              <FormLabel>订阅我们的通讯</FormLabel>
               <FormControl>
                 <Input
                   type="email"
@@ -68,7 +68,7 @@ export function NewsletterForm() {
           )}
         />
         <Button type="submit" size="sm" rounded="lg" className="px-4">
-          Subscribe
+          订阅
         </Button>
       </form>
     </Form>

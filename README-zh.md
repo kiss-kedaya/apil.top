@@ -1,8 +1,8 @@
 <div align="center">
-  <h1>WR.DO</h1>
+  <h1>kedaya.xyz</h1>
   <p><a href="https://discord.gg/AHPQYuZu3m">Discord</a> · English | <a href="/README-zh.md">简体中文</a></p>
   <p>生成短链接, 创建 DNS 记录, 管理临时邮箱</p>
-  <!-- <img src="https://wr.do/_static/images/light-preview.png"/> -->
+  <!-- <img src="https://kedaya.xyz/_static/images/light-preview.png"/> -->
 </div>
 
 ## 功能
@@ -16,19 +16,19 @@
 
 ## Screenshots
 
-![screenshot](https://wr.do/_static/images/light-preview.png)
+![screenshot](https://kedaya.xyz/_static/images/light-preview.png)
 
-![screenshot](https://wr.do/_static/images/example_01.png)
+![screenshot](https://kedaya.xyz/_static/images/example_01.png)
 
-![screenshot](https://wr.do/_static/images/example_02.png)
+![screenshot](https://kedaya.xyz/_static/images/example_02.png)
 
-![screenshot](https://wr.do/_static/images/example_03.png)
+![screenshot](https://kedaya.xyz/_static/images/example_03.png)
 
 ## 快速开始
 
-查看开发者[快速开始](https://wr.do/docs/developer/quick-start)的详细文档。
+查看开发者[快速开始](https://kedaya.xyz/docs/developer/quick-start)的详细文档。
 
-查看有关[快速开始](https://wr.do/docs/quick-start)的文档。
+查看有关[快速开始](https://kedaya.xyz/docs/quick-start)的文档。
 
 ## 自托管教程
 
@@ -37,19 +37,19 @@
 - [Vercel](https://vercel.com) 账户用于部署应用
 - 至少一个在 [Cloudflare](https://dash.cloudflare.com/) 托管的 **域名**
 
-查看[开发文档](https://wr.do/docs/developer/installation)。
+查看[开发文档](https://kedaya.xyz/docs/developer/installation)。
 
 ### Email worker
 
-查看 [email worker](https://wr.do/docs/developer/cloudflare-email-worker) 文档用于邮件接收。
+查看 [email worker](https://kedaya.xyz/docs/developer/cloudflare-email-worker) 文档用于邮件接收。
 
 ## 本地开发
 
 将 `.env.example` 复制为 `.env` 并填写必要的环境变量。
 
 ```bash
-git clone https://github.com/oiov/wr.do
-cd wr.do
+git clone https://github.com/oiov/kedaya.xyz
+cd kedaya.xyz
 pnpm install
 
 # 在 localhost:3000 上运行
@@ -66,10 +66,10 @@ pnpm dev
 
 ## Star History
 
-<a href="https://star-history.com/#oiov/wr.do&Date">
+<a href="https://star-history.com/#oiov/kedaya.xyz&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=oiov/wr.do&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=oiov/wr.do&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=oiov/wr.do&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=oiov/kedaya.xyz&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=oiov/kedaya.xyz&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=oiov/kedaya.xyz&type=Date" />
  </picture>
 </a>

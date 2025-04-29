@@ -4,30 +4,30 @@ export const docsConfig: DocsConfig = {
   mainNav: [],
   sidebarNav: [
     {
-      title: "Getting Started",
+      title: "入门指南",
       items: [
         {
-          title: "Introduction",
+          title: "介绍",
           href: "/docs",
           icon: "page",
         },
         {
-          title: "Quick Start",
+          title: "快速开始",
           href: "/docs/quick-start",
           icon: "page",
         },
         {
-          title: "Short URLs",
+          title: "短链接",
           href: "/docs/short-urls",
           icon: "page",
         },
         {
-          title: "Emails",
+          title: "邮箱",
           href: "/docs/emails",
           icon: "page",
         },
         {
-          title: "DNS Records",
+          title: "DNS记录",
           href: "/docs/dns-records",
           icon: "page",
         },
@@ -39,80 +39,80 @@ export const docsConfig: DocsConfig = {
       ],
     },
     {
-      title: "Open API",
+      title: "开放API",
       items: [
         {
-          title: "Overview",
+          title: "概览",
           href: "/docs/open-api",
           icon: "page",
         },
         {
-          title: "Screenshot API",
+          title: "截图API",
           href: "/docs/open-api/screenshot",
           icon: "page",
         },
         {
-          title: "Meta Scraping API",
+          title: "元数据抓取API",
           href: "/docs/open-api/meta-info",
           icon: "page",
         },
         {
-          title: "Url to Markdown API",
+          title: "链接转Markdown API",
           href: "/docs/open-api/markdown",
           icon: "page",
         },
         {
-          title: "Url to Text API",
+          title: "链接转文本API",
           href: "/docs/open-api/text",
           icon: "page",
         },
         {
-          title: "Url to QR Code API",
+          title: "链接转二维码API",
           href: "/docs/open-api/qrcode",
           icon: "page",
         },
         {
-          title: "Svg Icon API",
+          title: "SVG图标API",
           href: "/docs/open-api/icon",
           icon: "page",
         },
       ],
     },
     {
-      title: "Examples",
+      title: "示例",
       items: [
         {
-          title: "Cloudflare Custom Domain",
+          title: "Cloudflare自定义域名",
           href: "/docs/examples/cloudflare",
           icon: "page",
         },
         {
-          title: "Vercel Custom Domain",
+          title: "Vercel自定义域名",
           href: "/docs/examples/vercel",
           icon: "page",
         },
         {
-          title: "Zeabur Custom Domain",
+          title: "Zeabur自定义域名",
           href: "/docs/examples/zeabur",
           icon: "page",
         },
         {
-          title: "Other Platforms",
+          title: "其他平台",
           href: "/docs/examples/other",
           icon: "page",
         },
       ],
     },
     {
-      title: "Developer",
+      title: "开发者",
       items: [
         {
-          title: "Installation",
+          title: "安装",
           href: "/docs/developer/installation",
           icon: "page",
         },
         {
-          title: "Quick Start",
+          title: "快速开始",
           href: "/docs/developer/quick-start",
           icon: "page",
         },
@@ -122,37 +122,37 @@ export const docsConfig: DocsConfig = {
           icon: "page",
         },
         {
-          title: "Authentification",
+          title: "认证",
           href: "/docs/developer/authentification",
           icon: "page",
         },
         {
-          title: "Email",
+          title: "邮件",
           href: "/docs/developer/email",
           icon: "page",
         },
         {
-          title: "Email Worker",
+          title: "邮件Worker",
           href: "/docs/developer/cloudflare-email-worker",
           icon: "page",
         },
         {
-          title: "Database",
+          title: "数据库",
           href: "/docs/developer/database",
           icon: "page",
         },
         {
-          title: "Components",
+          title: "组件",
           href: "/docs/developer/components",
           icon: "page",
         },
         {
-          title: "Config files",
+          title: "配置文件",
           href: "/docs/developer/config-files",
           icon: "page",
         },
         {
-          title: "Markdown files",
+          title: "Markdown文件",
           href: "/docs/developer/markdown-files",
           icon: "page",
         },

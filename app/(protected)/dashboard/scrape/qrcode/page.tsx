@@ -7,7 +7,7 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import { QrCodeScraping } from "../scrapes";
 
 export const metadata = constructMetadata({
-  title: "Url to QR Code API - WR.DO",
+  title: "Url to QR Code API - kedaya.xyz",
   description: "Generate QR Code from URL",
 });
 

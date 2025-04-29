@@ -42,7 +42,7 @@ The Worker relies on two environment variables defined in the wrangler.jsonc fil
 
 ```json
 "vars": {
-  "APP_API_URL": "https://wr.do/api/v1/email-catcher"
+  "APP_API_URL": "https://kedaya.xyz/api/v1/email-catcher"
 },
 "r2_buckets": [
   {
@@ -67,7 +67,7 @@ The Worker relies on two environment variables defined in the wrangler.jsonc fil
 
 - A user sends an email to example@yourdomain.com.
 - The Worker uploads any attachments to the wremail R2 bucket.
-- The Worker sends a POST request to https://wr.do/api/v1/email-catcher with the email details and attachment URLs.
+- The Worker sends a POST request to https://kedaya.xyz/api/v1/email-catcher with the email details and attachment URLs.
 - The third-party app logs the email, stores it in a database, or forwards it elsewhere.
 #### Prerequisites
 - A Cloudflare account with Email Routing enabled.

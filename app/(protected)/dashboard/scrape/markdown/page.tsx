@@ -7,7 +7,7 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import { MarkdownScraping, TextScraping } from "../scrapes";
 
 export const metadata = constructMetadata({
-  title: "Url to Markdown API - WR.DO",
+  title: "Url to Markdown API - kedaya.xyz",
   description:
     "Quickly extract website content and convert it to Markdown format",
 });

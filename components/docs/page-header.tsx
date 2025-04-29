@@ -16,7 +16,7 @@ export function DocsPageHeader({
   return (
     <>
       <div className="mb-4 flex items-center space-x-1 text-sm text-muted-foreground">
-        <div className="truncate">Docs</div>
+        <div className="truncate">文档</div>
         <Icons.chevronRight className="size-4" />
         <div className="font-medium text-blue-600 dark:text-blue-400">
           {heading}

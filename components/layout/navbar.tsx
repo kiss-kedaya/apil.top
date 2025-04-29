@@ -108,7 +108,7 @@ export function NavBar({ scroll = false }: NavBarProps) {
             className="hidden text-sm font-medium text-foreground/60 transition-colors hover:text-foreground/80 md:block"
           >
             <Button className="" variant="outline" size="sm" rounded="lg">
-              Dashboard
+              控制台
             </Button>
           </Link>
           <div className="hidden md:flex">
@@ -126,7 +126,7 @@ export function NavBar({ scroll = false }: NavBarProps) {
                 size="sm"
                 rounded="lg"
               >
-                <span>Sign in</span>
+                <span>登录</span>
                 <Icons.arrowRight className="size-4" />
               </Button>
             </Link>

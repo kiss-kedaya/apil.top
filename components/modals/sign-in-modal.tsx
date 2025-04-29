@@ -29,11 +29,10 @@ function SignInModal({
             <Icons.logo className="size-10" />
           </a>
           <h3 className="font-satoshi text-2xl font-black">
-            Sign In
+            登录
           </h3>
           <p className="text-sm text-gray-500">
-            This is strictly for demo purposes - only your email and profile
-            picture will be stored.
+            这仅用于演示目的 - 只会存储您的邮箱和头像信息。
           </p>
         </div>
 
@@ -55,7 +54,7 @@ function SignInModal({
             ) : (
               <Icons.google className="mr-2 size-4" />
             )}{" "}
-            Sign In with Google
+            使用Google登录
           </Button>
         </div>
       </div>

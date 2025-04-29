@@ -26,11 +26,11 @@ export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
             </Link>
           </div>
           <div className="mt-4 text-sm">
-            Craft DNS Records, Make Short Links. <br />
-            Powerful Screenshot and Meta Scraping API.
-            <br /> Open source.
+            创建DNS记录，生成短链接。<br />
+            强大的截图和元数据抓取API。<br /> 
+            开源项目。
           </div>
-          <GitHubStarsWithSuspense className="mt-4" owner="oiov" repo="wr.do" />
+          <GitHubStarsWithSuspense className="mt-4" owner="oiov" repo="kedaya.xyz" />
         </div>
         {footerLinks.map((section) => (
           <div key={section.title}>
@@ -65,7 +65,7 @@ export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
             >
               oiov
             </Link>
-            . <br className="block sm:hidden" /> Built with{" "}
+            。 <br className="block sm:hidden" /> 基于{" "}
             <Link
               href="https://www.cloudflare.com?ref=wrdo"
               target="_blank"
@@ -74,7 +74,7 @@ export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
             >
               Cloudflare
             </Link>
-            .
+            构建。
           </p>
 
           <div className="flex items-center gap-3">

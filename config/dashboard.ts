@@ -6,32 +6,32 @@ import { siteConfig } from "./site";
 
 export const sidebarLinks: SidebarNavItem[] = [
   {
-    title: "MENU",
+    title: "菜单",
     items: [
-      { href: "/dashboard", icon: "dashboard", title: "Dashboard" },
-      { href: "/dashboard/urls", icon: "link", title: "Short Urls" },
-      { href: "/emails", icon: "mail", title: "Emails" },
-      { href: "/dashboard/records", icon: "globeLock", title: "DNS Records" },
+      { href: "/dashboard", icon: "dashboard", title: "控制台" },
+      { href: "/dashboard/urls", icon: "link", title: "短链接" },
+      { href: "/emails", icon: "mail", title: "邮箱" },
+      { href: "/dashboard/records", icon: "globeLock", title: "DNS记录" },
       { href: "/chat", icon: "messages", title: "WRoom" },
     ],
   },
   {
-    title: "SCRAPE",
+    title: "数据抓取",
     items: [
       {
         href: "/dashboard/scrape",
         icon: "bug",
-        title: "Overview",
+        title: "概览",
       },
       {
         href: "/dashboard/scrape/screenshot",
         icon: "camera",
-        title: "Screenshot",
+        title: "截图",
       },
       {
         href: "/dashboard/scrape/meta-info",
         icon: "globe",
-        title: "Meta Info",
+        title: "元信息",
       },
       {
         href: "/dashboard/scrape/markdown",
@@ -41,44 +41,44 @@ export const sidebarLinks: SidebarNavItem[] = [
       {
         href: "/dashboard/scrape/qrcode",
         icon: "qrcode",
-        title: "QR Code",
+        title: "二维码",
       },
     ],
   },
   {
-    title: "ADMIN",
+    title: "管理员",
     items: [
       {
         href: "/admin",
         icon: "laptop",
-        title: "Admin Panel",
+        title: "管理面板",
         authorizeOnly: UserRole.ADMIN,
       },
       {
         href: "/admin/users",
         icon: "users",
-        title: "Users",
+        title: "用户",
         authorizeOnly: UserRole.ADMIN,
       },
       {
         href: "/admin/urls",
         icon: "link",
-        title: "URLs",
+        title: "链接",
         authorizeOnly: UserRole.ADMIN,
       },
       {
         href: "/admin/records",
         icon: "globe",
-        title: "Records",
+        title: "记录",
         authorizeOnly: UserRole.ADMIN,
       },
     ],
   },
   {
-    title: "OPTIONS",
+    title: "选项",
     items: [
-      { href: "/dashboard/settings", icon: "settings", title: "Settings" },
-      { href: "/docs", icon: "bookOpen", title: "Documentation" },
+      { href: "/dashboard/settings", icon: "settings", title: "设置" },
+      { href: "/docs", icon: "bookOpen", title: "文档" },
       {
         href: siteConfig.links.oichat,
         icon: "botMessageSquare",
@@ -87,12 +87,12 @@ export const sidebarLinks: SidebarNavItem[] = [
       {
         href: siteConfig.links.feedback,
         icon: "messageQuoted",
-        title: "Feedback",
+        title: "反馈",
       },
       {
         href: "mailto:" + siteConfig.mailSupport,
         icon: "mail",
-        title: "Support",
+        title: "支持",
       },
     ],
   },

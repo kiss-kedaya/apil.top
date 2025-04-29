@@ -252,7 +252,7 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
                         apiKey={user.apiKey ?? ""}
                         url={"https://" + record.name}
                         formatUrl={
-                          "https://" + record.name.endsWith(".wr.do")
+                          "https://" + record.name.endsWith(".kedaya.xyz")
                             ? record.name.slice(0, -6)
                             : record.name
                         }
