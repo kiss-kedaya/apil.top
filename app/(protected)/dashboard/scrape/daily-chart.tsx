@@ -21,11 +21,11 @@ import {
 
 const chartConfig = {
   request: {
-    label: "Requests",
+    label: "请求数",
     color: "hsl(var(--chart-2))",
   },
   ip: {
-    label: "IP",
+    label: "IP数",
     color: "hsl(var(--chart-1))",
   },
 };
@@ -108,10 +108,9 @@ export function DailyPVUVChart({ data }: { data: ScrapeMeta[] }) {
     <Card>
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-2 sm:py-3">
-          <CardTitle>Total Requests of APIs</CardTitle>
+          <CardTitle>API总请求量</CardTitle>
           <CardDescription>
-            Last request from <strong>{latestFrom}</strong> api about{" "}
-            {latestDate}.
+            最近一次请求来自 <strong>{latestFrom}</strong> API，约 {latestDate}。
           </CardDescription>
         </div>
         <div className="flex">

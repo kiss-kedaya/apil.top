@@ -152,10 +152,10 @@ export default function LiveLog({ admin }: { admin: boolean }) {
         <div className="flex items-center justify-between gap-2">
           <div>
             <CardTitle className="text-base text-gray-800 dark:text-gray-100">
-              Live Log
+              实时日志
             </CardTitle>
             <CardDescription>
-              Real-time logs of short link visits.
+              短链接访问的实时日志。
             </CardDescription>
           </div>
 
@@ -167,7 +167,7 @@ export default function LiveLog({ admin }: { admin: boolean }) {
               isLive ? "border-dashed border-blue-600 text-blue-500" : ""
             }`}
           >
-            <Icons.CirclePlay className="h-4 w-4" /> {isLive ? "Stop" : "Live"}
+            <Icons.CirclePlay className="h-4 w-4" /> {isLive ? "停止" : "实时"}
           </Button>
           <Button
             className="bg-primary-foreground"
@@ -208,12 +208,12 @@ export default function LiveLog({ admin }: { admin: boolean }) {
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-100/50 text-sm dark:bg-primary-foreground">
-                  <TableHead className="h-8 w-1/6 px-1">Time</TableHead>
-                  <TableHead className="h-8 w-1/12 px-1">Slug</TableHead>
-                  <TableHead className="h-8 px-1">Target</TableHead>
+                  <TableHead className="h-8 w-1/6 px-1">时间</TableHead>
+                  <TableHead className="h-8 w-1/12 px-1">短链</TableHead>
+                  <TableHead className="h-8 px-1">目标</TableHead>
                   <TableHead className="h-8 w-1/12 px-1">IP</TableHead>
-                  <TableHead className="h-8 w-1/6 px-1">Location</TableHead>
-                  <TableHead className="h-8 w-1/12 px-1">Clicks</TableHead>
+                  <TableHead className="h-8 w-1/6 px-1">位置</TableHead>
+                  <TableHead className="h-8 w-1/12 px-1">点击数</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -248,21 +248,14 @@ export default function LiveLog({ admin }: { admin: boolean }) {
                           {log.target}
                         </a>
                       </TableCell>
-
-                      <TableCell className="px-1 py-1.5">{log.ip}</TableCell>
-                      <TableCell
-                        className="max-w-6 truncate px-1 py-1.5"
-                        title={getCountryName(log.country || "")}
-                      >
-                        {decodeURIComponent(
-                          log.city
-                            ? `${log.city},${getCountryName(log.country || "")}`
-                            : "-",
-                        )}
+                      <TableCell className="px-1 py-1.5">
+                        {log.ip}
                       </TableCell>
-                      <TableCell className="px-1 py-1.5 text-green-700">
-                        {log.click}
+                      <TableCell className="px-1 py-1.5">
+                        {log.city ? log.city : ""}
+                        {log.country ? `, ${getCountryName(log.country)}` : ""}
                       </TableCell>
+                      <TableCell className="px-1 py-1.5">{log.click}</TableCell>
                     </motion.tr>
                   ))}
                 </AnimatePresence>
