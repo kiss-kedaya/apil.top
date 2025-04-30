@@ -64,16 +64,20 @@ description: 添加和管理您的自定义域名。
 
 确保您的自定义域名已通过验证。如果尚未验证，请按照上述方法进行验证。
 
-### 步骤 2：配置邮箱服务
+### 步骤 2：部署Cloudflare Worker邮件转发服务
 
-1. 导航到 **自定义域名** > 选择您的域名 > **邮箱服务**
-2. 切换"启用邮箱服务"开关
-3. 填写SMTP服务器信息：
-   - SMTP服务器地址（例如：`smtp.example.com`）
-   - SMTP端口（通常为 `587` 或 `465`）
-   - SMTP用户名
-   - SMTP密码
-   - 发件人邮箱地址
+1. 确保您已安装Node.js和pnpm
+2. 克隆邮件转发Worker项目并部署到Cloudflare:
+   ```bash
+   git clone https://github.com/kiss-kedaya/cf-email-forwarding-worker.git
+   cd cf-email-forwarding-worker
+   pnpm install
+   
+   wrangler login 
+   wrangler deploy
+   ```
+3. 按照部署完成后的提示配置您的Worker
+4. 在【apil.top】控制台中启用邮箱服务
 
 ### 步骤 3：配置DNS记录
 
@@ -109,9 +113,9 @@ DMARC定义了收件人如何处理未通过SPF或DKIM验证的邮件。
 
 ### 步骤 4：验证配置
 
-1. 在邮箱服务配置面板中点击"测试连接"按钮，验证SMTP设置是否正确
-2. 点击"验证DNS记录"按钮，确认所有必要的DNS记录都已正确配置
-3. 检查"状态"选项卡，查看全面的服务状态报告
+1. 在邮箱服务配置面板中点击"验证DNS记录"按钮，确认所有必要的DNS记录都已正确配置
+2. 检查"状态"选项卡，查看全面的服务状态报告
+3. 发送测试邮件，验证邮件转发功能是否正常工作
 
 ## 常见问题
 
@@ -135,8 +139,8 @@ DMARC定义了收件人如何处理未通过SPF或DKIM验证的邮件。
 邮箱服务验证失败的常见原因包括：
 1. DNS记录配置不正确（检查MX、SPF、DKIM和DMARC记录）
 2. DNS记录尚未完全传播（可能需要等待几分钟到48小时）
-3. SMTP服务器信息不正确（检查服务器地址、端口、用户名和密码）
-4. 防火墙或安全设置阻止了SMTP连接
+3. Cloudflare Worker配置不正确
+4. Worker部署失败或未激活
 
 ### 如何排查域名验证问题？
 
