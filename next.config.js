@@ -29,6 +29,9 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ["@prisma/client"],
   },
+  onError(error) {
+    console.error("Next.js config error:", error);
+  },
   redirects() {
     return [
       {
@@ -83,6 +86,28 @@ const nextConfig = {
       },
     ];
   },
+  async headers() {
+    return [
+      {
+        source: '/_next/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          }
+        ],
+      },
+      {
+        source: '/docs/:path*',
+        headers: [
+          {
+            key: 'X-Middleware-Skip',
+            value: 'true',
+          }
+        ],
+      }
+    ];
+  }
 };
 
 const withPWA = require("next-pwa")({

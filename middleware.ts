@@ -6,8 +6,9 @@ import UAParser from "ua-parser-js";
 
 import { siteConfig } from "./config/site";
 
+// 扩展matcher规则，明确排除更多可能导致循环的路径
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next|static|images|favicon.ico|.\\.\\w+$).*)"],
 };
 
 const redirectMap = {
@@ -22,10 +23,18 @@ const redirectMap = {
 // 提取短链接处理逻辑
 async function handleShortUrl(req: NextAuthRequest) {
   try {
+    // 只处理短链接请求，避免其他路径
     if (!req.url.includes("/s/")) return NextResponse.next();
 
+    // 检查当前URL是否是文档路径，如果是则直接返回，避免文档页面的重定向循环
+    const currentUrl = new URL(req.url);
+    if (currentUrl.pathname.startsWith('/docs/')) {
+      return NextResponse.next();
+    }
+
     const slug = extractSlug(req.url);
-    if (!slug) return NextResponse.redirect(`/docs/short-urls`, 302);
+    if (!slug)
+      return NextResponse.redirect(`/docs/short-urls`, 302);
 
     // 安全获取地理位置信息，防止undefined错误
     let geo;
@@ -60,7 +69,7 @@ async function handleShortUrl(req: NextAuthRequest) {
 
     // 构建api请求的完整URL
     const apiUrl = new URL("/api/s", req.url);
-
+    
     try {
       const res = await fetch(apiUrl.toString(), {
         method: "POST",
@@ -69,7 +78,10 @@ async function handleShortUrl(req: NextAuthRequest) {
       });
 
       if (!res.ok)
-        return NextResponse.redirect(`${redirectMap["Error[0003]"]}`, 302);
+        return NextResponse.redirect(
+          `${redirectMap["Error[0003]"]}`,
+          302,
+        );
 
       const target = await res.json();
 
@@ -82,16 +94,22 @@ async function handleShortUrl(req: NextAuthRequest) {
               target,
             )
           ) {
-            return NextResponse.redirect(`${redirectMap[target]}${slug}`, 302);
+            return NextResponse.redirect(
+              `${redirectMap[target]}${slug}`,
+              302,
+            );
           }
 
-          return NextResponse.redirect(`${redirectMap[target]}`, 302);
+          return NextResponse.redirect(
+            `${redirectMap[target]}`,
+            302,
+          );
         }
 
         // 否则将target作为URL直接重定向
         return NextResponse.redirect(target, 302);
       }
-
+      
       // 兼容旧格式的响应
       if (target && typeof target === "object") {
         if (target.message && target.message in redirectMap) {
@@ -106,7 +124,10 @@ async function handleShortUrl(req: NextAuthRequest) {
             );
           }
 
-          return NextResponse.redirect(`${redirectMap[target.message]}`, 302);
+          return NextResponse.redirect(
+            `${redirectMap[target.message]}`,
+            302,
+          );
         }
 
         if (target.target && typeof target.target === "string") {
@@ -115,7 +136,10 @@ async function handleShortUrl(req: NextAuthRequest) {
       }
 
       // 如果无法解析响应
-      return NextResponse.redirect(`${redirectMap["Error[0003]"]}`, 302);
+      return NextResponse.redirect(
+        `${redirectMap["Error[0003]"]}`,
+        302,
+      );
     } catch (error) {
       console.error("API fetch error:", error);
       return NextResponse.redirect(`${redirectMap["Error[0003]"]}`, 302);
@@ -157,6 +181,31 @@ function parseUserAgent(ua: string) {
 
 export default auth(async (req) => {
   try {
+    // 检查请求头，看是否需要跳过处理
+    const skipMiddleware = req.headers.get("X-Middleware-Skip") === "true";
+    if (skipMiddleware) {
+      return NextResponse.next();
+    }
+    
+    // 检查当前URL是否是文档路径或静态资源路径，直接放行
+    const currentUrl = new URL(req.url);
+    const pathname = currentUrl.pathname;
+    
+    // 检查路径是否包含文件扩展名或属于静态资源
+    const isStaticResource = 
+      pathname.match(/\.\w+$/) || // 文件扩展名
+      pathname.startsWith('/_next/') || 
+      pathname.startsWith('/static/') ||
+      pathname.startsWith('/images/');
+      
+    // 检查是否是文档路径
+    const isDocsPath = pathname.startsWith('/docs/');
+    
+    // 如果是静态资源或文档路径，直接放行
+    if (isStaticResource || isDocsPath) {
+      return NextResponse.next();
+    }
+    
     return await handleShortUrl(req);
   } catch (error) {
     console.error("Middleware error:", error);
