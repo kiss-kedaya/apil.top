@@ -11,6 +11,7 @@ export const TeamPlanQuota = {
     EM_SendEmails: 200,
     APP_Support: "basic",
     APP_ApiAccess: true,
+    customDomains: 0,
   },
   premium: {
     SL_TrackedClicks: 1000000,
@@ -24,6 +25,7 @@ export const TeamPlanQuota = {
     EM_SendEmails: 1000,
     APP_Support: "live",
     APP_ApiAccess: true,
+    customDomains: 1,
   },
   business: {
     SL_TrackedClicks: 10000000,
@@ -37,5 +39,6 @@ export const TeamPlanQuota = {
     EM_SendEmails: 2000,
     APP_Support: "live",
     APP_ApiAccess: true,
+    customDomains: 5,
   },
 };

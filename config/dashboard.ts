@@ -12,6 +12,7 @@ export const sidebarLinks: SidebarNavItem[] = [
       { href: "/dashboard/urls", icon: "link", title: "短链接" },
       { href: "/emails", icon: "mail", title: "邮箱" },
       { href: "/dashboard/records", icon: "globeLock", title: "DNS记录" },
+      { href: "/dashboard/custom-domains", icon: "globe", title: "自定义域名" },
       { href: "/chat", icon: "messages", title: "WRoom" },
     ],
   },

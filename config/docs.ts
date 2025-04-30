@@ -32,6 +32,11 @@ export const docsConfig: DocsConfig = {
           icon: "page",
         },
         {
+          title: "自定义域名",
+          href: "/docs/custom-domains",
+          icon: "page",
+        },
+        {
           title: "WRoom",
           href: "/docs/wroom",
           icon: "page",

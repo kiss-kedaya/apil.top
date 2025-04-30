@@ -62,13 +62,14 @@ model User {
   updatedAt     DateTime  @default(now()) @map(name: "updated_at")
   role          UserRole  @default(USER)
 
-  accounts      Account[]
-  sessions      Session[]
-  UserRecord    UserRecord[]
-  UserUrl       UserUrl[]
-  ScrapeMeta    ScrapeMeta[]
-  UserEmail     UserEmail[]
-  UserSendEmail UserSendEmail[]
+  accounts       Account[]
+  sessions       Session[]
+  UserRecord     UserRecord[]
+  UserUrl        UserUrl[]
+  ScrapeMeta     ScrapeMeta[]
+  UserEmail      UserEmail[]
+  UserSendEmail  UserSendEmail[]
+  UserCustomDomain UserCustomDomain[]
 
   @@index([createdAt])
   @@map(name: "users")
@@ -246,4 +247,23 @@ model UserSendEmail {
 
   @@index([createdAt])
   @@map("user_send_emails")
+}
+
+model UserCustomDomain {
+  id              String   @id @default(cuid())
+  userId          String
+  domainName      String   @unique
+  isCloudflare    Boolean  @default(true)
+  zoneId          String?
+  apiKey          String?
+  email           String?
+  verificationKey String?
+  isVerified      Boolean  @default(false)
+  createdAt       DateTime @default(now()) @map(name: "created_at")
+  updatedAt       DateTime @default(now()) @map(name: "updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map(name: "user_custom_domains")
 }

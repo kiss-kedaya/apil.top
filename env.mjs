@@ -28,6 +28,7 @@ export const env = createEnv({
     NEXT_PUBLIC_SHORT_DOMAINS: z.string().min(1).default(""),
     NEXT_PUBLIC_EMAIL_DOMAINS: z.string().min(1).default(""),
     NEXT_PUBLIC_EMAIL_R2_DOMAIN: z.string().min(1),
+    NEXT_PUBLIC_USER_CUSTOM_DOMAINS: z.string().default(""),
   },
   runtimeEnv: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
@@ -43,6 +44,7 @@ export const env = createEnv({
     NEXT_PUBLIC_SHORT_DOMAINS: process.env.NEXT_PUBLIC_SHORT_DOMAINS,
     NEXT_PUBLIC_EMAIL_DOMAINS: process.env.NEXT_PUBLIC_EMAIL_DOMAINS,
     NEXT_PUBLIC_EMAIL_R2_DOMAIN: process.env.NEXT_PUBLIC_EMAIL_R2_DOMAIN,
+    NEXT_PUBLIC_USER_CUSTOM_DOMAINS: process.env.NEXT_PUBLIC_USER_CUSTOM_DOMAINS,
     CLOUDFLARE_ZONE_ID: process.env.CLOUDFLARE_ZONE_ID,
     CLOUDFLARE_ZONE_NAME: process.env.CLOUDFLARE_ZONE_NAME,
     CLOUDFLARE_API_KEY: process.env.CLOUDFLARE_API_KEY,

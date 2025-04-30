@@ -20,6 +20,7 @@ export type SiteConfig = {
   shortDomains: string[];
   emailDomains: string[];
   emailR2Domain: string;
+  userCustomDomains: string[];
 };
 
 export type NavItem = {
