@@ -127,7 +127,7 @@ export async function POST(req: Request) {
           "记录名称不正确，应为 _kedaya (注意是添加到您的域名前)",
           "记录值不匹配，确保完全与所提供的验证密钥一致",
           "某些DNS提供商可能需要不同格式，请查阅您DNS服务商的文档",
-          "如使用Cloudflare，请确保代理状态设为"仅DNS"（灰色云朵）"
+          "如使用Cloudflare，请确保代理状态设为'仅DNS'（灰色云朵）"
         ]
       }
     });

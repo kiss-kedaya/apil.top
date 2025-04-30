@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { InfoIcon } from "lucide-react";
 
 import { UserCustomDomainData } from "@/app/(protected)/dashboard/custom-domains/domain-list";
 import { siteConfig } from "@/config/site";
@@ -163,7 +164,7 @@ export function DomainForm({
           </CardHeader>
           <CardContent>
             <Alert variant="default" className="mb-4 border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-900">
-              <Icons.info className="h-5 w-5" />
+              <InfoIcon className="h-5 w-5" />
               <AlertTitle>验证说明</AlertTitle>
               <AlertDescription>
                 您需要在DNS服务商（如阿里云、腾讯云、Cloudflare等）添加一条TXT记录来验证域名所有权。
