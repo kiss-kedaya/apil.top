@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -36,6 +36,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Icons } from "@/components/shared/icons";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
   domainName: z.string().min(3, {
@@ -64,6 +65,8 @@ export function DomainForm({
   onSuccess,
 }: DomainFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [newDomain, setNewDomain] = useState<UserCustomDomainData | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<any>(null);
 
   // 表单默认值
   const defaultValues = initData
@@ -78,6 +81,30 @@ export function DomainForm({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
+
+  // 检查域名验证状态
+  useEffect(() => {
+    if (newDomain && newDomain.id) {
+      const checkVerificationStatus = async () => {
+        try {
+          const response = await fetch(`/api/custom-domain/check-verification`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: newDomain.id }),
+          });
+          
+          const data = await response.json();
+          if (data.status === "success") {
+            setVerificationStatus(data.data);
+          }
+        } catch (error) {
+          console.error("检查验证状态出错:", error);
+        }
+      };
+      
+      checkVerificationStatus();
+    }
+  }, [newDomain]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
@@ -105,9 +132,13 @@ export function DomainForm({
             ? "域名更新成功"
             : "域名添加成功，请按照指引完成域名验证"
         );
-        if (onSuccess) onSuccess();
-        setShowForm(false);
-        form.reset();
+        if (data.data && !initData) {
+          setNewDomain(data.data); // 保存新添加的域名信息，用于显示验证指南
+        } else {
+          if (onSuccess) onSuccess();
+          setShowForm(false);
+          form.reset();
+        }
       } else {
         toast.error(data.message || "操作失败");
       }
@@ -117,6 +148,148 @@ export function DomainForm({
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  // 如果是编辑模式或者已经成功添加了新域名，显示验证指南
+  if (newDomain) {
+    return (
+      <div className="mb-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>域名验证指南</CardTitle>
+            <CardDescription>
+              请按照以下步骤完成域名 {newDomain.domainName} 的验证
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Alert variant="default" className="mb-4 border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-900">
+              <Icons.info className="h-5 w-5" />
+              <AlertTitle>验证说明</AlertTitle>
+              <AlertDescription>
+                您需要在DNS服务商（如阿里云、腾讯云、Cloudflare等）添加一条TXT记录来验证域名所有权。
+              </AlertDescription>
+            </Alert>
+
+            <div className="space-y-4">
+              <div className="rounded-md border p-4 dark:border-slate-700">
+                <h3 className="mb-2 font-semibold">验证步骤</h3>
+                <ol className="ml-5 list-decimal space-y-2">
+                  <li className="text-sm">
+                    登录到您的DNS管理面板（如Cloudflare、阿里云、GoDaddy等）
+                  </li>
+                  <li className="text-sm">
+                    添加一条<strong>TXT记录</strong>，具体设置如下：
+                    <div className="my-2 rounded-md bg-slate-100 p-3 dark:bg-slate-800">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="font-medium">记录类型:</div>
+                        <div>TXT</div>
+                        <div className="font-medium">主机记录:</div>
+                        <div className="break-all font-mono text-green-600">_kedaya</div>
+                        <div className="font-medium">记录值:</div>
+                        <div className="break-all font-mono text-green-600">
+                          {newDomain.verificationKey}
+                        </div>
+                        <div className="font-medium">TTL:</div>
+                        <div>600（10分钟）或默认</div>
+                      </div>
+                    </div>
+                  </li>
+                  <li className="text-sm">
+                    等待DNS记录生效（通常几分钟，最长可能需要48小时）
+                  </li>
+                  <li className="text-sm">
+                    生效后点击下方"验证"按钮完成验证
+                  </li>
+                </ol>
+              </div>
+
+              <div className="rounded-md border p-4 dark:border-slate-700">
+                <h3 className="mb-2 font-semibold">验证注意事项</h3>
+                <ul className="ml-5 list-disc space-y-1 text-sm">
+                  <li>
+                    只添加<strong>_kedaya</strong>作为主机记录，不要包含您的域名
+                  </li>
+                  <li>
+                    某些DNS提供商可能需要您输入<strong>_kedaya.{newDomain.domainName}</strong>作为完整主机记录
+                  </li>
+                  <li>
+                    确保验证密钥完全匹配，不含任何额外空格
+                  </li>
+                  <li>
+                    如果长时间无法验证成功，请检查DNS记录是否已生效（可使用{" "}
+                    <a
+                      href={`https://dnschecker.org/#TXT/_kedaya.${newDomain.domainName}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      DNSChecker
+                    </a>{" "}
+                    或{" "}
+                    <a
+                      href={`https://toolbox.googleapps.com/apps/dig/#TXT/_kedaya.${newDomain.domainName}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      Google Dig
+                    </a>
+                    工具查询）
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="mt-4 flex justify-end space-x-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setNewDomain(null);
+                  if (onSuccess) onSuccess();
+                  setShowForm(false);
+                }}
+              >
+                返回列表
+              </Button>
+              <Button
+                type="button"
+                onClick={async () => {
+                  try {
+                    setIsSubmitting(true);
+                    const response = await fetch(`/api/custom-domain/update`, {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ id: newDomain.id }),
+                    });
+
+                    const result = await response.json();
+                    if (result.status === "success") {
+                      toast.success("域名验证成功");
+                      if (onSuccess) onSuccess();
+                      setShowForm(false);
+                    } else {
+                      toast.error(result.message || "域名验证失败");
+                    }
+                  } catch (error) {
+                    toast.error("验证请求失败");
+                    console.error(error);
+                  } finally {
+                    setIsSubmitting(false);
+                  }
+                }}
+                disabled={isSubmitting}
+              >
+                {isSubmitting && (
+                  <Icons.spinner className="mr-2 size-4 animate-spin" />
+                )}
+                验证域名
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
