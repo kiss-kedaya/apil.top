@@ -25,11 +25,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <head>
         <meta name="msvalidate.01" content="BF59BE2A2C5F2BA5FC7EC55065C92054" />
           <meta name="baidu-site-verification" content="codeva-MNllrVQA3g" />
-          <script
-            defer
-            src="https://umami.kiss-kedaya.dev/script.js"
-            data-website-id="56549e9d-61df-470d-a1b1-cbf12cfafe9d"
-          ></script>
         </head>
         <body
           className={cn(
