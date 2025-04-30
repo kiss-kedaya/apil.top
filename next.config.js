@@ -33,7 +33,6 @@ const nextConfig = {
   // 禁用预加载功能
   experimental: {
     serverComponentsExternalPackages: ["@prisma/client"],
-    optimizeCss: true,
   },
   onError(error) {
     console.error("Next.js config error:", error);

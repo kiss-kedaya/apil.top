@@ -10,23 +10,11 @@ export default function ForceReload() {
   const targetPath = searchParams.get("path") || "/";
   
   useEffect(() => {
-    // 清除本地存储的相关数据
-    if (typeof window !== "undefined") {
-      // 清除与重定向相关的数据
-      sessionStorage.removeItem("redirectCount");
-      
-      // 清除相关缓存
-      const cacheKeys = Object.keys(localStorage).filter(key => 
-        key.includes("next-") || key.includes("visitedStaticPaths"));
-      
-      cacheKeys.forEach(key => localStorage.removeItem(key));
-      
-      // 如果有targetPath，则导航到该路径
-      setTimeout(() => {
-        window.location.href = targetPath;
-      }, 100);
-    }
-  }, [targetPath]);
+    // 简化重定向逻辑，仅执行基本重定向
+    setTimeout(() => {
+      router.push(targetPath);
+    }, 300);
+  }, [targetPath, router]);
   
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
