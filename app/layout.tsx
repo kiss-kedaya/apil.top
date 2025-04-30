@@ -23,6 +23,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <ViewTransitions>
       <html lang="zh" suppressHydrationWarning>
         <head>
+          <meta name="baidu-site-verification" content="codeva-MNllrVQA3g" />
           <script
             defer
             src="https://umami.kiss-kedaya.dev/script.js"
