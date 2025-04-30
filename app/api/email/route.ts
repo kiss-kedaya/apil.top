@@ -33,8 +33,8 @@ export async function GET(req: NextRequest) {
     );
     return NextResponse.json(userEmails, { status: 200 });
   } catch (error) {
-    console.error("Error fetching user emails:", error);
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+    console.error("获取用户邮箱时出错:", error);
+    return NextResponse.json({ message: "服务器内部错误" }, { status: 500 });
   }
 }
 
@@ -56,34 +56,34 @@ export async function POST(req: NextRequest) {
   const { emailAddress } = await req.json();
 
   if (!emailAddress) {
-    return NextResponse.json({ message: "Missing userId or emailAddress" }, { status: 400 });
+    return NextResponse.json({ message: "缺少用户ID或邮箱地址" }, { status: 400 });
   }
 
   const prefix = emailAddress.split("@")[0];
   if (!prefix || prefix.length < 5) {
-    return NextResponse.json({ message: "Email address length must be at least 5" }, {
+    return NextResponse.json({ message: "邮箱地址前缀长度必须至少为5个字符" }, {
       status: 400,
     });
   }
 
   if (reservedAddressSuffix.includes(prefix)) {
-    return NextResponse.json({ message: "Invalid email address" }, { status: 400 });
+    return NextResponse.json({ message: "无效的邮箱地址" }, { status: 400 });
   }
 
   try {
     const userEmail = await createUserEmail(user.id, emailAddress);
     return NextResponse.json(userEmail, { status: 201 });
   } catch (error) {
-    // console.log("Error creating user email:", error);
+    // console.log("创建用户邮箱时出错:", error);
     if (error.message === "Invalid userId") {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      return NextResponse.json({ error: "无效的用户ID" }, { status: 400 });
     }
     if (error.code === "P2002") {
-      return NextResponse.json({ message: "Email address already exists" }, {
+      return NextResponse.json({ message: "邮箱地址已存在" }, {
         status: 409,
       });
     }
 
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ message: "服务器内部错误" }, { status: 500 });
   }
 }

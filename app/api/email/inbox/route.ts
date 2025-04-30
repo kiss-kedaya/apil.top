@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
   if (!emailAddress) {
     return NextResponse.json(
-      { error: "Missing emailAddress parameter" },
+      { error: "缺少邮箱地址参数" },
       { status: 400 },
     );
   }
@@ -25,12 +25,12 @@ export async function GET(req: NextRequest) {
     const emails = await getEmailsByEmailAddress(emailAddress, page, pageSize);
     return NextResponse.json(emails, { status: 200 });
   } catch (error) {
-    console.error("Error fetching emails:", error);
+    console.error("获取邮件时出错:", error);
     if (error.message === "Email address not found or has been deleted") {
-      return NextResponse.json({ error: error.message }, { status: 404 });
+      return NextResponse.json({ error: "邮箱地址未找到或已被删除" }, { status: 404 });
     }
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "服务器内部错误" },
       { status: 500 },
     );
   }

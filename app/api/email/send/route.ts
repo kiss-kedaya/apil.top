@@ -26,11 +26,11 @@ export async function POST(req: NextRequest) {
     const { from, to, subject, html } = await req.json();
 
     if (!from || !to || !subject || !html) {
-      return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
+      return NextResponse.json({ message: "缺少必需的字段" }, { status: 400 });
     }
 
     if (!isValidEmail(from) || !isValidEmail(to)) {
-      return NextResponse.json({ message: "Invalid email address" }, { status: 403 });
+      return NextResponse.json({ message: "无效的电子邮件地址" }, { status: 403 });
     }
 
     const { error } = await resend.emails.send({
@@ -41,16 +41,16 @@ export async function POST(req: NextRequest) {
     });
 
     if (error) {
-      console.log("Resend error:", error);
-      return NextResponse.json({ message: "Failed to send email" }, { status: 500 });
+      console.log("Resend 错误:", error);
+      return NextResponse.json({ message: "发送邮件失败" }, { status: 500 });
     }
 
     await saveUserSendEmail(user.id, from, to, subject, html);
 
-    return NextResponse.json({ message: "success" }, { status: 200 });
+    return NextResponse.json({ message: "成功" }, { status: 200 });
   } catch (error) {
-    console.log("Error sending email:", error);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    console.log("发送邮件时出错:", error);
+    return NextResponse.json({ message: "服务器内部错误" }, { status: 500 });
   }
 }
 
@@ -68,6 +68,6 @@ export async function GET(req: NextRequest) {
     );
     return NextResponse.json(count);
   } catch (error) {
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ message: "服务器内部错误" }, { status: 500 });
   }
 }

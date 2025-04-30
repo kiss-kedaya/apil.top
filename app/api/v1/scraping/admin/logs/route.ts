@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
 
     if (!checkRateLimit(ip)) {
       return Response.json(
-        { error: "Too many requests" },
+        { error: "请求过多" },
         {
           status: 429,
           headers: {
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
     };
 
     if (queryParams.page && (isNaN(queryParams.page) || queryParams.page < 1)) {
-      return Response.json({ error: "Invalid page number" }, { status: 400 });
+      return Response.json({ error: "无效的页码" }, { status: 400 });
     }
 
     const data = await getScrapeStats(queryParams);
@@ -96,11 +96,11 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error fetching logs:", error);
+    console.error("获取日志时出错:", error);
 
     return Response.json(
       {
-        error: "Internal server error",
+        error: "服务器内部错误",
         message:
           process.env.NODE_ENV === "development"
             ? (error as Error).message

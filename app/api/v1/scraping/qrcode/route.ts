@@ -18,35 +18,35 @@ export async function GET(req: Request) {
     const light = url.searchParams.get("light") || "#ffffff";
     const type = url.searchParams.get("type") || "png"; // png  | jpeg | webp | string
 
-    // Check if the url is valid
+    // 检查 URL 是否有效
     if (!link || !isLink(link)) {
       return Response.json(
-        { statusText: "Url is required" },
+        { statusText: "URL 是必需的" },
         {
           status: 400,
         },
       );
     }
 
-    // Get the API key from the request
+    // 从请求中获取 API 密钥
     const custom_apiKey = url.searchParams.get("key");
     if (!custom_apiKey) {
       return Response.json(
         {
           statusText:
-            "API key is required. You can get your API key from Dashboard->Settings.",
+            "API 密钥是必需的。您可以从仪表盘->设置中获取您的 API 密钥。",
         },
         { status: 400 },
       );
     }
 
-    // Check if the API key is valid
+    // 检查 API 密钥是否有效
     const user_apiKey = await checkApiKey(custom_apiKey);
     if (!user_apiKey?.id) {
       return Response.json(
         {
           statusText:
-            "Invalid API key. You can get your API key from Dashboard->Settings.",
+            "无效的 API 密钥。您可以从仪表盘->设置中获取您的 API 密钥。",
         },
         { status: 401 },
       );
@@ -63,7 +63,7 @@ export async function GET(req: Request) {
           dark,
           light,
         },
-        errorCorrectionLevel: "H", // Optional: L, M, Q, H
+        errorCorrectionLevel: "H", // 可选: L, M, Q, H
         type:
           type === "png"
             ? "image/png"
@@ -94,6 +94,6 @@ export async function GET(req: Request) {
 
     return new Response(qrResult);
   } catch (error) {
-    return Response.json({ statusText: "Server error" }, { status: 500 });
+    return Response.json({ statusText: "服务器错误" }, { status: 500 });
   }
 }
