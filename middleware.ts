@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { geolocation } from "@vercel/functions";
-import { auth } from "auth";
+import { auth } from "@/auth";
 import { NextAuthRequest } from "next-auth/lib";
 import UAParser from "ua-parser-js";
 
