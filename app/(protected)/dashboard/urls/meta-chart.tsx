@@ -307,11 +307,17 @@ export function DailyPVUVChart({
               tickMargin={8}
               minTickGap={32}
               tickFormatter={(value) => {
-                const date = new Date(value);
-                return date.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                });
+                if (!value) return "";
+                try {
+                  const date = new Date(value);
+                  return date.toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  });
+                } catch (e) {
+                  console.error("Date formatting error:", e);
+                  return "";
+                }
               }}
             />
             <ChartTooltip
@@ -338,6 +344,7 @@ export function DailyPVUVChart({
               stroke={`var(--color-uv)`}
               fillOpacity={1}
               fill="url(#colorUv)"
+              isAnimationActive={false}
             />
             <Area
               type="monotone"
@@ -345,6 +352,7 @@ export function DailyPVUVChart({
               stroke={`var(--color-pv)`}
               fillOpacity={1}
               fill="url(#colorPv)"
+              isAnimationActive={false}
             />
           </AreaChart>
         </ChartContainer>

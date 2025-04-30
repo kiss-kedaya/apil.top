@@ -6,6 +6,10 @@ import("./env.mjs");
 const nextConfig = {
   reactStrictMode: false,
   swcMinify: true,
+  // 禁用链接预加载，防止静态资源循环加载
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
   images: {
     remotePatterns: [
       {
@@ -26,11 +30,25 @@ const nextConfig = {
       },
     ],
   },
+  // 禁用预加载功能
   experimental: {
     serverComponentsExternalPackages: ["@prisma/client"],
+    optimizeCss: true,
   },
   onError(error) {
     console.error("Next.js config error:", error);
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/docs/:path*',
+        destination: '/docs/:path*',
+      },
+      {
+        source: '/_next/static/:path*',
+        destination: '/_next/static/:path*',
+      }
+    ]
   },
   redirects() {
     return [
