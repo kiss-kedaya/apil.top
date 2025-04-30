@@ -1,8 +1,6 @@
-"use server";
-
-import { auth } from "@/auth";
-import { prisma } from "@/lib/db";
 import { z } from "zod";
+
+import { prisma } from "@/lib/db";
 
 // 新增自定义域名验证
 export const createCustomDomainSchema = z.object({
@@ -27,7 +25,7 @@ export const updateCustomDomainSchema = z.object({
 // 创建自定义域名
 export async function createUserCustomDomain(userId: string, data: any) {
   try {
-    const { domainName, isCloudflare, zoneId, apiKey, email } = 
+    const { domainName, isCloudflare, zoneId, apiKey, email } =
       createCustomDomainSchema.parse(data);
 
     // 生成随机验证密钥
@@ -112,7 +110,7 @@ export async function deleteUserCustomDomain(userId: string, id: string) {
 // 更新自定义域名
 export async function updateUserCustomDomain(userId: string, data: any) {
   try {
-    const { id, domainName, isCloudflare, zoneId, apiKey, email, isVerified } = 
+    const { id, domainName, isCloudflare, zoneId, apiKey, email, isVerified } =
       updateCustomDomainSchema.parse(data);
 
     const res = await prisma.userCustomDomain.update({
@@ -172,4 +170,4 @@ export async function verifyUserCustomDomain(userId: string, id: string) {
     console.error("验证自定义域名错误:", error);
     return { status: "error", message: error };
   }
-} 
+}
