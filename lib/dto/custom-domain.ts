@@ -14,6 +14,36 @@ export const updateCustomDomainSchema = z.object({
   isVerified: z.boolean().optional(),
 });
 
+// 验证结果接口
+interface DomainVerificationResult {
+  success: boolean;
+  message?: string;
+  details?: {
+    recordType?: string;
+    host?: string;
+    expectedValue?: string;
+    lookupName?: string;
+    actualValues?: string[];
+    errorCode?: number;
+    error?: string;
+    [key: string]: any;
+  };
+}
+
+// API返回接口
+interface ApiResponseError {
+  status: "error";
+  message: string;
+  details?: DomainVerificationResult['details'];
+}
+
+interface ApiResponseSuccess<T> {
+  status: "success";
+  data: T;
+}
+
+type ApiResponse<T> = ApiResponseError | ApiResponseSuccess<T>;
+
 // 创建自定义域名
 export async function createUserCustomDomain(userId: string, data: any) {
   try {
@@ -143,7 +173,7 @@ export async function updateUserCustomDomain(userId: string, data: any) {
 }
 
 // 验证自定义域名
-export async function verifyUserCustomDomain(userId: string, id: string) {
+export async function verifyUserCustomDomain(userId: string, id: string): Promise<ApiResponse<any>> {
   try {
     console.log(`开始验证用户域名: userId=${userId}, domainId=${id}`);
     
@@ -190,7 +220,7 @@ export async function verifyUserCustomDomain(userId: string, id: string) {
 }
 
 // 验证域名TXT记录
-async function verifyDomainDNS(domain: any) {
+async function verifyDomainDNS(domain: any): Promise<DomainVerificationResult> {
   try {
     // 构建需要验证的TXT记录名称
     const txtRecordName = `_kedaya.${domain.domainName}`;
@@ -236,7 +266,7 @@ async function verifyDomainDNS(domain: any) {
     // 检查TXT记录值是否匹配验证密钥
     console.log(`检查TXT记录值是否匹配验证密钥: ${domain.verificationKey}`);
     let foundValidKey = false;
-    const recordValues = [];
+    const recordValues: string[] = [];
     
     for (const answer of dnsData.Answer) {
       // TXT记录返回值通常包含引号，需要去除
