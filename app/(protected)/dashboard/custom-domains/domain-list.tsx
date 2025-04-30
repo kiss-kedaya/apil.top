@@ -240,77 +240,79 @@ export default function CustomDomainsList({ user, action }: CustomDomainListProp
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.data.map((domain) => (
-                    <TableRow
-                      key={domain.id}
-                      className="grid grid-cols-3 items-center sm:grid-cols-5"
-                    >
-                      <TableCell className="col-span-1 font-medium">
-                        {domain.domainName}
-                      </TableCell>
-                      <TableCell className="col-span-1">
-                        <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950">
-                          DNS验证
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="col-span-1 hidden sm:table-cell">
-                        {timeAgo(new Date(domain.createdAt))}
-                      </TableCell>
-                      <TableCell className="col-span-1 hidden text-center sm:table-cell">
-                        {domain.isVerified ? (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <ShieldCheckIcon className="inline h-5 w-5 text-green-500" />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>已验证</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        ) : (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <ShieldAlertIcon className="inline h-5 w-5 text-yellow-500" />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>未验证</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
-                      </TableCell>
-                      <TableCell className="col-span-1 flex justify-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setCurrentEditDomain(domain);
-                            setShowForm(true);
-                          }}
-                        >
-                          编辑
-                        </Button>
-                        {!domain.isVerified && (
+                  {Array.isArray(data?.data) && data.data
+                    .filter(domain => domain && domain.id && domain.domainName && domain.createdAt)
+                    .map((domain) => (
+                      <TableRow
+                        key={domain.id || Math.random()}
+                        className="grid grid-cols-3 items-center sm:grid-cols-5"
+                      >
+                        <TableCell className="col-span-1 font-medium">
+                          {domain.domainName || "未知域名"}
+                        </TableCell>
+                        <TableCell className="col-span-1">
+                          <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950">
+                            DNS验证
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="col-span-1 hidden sm:table-cell">
+                          {domain.createdAt ? timeAgo(new Date(domain.createdAt)) : "未知时间"}
+                        </TableCell>
+                        <TableCell className="col-span-1 hidden text-center sm:table-cell">
+                          {domain.isVerified ? (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <ShieldCheckIcon className="inline h-5 w-5 text-green-500" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>已验证</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          ) : (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <ShieldAlertIcon className="inline h-5 w-5 text-yellow-500" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>未验证</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </TableCell>
+                        <TableCell className="col-span-1 flex justify-center gap-2">
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
-                            onClick={() => verifyDomain(domain)}
+                            onClick={() => {
+                              setCurrentEditDomain(domain);
+                              setShowForm(true);
+                            }}
                           >
-                            验证
+                            编辑
                           </Button>
-                        )}
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => deleteDomain(domain)}
-                        >
-                          删除
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                          {!domain.isVerified && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => verifyDomain(domain)}
+                            >
+                              验证
+                            </Button>
+                          )}
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => deleteDomain(domain)}
+                          >
+                            删除
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             </div>
