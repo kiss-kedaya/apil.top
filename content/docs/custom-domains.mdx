@@ -52,6 +52,7 @@ description: 添加和管理您的自定义域名。
 </Callout>
 
 通过配置您的自定义域名，您可以：
+
 - 使用您的域名发送电子邮件 (例如：`noreply@your-domain.com`)
 - 接收发送到您域名的电子邮件
 - 建立完整的企业邮箱解决方案
@@ -68,14 +69,16 @@ description: 添加和管理您的自定义域名。
 
 1. 确保您已安装Node.js和pnpm
 2. 克隆邮件转发Worker项目并部署到Cloudflare:
+
    ```bash
    git clone https://github.com/kiss-kedaya/cf-email-forwarding-worker.git
    cd cf-email-forwarding-worker
    pnpm install
-   
-   wrangler login 
+
+   wrangler login
    wrangler deploy
    ```
+
 3. 按照部署完成后的提示配置您的Worker
 4. 在【apil.top】控制台中启用邮箱服务
 
@@ -84,32 +87,36 @@ description: 添加和管理您的自定义域名。
 要让邮箱服务正常工作，您需要添加以下DNS记录到您的域名：
 
 #### MX记录
+
 MX记录指定负责接收发送到您域名的电子邮件的服务器。
 
-| 主机记录 | 记录类型 | 优先级 | 记录值 |
-|---------|--------|--------|--------|
-| @ | MX | 10 | mail.yourmailserver.com |
+| 主机记录 | 记录类型 | 优先级 | 记录值                  |
+| -------- | -------- | ------ | ----------------------- |
+| @        | MX       | 10     | mail.yourmailserver.com |
 
 #### SPF记录 (TXT记录)
+
 SPF记录帮助防止邮件欺诈，指定哪些服务器可以发送来自您域名的邮件。
 
-| 主机记录 | 记录类型 | 记录值 |
-|---------|--------|--------|
-| @ | TXT | v=spf1 include:_spf.yourmailserver.com ~all |
+| 主机记录 | 记录类型 | 记录值                                       |
+| -------- | -------- | -------------------------------------------- |
+| @        | TXT      | v=spf1 include:\_spf.yourmailserver.com ~all |
 
 #### DKIM记录 (TXT记录)
+
 DKIM为电子邮件提供数字签名，验证邮件的真实性。
 
-| 主机记录 | 记录类型 | 记录值 |
-|---------|--------|--------|
-| default._domainkey | TXT | v=DKIM1; k=rsa; p=YOUR_DKIM_PUBLIC_KEY |
+| 主机记录            | 记录类型 | 记录值                                 |
+| ------------------- | -------- | -------------------------------------- |
+| default.\_domainkey | TXT      | v=DKIM1; k=rsa; p=YOUR_DKIM_PUBLIC_KEY |
 
 #### DMARC记录 (TXT记录)
+
 DMARC定义了收件人如何处理未通过SPF或DKIM验证的邮件。
 
-| 主机记录 | 记录类型 | 记录值 |
-|---------|--------|--------|
-| _dmarc | TXT | v=DMARC1; p=none; rua=mailto:dmarc@yourdomain.com |
+| 主机记录 | 记录类型 | 记录值                                            |
+| -------- | -------- | ------------------------------------------------- |
+| \_dmarc  | TXT      | v=DMARC1; p=none; rua=mailto:dmarc@yourdomain.com |
 
 ### 步骤 4：验证配置
 
@@ -122,6 +129,7 @@ DMARC定义了收件人如何处理未通过SPF或DKIM验证的邮件。
 ### 我可以添加多少个自定义域名？
 
 不同的用户计划有不同的限制：
+
 - 免费用户：不支持自定义域名
 - 高级用户：可添加1个自定义域名
 - 企业用户：可添加5个自定义域名
@@ -137,6 +145,7 @@ DMARC定义了收件人如何处理未通过SPF或DKIM验证的邮件。
 ### 为什么我的邮箱服务验证失败？
 
 邮箱服务验证失败的常见原因包括：
+
 1. DNS记录配置不正确（检查MX、SPF、DKIM和DMARC记录）
 2. DNS记录尚未完全传播（可能需要等待几分钟到48小时）
 3. Cloudflare Worker配置不正确
@@ -145,8 +154,9 @@ DMARC定义了收件人如何处理未通过SPF或DKIM验证的邮件。
 ### 如何排查域名验证问题？
 
 如果您的域名验证失败，请检查：
+
 1. TXT记录是否正确添加
 2. DNS记录是否已经生效（DNS传播可能需要几分钟到48小时）
 3. 域名格式是否正确（不要包含http://或https://前缀）
 
-如有其他问题，请联系我们的支持团队寻求帮助。 
+如有其他问题，请联系我们的支持团队寻求帮助。
