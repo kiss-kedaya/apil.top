@@ -101,8 +101,17 @@ const nextConfig = {
         source: '/docs/:path*',
         headers: [
           {
-            key: 'X-Middleware-Skip',
-            value: 'true',
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, stale-while-revalidate=86400',
+          }
+        ],
+      },
+      {
+        source: '/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           }
         ],
       }

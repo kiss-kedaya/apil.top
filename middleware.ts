@@ -8,7 +8,12 @@ import { siteConfig } from "./config/site";
 
 // 扩展matcher规则，明确排除更多可能导致循环的路径
 export const config = {
-  matcher: ["/((?!api|_next|static|images|favicon.ico|.\\.\\w+$).*)"],
+  matcher: [
+    // 排除常见的静态资源和API路径
+    "/((?!api|_next|static|images|docs|favicon.ico).*)",
+    // 排除所有带有扩展名的文件
+    "/((?!.*\\..*).+)"
+  ],
 };
 
 const redirectMap = {
@@ -23,14 +28,8 @@ const redirectMap = {
 // 提取短链接处理逻辑
 async function handleShortUrl(req: NextAuthRequest) {
   try {
-    // 只处理短链接请求，避免其他路径
+    // 只处理短链接请求，其他URL模式直接放行
     if (!req.url.includes("/s/")) return NextResponse.next();
-
-    // 检查当前URL是否是文档路径，如果是则直接返回，避免文档页面的重定向循环
-    const currentUrl = new URL(req.url);
-    if (currentUrl.pathname.startsWith('/docs/')) {
-      return NextResponse.next();
-    }
 
     const slug = extractSlug(req.url);
     if (!slug)
@@ -181,31 +180,12 @@ function parseUserAgent(ua: string) {
 
 export default auth(async (req) => {
   try {
-    // 检查请求头，看是否需要跳过处理
-    const skipMiddleware = req.headers.get("X-Middleware-Skip") === "true";
-    if (skipMiddleware) {
+    // 首先检查URL是否是短链接路径，如果不是则直接放行
+    if (!req.url.includes("/s/")) {
       return NextResponse.next();
     }
     
-    // 检查当前URL是否是文档路径或静态资源路径，直接放行
-    const currentUrl = new URL(req.url);
-    const pathname = currentUrl.pathname;
-    
-    // 检查路径是否包含文件扩展名或属于静态资源
-    const isStaticResource = 
-      pathname.match(/\.\w+$/) || // 文件扩展名
-      pathname.startsWith('/_next/') || 
-      pathname.startsWith('/static/') ||
-      pathname.startsWith('/images/');
-      
-    // 检查是否是文档路径
-    const isDocsPath = pathname.startsWith('/docs/');
-    
-    // 如果是静态资源或文档路径，直接放行
-    if (isStaticResource || isDocsPath) {
-      return NextResponse.next();
-    }
-    
+    // 处理短链接
     return await handleShortUrl(req);
   } catch (error) {
     console.error("Middleware error:", error);
