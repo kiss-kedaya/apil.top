@@ -34,17 +34,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { EmptyPlaceholder } from "@/components/shared/empty-placeholder";
-import { PaginationWrapper } from "@/components/shared/pagination";
 import { DomainForm } from "@/components/forms/domain-form";
 
 export interface UserCustomDomainData {
   id: string;
   userId: string;
   domainName: string;
-  isCloudflare: boolean;
-  zoneId?: string;
-  apiKey?: string;
-  email?: string;
   verificationKey?: string;
   isVerified: boolean;
   createdAt: string;
@@ -211,7 +206,7 @@ export default function CustomDomainsList({ user, action }: CustomDomainListProp
                 <TableHeader>
                   <TableRow className="grid grid-cols-3 sm:grid-cols-5">
                     <TableHead className="col-span-1">域名</TableHead>
-                    <TableHead className="col-span-1">类型</TableHead>
+                    <TableHead className="col-span-1">验证方式</TableHead>
                     <TableHead className="col-span-1 hidden sm:table-cell">
                       创建时间
                     </TableHead>
@@ -234,7 +229,7 @@ export default function CustomDomainsList({ user, action }: CustomDomainListProp
                 <TableHeader>
                   <TableRow className="grid grid-cols-3 sm:grid-cols-5">
                     <TableHead className="col-span-1">域名</TableHead>
-                    <TableHead className="col-span-1">类型</TableHead>
+                    <TableHead className="col-span-1">验证方式</TableHead>
                     <TableHead className="col-span-1 hidden sm:table-cell">
                       创建时间
                     </TableHead>
@@ -254,15 +249,9 @@ export default function CustomDomainsList({ user, action }: CustomDomainListProp
                         {domain.domainName}
                       </TableCell>
                       <TableCell className="col-span-1">
-                        {domain.isCloudflare ? (
-                          <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950">
-                            Cloudflare
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="bg-green-50 dark:bg-green-950">
-                            自托管
-                          </Badge>
-                        )}
+                        <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950">
+                          DNS验证
+                        </Badge>
                       </TableCell>
                       <TableCell className="col-span-1 hidden sm:table-cell">
                         {timeAgo(new Date(domain.createdAt))}

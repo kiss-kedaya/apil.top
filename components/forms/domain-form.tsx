@@ -29,9 +29,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
   TooltipContent,
@@ -44,11 +41,6 @@ const formSchema = z.object({
   domainName: z.string().min(3, {
     message: "域名必须至少为3个字符。",
   }),
-  isCloudflare: z.boolean().default(true),
-  // 以下字段在非Cloudflare模式下必填
-  zoneId: z.string().optional(),
-  apiKey: z.string().optional(),
-  email: z.string().email().optional(),
 });
 
 interface DomainFormProps {
@@ -72,25 +64,14 @@ export function DomainForm({
   onSuccess,
 }: DomainFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [domainType, setDomainType] = useState(
-    initData ? (initData.isCloudflare ? "cloudflare" : "selfhosted") : "cloudflare"
-  );
 
   // 表单默认值
   const defaultValues = initData
     ? {
         domainName: initData.domainName,
-        isCloudflare: initData.isCloudflare,
-        zoneId: initData.zoneId || "",
-        apiKey: initData.apiKey || "",
-        email: initData.email || "",
       }
     : {
         domainName: "",
-        isCloudflare: true,
-        zoneId: "",
-        apiKey: "",
-        email: "",
       };
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -100,18 +81,6 @@ export function DomainForm({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
-
-    // 更新isCloudflare字段
-    values.isCloudflare = domainType === "cloudflare";
-
-    // 根据domainType验证表单
-    if (domainType === "selfhosted") {
-      if (!values.zoneId || !values.apiKey || !values.email) {
-        toast.error("自托管域名需要填写Zone ID、API密钥和邮箱");
-        setIsSubmitting(false);
-        return;
-      }
-    }
 
     try {
       const url = initData
@@ -162,56 +131,25 @@ export function DomainForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs
-            value={domainType}
-            onValueChange={setDomainType}
-            className="w-full"
-          >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="cloudflare">Cloudflare方式</TabsTrigger>
-              <TabsTrigger value="selfhosted">自托管方式</TabsTrigger>
-            </TabsList>
-            <TabsContent value="cloudflare" className="mt-4">
-              <div className="mb-4 space-y-2 rounded-md border p-4 dark:border-slate-700">
-                <h3 className="text-sm font-semibold">Cloudflare配置说明</h3>
-                <p className="text-sm text-muted-foreground">
-                  使用Cloudflare方式添加域名，您需要在Cloudflare上配置您的域名，并按照以下步骤进行：
-                </p>
-                <ol className="ml-5 list-decimal text-sm text-muted-foreground">
-                  <li>在Cloudflare上注册或登录您的账户</li>
-                  <li>添加您的域名到Cloudflare</li>
-                  <li>在DNS设置中添加记录，指向我们的服务器</li>
-                  <li>
-                    添加一条TXT记录用于验证域名所有权：
-                    <code className="ml-2 rounded bg-secondary p-1 text-xs">
-                      _kedaya.您的域名 TXT 验证密钥
-                    </code>
-                  </li>
-                </ol>
-                <p className="text-sm text-muted-foreground">
-                  提交后，系统会为您生成一个验证密钥，您需要将其添加到Cloudflare的DNS记录中。
-                </p>
-              </div>
-            </TabsContent>
-            <TabsContent value="selfhosted" className="mt-4">
-              <div className="mb-4 space-y-2 rounded-md border p-4 dark:border-slate-700">
-                <h3 className="text-sm font-semibold">自托管配置说明</h3>
-                <p className="text-sm text-muted-foreground">
-                  使用自托管方式添加域名，您需要提供您的DNS服务提供商的API信息，并按照以下步骤进行：
-                </p>
-                <ol className="ml-5 list-decimal text-sm text-muted-foreground">
-                  <li>获取您的DNS服务提供商的Zone ID</li>
-                  <li>创建API密钥，确保有足够的权限修改DNS记录</li>
-                  <li>
-                    提供与API密钥关联的邮箱地址（通常是您的账户邮箱）
-                  </li>
-                </ol>
-                <p className="text-sm text-muted-foreground">
-                  自托管方式需要您提供更多信息，但可以使用任何DNS服务提供商，而不仅限于Cloudflare。
-                </p>
-              </div>
-            </TabsContent>
-          </Tabs>
+          <div className="mb-4 space-y-2 rounded-md border p-4 dark:border-slate-700">
+            <h3 className="text-sm font-semibold">DNS验证说明</h3>
+            <p className="text-sm text-muted-foreground">
+              使用DNS验证方式添加域名，您需要按照以下步骤进行：
+            </p>
+            <ol className="ml-5 list-decimal text-sm text-muted-foreground">
+              <li>添加您的域名</li>
+              <li>系统会生成一个唯一的验证密钥</li>
+              <li>在您的DNS管理面板中添加一条TXT记录：
+                <code className="ml-2 rounded bg-secondary p-1 text-xs">
+                  _kedaya.您的域名 TXT 验证密钥
+                </code>
+              </li>
+              <li>等待记录生效后点击验证按钮</li>
+            </ol>
+            <p className="text-sm text-muted-foreground">
+              提交后，系统会为您生成详细的验证指南。
+            </p>
+          </div>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -249,72 +187,6 @@ export function DomainForm({
                   </FormItem>
                 )}
               />
-
-              {domainType === "selfhosted" && (
-                <>
-                  <FormField
-                    control={form.control}
-                    name="zoneId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Zone ID</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="abcdef1234567890abcdef"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          您的DNS服务提供商的区域ID。
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="apiKey"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>API密钥</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="password"
-                            placeholder="您的API密钥"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          用于验证API请求的密钥。
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>关联邮箱</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="email"
-                            placeholder="user@example.com"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          与API密钥关联的电子邮件地址。
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </>
-              )}
 
               <div className="flex justify-end space-x-4">
                 <Button
