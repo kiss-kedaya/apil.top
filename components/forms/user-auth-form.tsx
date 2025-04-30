@@ -33,30 +33,36 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [isGoogleLoading, setIsGoogleLoading] = React.useState<boolean>(false);
   const [isGithubLoading, setIsGithubLoading] = React.useState<boolean>(false);
-  const [isLinuxDoLoading, setIsLinuxDoLoading] =
-    React.useState<boolean>(false);
   const searchParams = useSearchParams();
 
   async function onSubmit(data: FormData) {
     setIsLoading(true);
 
-    const signInResult = await signIn("resend", {
-      email: data.email.toLowerCase(),
-      redirect: false,
-      callbackUrl: searchParams?.get("from") || "/dashboard",
-    });
-
-    setIsLoading(false);
-
-    if (!signInResult?.ok) {
-      return toast.error("出错了", {
-        description: "您的登录请求失败。请重试。",
+    try {
+      const signInResult = await signIn("resend", {
+        email: data.email.toLowerCase(),
+        redirect: false,
+        callbackUrl: searchParams?.get("from") || "/dashboard",
       });
-    }
 
-    return toast.success("检查您的邮箱", {
-      description: "我们已发送登录链接。请同时检查垃圾邮件。",
-    });
+      if (!signInResult?.ok) {
+        const errorDescription = signInResult?.error?.includes("domain is not verified") ? 
+          "不支持当前邮箱域名，请使用其他邮箱" : 
+          "您的登录请求失败。请重试。";
+        
+        throw new Error(errorDescription);
+      }
+
+      toast.success("检查您的邮箱", {
+        description: "我们已发送登录链接。请同时检查垃圾邮件。",
+      });
+    } catch (error) {
+      toast.error("出错了", {
+        description: error instanceof Error ? error.message : "您的登录请求失败。请重试。",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -72,8 +78,7 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
           !siteConfig.openSignup ||
           isLoading ||
           isGoogleLoading ||
-          isGithubLoading ||
-          isLinuxDoLoading
+          isGithubLoading
         }
       >
         {isGoogleLoading ? (
@@ -94,8 +99,7 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
           !siteConfig.openSignup ||
           isLoading ||
           isGithubLoading ||
-          isGoogleLoading ||
-          isLinuxDoLoading
+          isGoogleLoading
         }
       >
         {isGithubLoading ? (
@@ -104,32 +108,6 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
           <Icons.github className="mr-2 size-4" />
         )}{" "}
         Github
-      </button>
-      <button
-        type="button"
-        className={cn(buttonVariants({ variant: "outline" }))}
-        onClick={() => {
-          setIsLinuxDoLoading(true);
-          signIn("linuxdo");
-        }}
-        disabled={
-          !siteConfig.openSignup ||
-          isLoading ||
-          isGithubLoading ||
-          isGoogleLoading ||
-          isLinuxDoLoading
-        }
-      >
-        {isLinuxDoLoading ? (
-          <Icons.spinner className="mr-2 size-4 animate-spin" />
-        ) : (
-          <img
-            src="/_static/images/linuxdo.webp"
-            alt="linuxdo"
-            className="mr-2 size-4"
-          />
-        )}{" "}
-        LinuxDo
       </button>
 
       <div className="relative my-3">
@@ -163,6 +141,9 @@ export function UserAuthForm({ className, type, ...props }: UserAuthFormProps) {
                 {errors.email.message}
               </p>
             )}
+            <p className="px-1 text-xs text-muted-foreground">
+              注意：目前不支持QQ邮箱注册/登录
+            </p>
           </div>
           <button
             className={cn(buttonVariants(), "mt-3")}

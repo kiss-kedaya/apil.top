@@ -8,33 +8,6 @@ import { env } from "@/env.mjs";
 import { siteConfig } from "./config/site";
 import { getVerificationEmailHtml, resend } from "./lib/email";
 
-const linuxDoProvider: any = {
-  id: "linuxdo",
-  name: "Linux Do",
-  version: "2.0",
-  type: "oauth",
-  authorization: "https://connect.linux.do/oauth2/authorize",
-  token: "https://connect.linux.do/oauth2/token",
-  userinfo: "https://connect.linux.do/api/user",
-  clientId: env.LinuxDo_CLIENT_ID,
-  clientSecret: env.LinuxDo_CLIENT_SECRET,
-  checks: ["state"],
-  profile: (profile: any) => {
-    console.log("profile", profile);
-    return {
-      id: profile.id.toString(),
-      name: profile.username,
-      image: profile.avatar_url,
-      email: profile.email,
-      active: profile.active ? 1 : 0,
-      // username: profile.username,
-      // trust_level: profile.trust_level,
-      // silenced: profile.user.silenced,
-      // email: profile.user.email,
-    };
-  },
-};
-
 export default {
   providers: [
     Google({
@@ -66,6 +39,5 @@ export default {
         }
       },
     }),
-    linuxDoProvider,
   ],
 } satisfies NextAuthConfig;
