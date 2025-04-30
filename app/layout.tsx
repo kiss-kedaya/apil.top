@@ -23,6 +23,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <ViewTransitions>
       <html lang="zh" suppressHydrationWarning>
         <head>
+        <meta name="msvalidate.01" content="BF59BE2A2C5F2BA5FC7EC55065C92054" />
           <meta name="baidu-site-verification" content="codeva-MNllrVQA3g" />
           <script
             defer
