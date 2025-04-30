@@ -8,8 +8,8 @@ import DashboardScrapeCharts from "../charts";
 import { MetaScraping } from "../scrapes";
 
 export const metadata = constructMetadata({
-  title: "Url to Meta API - kedaya.xyz",
-  description: "Quickly extract valuable structured website data",
+  title: "网址转元信息API - kedaya.xyz",
+  description: "快速提取有价值的结构化网站数据",
 });
 
 export default async function DashboardPage() {
@@ -20,10 +20,10 @@ export default async function DashboardPage() {
   return (
     <>
       <DashboardHeader
-        heading="Url&nbsp;&nbsp;to&nbsp;&nbsp;Meta&nbsp;&nbsp;Info"
-        text="Quickly extract valuable structured website data. It's free and unlimited to use!"
+        heading="网址转元信息"
+        text="快速提取有价值的结构化网站数据。免费且无限制使用！"
         link="/docs/open-api/meta-info"
-        linkText="Meta Info API."
+        linkText="元信息API。"
       />
       <MetaScraping user={{ id: user.id, apiKey: user.apiKey }} />
     </>

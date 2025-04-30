@@ -21,8 +21,8 @@ import LiveLog from "./urls/live-logs";
 import UserUrlsList from "./urls/url-list";
 
 export const metadata = constructMetadata({
-  title: "Dashboard - kedaya.xyz",
-  description: "List and manage records.",
+  title: "仪表板 - kedaya.xyz",
+  description: "列出并管理记录。",
 });
 
 async function EmailHeroCardSection({
@@ -55,7 +55,7 @@ async function ShortUrlsCardSection({
   return (
     <DashboardInfoCard
       userId={userId}
-      title="Short URLs"
+      title="短链接"
       total={url_count.total}
       monthTotal={url_count.month_total}
       limit={TeamPlanQuota[team].SL_NewLinks}
@@ -77,7 +77,7 @@ async function DnsRecordsCardSection({
   return (
     <DashboardInfoCard
       userId={userId}
-      title="DNS Records"
+      title="DNS记录"
       total={record_count.total}
       monthTotal={record_count.month_total}
       limit={TeamPlanQuota[team].RC_NewRecords}
@@ -133,7 +133,7 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <DashboardHeader heading="Dashboard" text="" />
+      <DashboardHeader heading="仪表板" text="" />
       <div className="flex flex-col gap-5">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 xl:grid-cols-3">
           <ErrorBoundary

@@ -76,7 +76,7 @@ const LogsTable = ({ userId, target }) => {
   if (error) {
     return (
       <div className="p-4 text-center text-red-500">
-        Failed to load logs. Please try again later.
+        加载日志失败。请稍后再试。
       </div>
     );
   }
@@ -90,13 +90,13 @@ const LogsTable = ({ userId, target }) => {
       <div className="space-y-4">
         <div className="flex items-center gap-3">
           <Input
-            placeholder="Filter by type..."
+            placeholder="按类型筛选..."
             value={filters.type}
             onChange={(e) => handleFilterChange("type", e.target.value)}
             className="h-8 max-w-xs placeholder:text-xs"
           />
           <Input
-            placeholder="Filter by IP..."
+            placeholder="按IP筛选..."
             value={filters.ip}
             onChange={(e) => handleFilterChange("ip", e.target.value)}
             className="h-8 max-w-xs placeholder:text-xs"
@@ -104,13 +104,13 @@ const LogsTable = ({ userId, target }) => {
           {
             <>
               <Input
-                placeholder="Filter by Name..."
+                placeholder="按名称筛选..."
                 value={filters.name}
                 onChange={(e) => handleFilterChange("name", e.target.value)}
                 className="h-8 max-w-xs placeholder:text-xs"
               />
               <Input
-                placeholder="Filter by Email..."
+                placeholder="按邮箱筛选..."
                 value={filters.email}
                 onChange={(e) => handleFilterChange("email", e.target.value)}
                 className="h-8 max-w-xs placeholder:text-xs"
@@ -138,14 +138,14 @@ const LogsTable = ({ userId, target }) => {
             <TableHeader className="bg-muted">
               <TableRow className="">
                 <TableHead className="hidden items-center justify-start px-2 sm:flex">
-                  Date
+                  日期
                 </TableHead>
-                <TableHead className="px-2">Type</TableHead>
+                <TableHead className="px-2">类型</TableHead>
                 <TableHead className="hidden items-center justify-start px-2 sm:flex">
                   IP
                 </TableHead>
-                <TableHead className="px-2">Link</TableHead>
-                <TableHead className="px-2">User</TableHead>
+                <TableHead className="px-2">链接</TableHead>
+                <TableHead className="px-2">用户</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -191,7 +191,7 @@ const LogsTable = ({ userId, target }) => {
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          <p className="ml-auto text-nowrap text-sm">{data?.total || 0} logs</p>
+          <p className="ml-auto text-nowrap text-sm">{data?.total || 0} 条日志</p>
           {data && Math.ceil(data.total / 20) > 1 && (
             <PaginationWrapper
               total={Math.ceil(data.total / 20)}

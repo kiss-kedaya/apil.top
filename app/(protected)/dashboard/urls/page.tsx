@@ -9,8 +9,8 @@ import LiveLog from "./live-logs";
 import UserUrlsList from "./url-list";
 
 export const metadata = constructMetadata({
-  title: "Short URLs - kedaya.xyz",
-  description: "List and manage records.",
+  title: "短链接 - kedaya.xyz",
+  description: "列出并管理记录。",
 });
 
 export default async function DashboardPage() {
@@ -21,10 +21,10 @@ export default async function DashboardPage() {
   return (
     <>
       <DashboardHeader
-        heading="Manage&nbsp;Short&nbsp;URLs"
-        text="List and manage short urls."
+        heading="管理短链接"
+        text="列出并管理短链接。"
         link="/docs/short-urls"
-        linkText="short urls."
+        linkText="短链接。"
       />
       <UserUrlsList
         user={{

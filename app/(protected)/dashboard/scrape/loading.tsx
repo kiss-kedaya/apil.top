@@ -4,7 +4,7 @@ import { DashboardHeader } from "@/components/dashboard/header";
 export default function DashboardRecordsLoading() {
   return (
     <>
-      <DashboardHeader heading="Scraping API" text="" />
+      <DashboardHeader heading="抓取API" text="" />
       <Skeleton className="h-full w-full rounded-lg" />
     </>
   );

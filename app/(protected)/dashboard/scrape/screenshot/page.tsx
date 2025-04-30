@@ -8,9 +8,9 @@ import DashboardScrapeCharts from "../charts";
 import { ScreenshotScraping } from "../scrapes";
 
 export const metadata = constructMetadata({
-  title: "Url to Screenshot API - kedaya.xyz",
+  title: "网址转截图API - kedaya.xyz",
   description:
-    "Quickly extract website screenshots. It's free and unlimited to use!",
+    "快速提取网站截图。免费且无限制使用！",
 });
 
 export default async function DashboardPage() {
@@ -21,10 +21,10 @@ export default async function DashboardPage() {
   return (
     <>
       <DashboardHeader
-        heading="Url&nbsp;&nbsp;to&nbsp;&nbsp;Screenshot"
-        text="Quickly extract website screenshots. It's free and unlimited to use!"
+        heading="网址转截图"
+        text="快速提取网站截图。免费且无限制使用！"
         link="/docs/open-api/screenshot"
-        linkText="Screenshot API."
+        linkText="截图API。"
       />
       <ScreenshotScraping user={{ id: user.id, apiKey: user.apiKey }} />
     </>

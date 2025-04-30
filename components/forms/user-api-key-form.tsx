@@ -43,13 +43,13 @@ export function UserApiKeyForm({ user }: UserNameFormProps) {
         method: "POST",
       });
       if (!response.ok || response.status !== 200) {
-        toast.error("Created Failed!", {
+        toast.error("创建失败！", {
           description: response.statusText,
         });
       } else {
         const res = await response.json();
         setApiKey(res);
-        toast.success(`Generated successfully!`);
+        toast.success(`生成成功！`);
       }
     });
   });
@@ -57,16 +57,16 @@ export function UserApiKeyForm({ user }: UserNameFormProps) {
   return (
     <form onSubmit={onSubmit}>
       <SectionColumns
-        title="API Key"
-        description="Generate a new API key to access the open apis."
+        title="API密钥"
+        description="生成新的API密钥以访问开放API。"
       >
         <div className="flex w-full items-center gap-2">
           <Label className="sr-only" htmlFor="name">
-            API Key
+            API密钥
           </Label>
           <div className="flex w-full items-center">
             <input
-              value={apiKey || "Click to generate your API key"}
+              value={apiKey || "点击生成您的API密钥"}
               disabled
               className="flex h-9 flex-1 shrink-0 items-center truncate rounded-l-md border border-r-0 border-input bg-transparent px-3 py-2 text-sm"
             />
@@ -88,7 +88,7 @@ export function UserApiKeyForm({ user }: UserNameFormProps) {
             {isPending ? (
               <Icons.spinner className="size-4 animate-spin" />
             ) : (
-              <p>Generate</p>
+              <p>生成</p>
             )}
           </Button>
         </div>

@@ -45,13 +45,13 @@ export function UserNameForm({ user }: UserNameFormProps) {
       const { status } = await updateUserNameWithId(data);
 
       if (status !== "success") {
-        toast.error("Something went wrong.", {
-          description: "Your name was not updated. Please try again.",
+        toast.error("出错了。", {
+          description: "您的名称未更新。请重试。",
         });
       } else {
         await update();
         setUpdated(false);
-        toast.success("Your name has been updated.");
+        toast.success("您的名称已更新。");
       }
     });
   });
@@ -59,12 +59,12 @@ export function UserNameForm({ user }: UserNameFormProps) {
   return (
     <form onSubmit={onSubmit}>
       <SectionColumns
-        title="Your Name"
-        description="Please enter a display name you are comfortable with."
+        title="您的名称"
+        description="请输入您满意的显示名称。"
       >
         <div className="flex w-full items-center gap-2">
           <Label className="sr-only" htmlFor="name">
-            Name
+            名称
           </Label>
           <Input
             id="name"
@@ -83,8 +83,8 @@ export function UserNameForm({ user }: UserNameFormProps) {
               <Icons.spinner className="size-4 animate-spin" />
             ) : (
               <p>
-                Save
-                <span className="hidden sm:inline-flex">&nbsp;Changes</span>
+                保存
+                <span className="hidden sm:inline-flex">&nbsp;更改</span>
               </p>
             )}
           </Button>
@@ -95,7 +95,7 @@ export function UserNameForm({ user }: UserNameFormProps) {
               {errors.name.message}
             </p>
           )}
-          <p className="text-[13px] text-muted-foreground">Max 32 characters</p>
+          <p className="text-[13px] text-muted-foreground">最多32个字符</p>
         </div>
       </SectionColumns>
     </form>

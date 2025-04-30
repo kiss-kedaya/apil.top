@@ -8,8 +8,8 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import DashboardScrapeCharts from "./charts";
 
 export const metadata = constructMetadata({
-  title: "Scraping API - kedaya.xyz",
-  description: "Quickly extract valuable structured website data",
+  title: "抓取API - kedaya.xyz",
+  description: "快速提取有价值的结构化网站数据",
 });
 
 export default async function DashboardPage() {
@@ -20,30 +20,30 @@ export default async function DashboardPage() {
   return (
     <>
       <DashboardHeader
-        heading="Scraping&nbsp;&nbsp;API&nbsp;&nbsp;Overview"
-        text="Quickly extract valuable structured website data. It's free and unlimited to use!"
+        heading="抓取API概览"
+        text="快速提取有价值的结构化网站数据。免费且无限制使用！"
         link="/docs/open-api"
-        linkText="Open API."
+        linkText="开放API。"
       />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <ScrapeInfoCard
           userId={user.id}
-          title="Url to Screenshot"
-          desc="Take a screenshot of the webpage."
+          title="网址转截图"
+          desc="网页截图。"
           link="/dashboard/scrape/screenshot"
           icon="camera"
         />
         <ScrapeInfoCard
           userId={user.id}
-          title="Url to Meta Info"
-          desc="Extract website metadata."
+          title="网址转元信息"
+          desc="提取网站元数据。"
           link="/dashboard/scrape/meta-info"
           icon="globe"
         />
         <ScrapeInfoCard
           userId={user.id}
-          title="Url to QR Code"
-          desc="Generate QR Code from URL."
+          title="网址转二维码"
+          desc="从URL生成二维码。"
           link="/dashboard/scrape/qrcode"
           icon="qrcode"
         />
@@ -51,15 +51,15 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <ScrapeInfoCard
           userId={user.id}
-          title="Url to Markdown"
-          desc="Convert website content to Markdown format."
+          title="网址转Markdown"
+          desc="将网站内容转换为Markdown格式。"
           link="/dashboard/scrape/markdown"
           icon="heading1"
         />
         <ScrapeInfoCard
           userId={user.id}
-          title="Url to Text"
-          desc="Extract website text."
+          title="网址转文本"
+          desc="提取网站文本。"
           link="/dashboard/scrape/markdown"
           icon="fileText"
         />

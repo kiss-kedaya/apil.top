@@ -49,7 +49,7 @@ export async function UserInfoCard({
             )}
           </div>
         )}
-        <p className="text-xs text-muted-foreground">total</p>
+        <p className="text-xs text-muted-foreground">总计</p>
       </CardContent>
     </Card>
   );
@@ -94,12 +94,12 @@ export async function DashboardInfoCard({
             <CountUp count={monthTotal} />
             {total !== undefined && (
               <p className="align-top text-base text-slate-500">
-                / {nFormatter(limit)} <span className="text-xs">(monthly)</span>
+                / {nFormatter(limit)} <span className="text-xs">(每月)</span>
               </p>
             )}
           </div>
         )}
-        <p className="text-xs text-muted-foreground">total: {total}</p>
+        <p className="text-xs text-muted-foreground">总计: {total}</p>
       </CardContent>
     </Card>
   );
@@ -121,7 +121,7 @@ export function HeroCard({
           href="/emails"
           className="text-lg font-bold duration-500 group-hover:text-blue-500 group-hover:underline"
         >
-          Email box
+          邮箱
         </Link>
         <Icons.mail className="size-4 text-muted-foreground" />
       </div>
@@ -134,12 +134,12 @@ export function HeroCard({
             <CountUp count={monthTotal} />
             {total !== undefined && (
               <p className="align-top text-base text-slate-500">
-                / {nFormatter(limit)} <span className="text-xs">(monthly)</span>
+                / {nFormatter(limit)} <span className="text-xs">(每月)</span>
               </p>
             )}
           </div>
         )}
-        <p className="text-xs text-muted-foreground">total: {total}</p>
+        <p className="text-xs text-muted-foreground">总计: {total}</p>
       </div>
     </div>
   );

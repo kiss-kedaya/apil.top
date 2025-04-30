@@ -54,13 +54,13 @@ export function UserRoleForm({ user }: UserNameFormProps) {
       const { status } = await updateUserRoleWithId(data);
 
       if (status !== "success") {
-        toast.error("Something went wrong.", {
-          description: "Your role was not updated. Please try again.",
+        toast.error("出错了。", {
+          description: "您的角色未更新。请重试。",
         });
       } else {
         await update();
         setUpdated(false);
-        toast.success("Your role has been updated.");
+        toast.success("您的角色已更新。");
       }
     });
   };
@@ -69,8 +69,8 @@ export function UserRoleForm({ user }: UserNameFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <SectionColumns
-          title="Your Role"
-          description="Select the role what you want for test the app."
+          title="您的角色"
+          description="选择您想要测试应用的角色。"
         >
           <div className="flex w-full items-center gap-2">
             <FormField
@@ -78,7 +78,7 @@ export function UserRoleForm({ user }: UserNameFormProps) {
               name="role"
               render={({ field }) => (
                 <FormItem className="w-full space-y-0">
-                  <FormLabel className="sr-only">Role</FormLabel>
+                  <FormLabel className="sr-only">角色</FormLabel>
                   <Select
                     // TODO:(FIX) Option value not update. Use useState for the moment
                     onValueChange={(value: UserRole) => {
@@ -91,7 +91,7 @@ export function UserRoleForm({ user }: UserNameFormProps) {
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a role" />
+                        <SelectValue placeholder="选择一个角色" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -116,15 +116,15 @@ export function UserRoleForm({ user }: UserNameFormProps) {
                 <Icons.spinner className="size-4 animate-spin" />
               ) : (
                 <p>
-                  Save
-                  <span className="hidden sm:inline-flex">&nbsp;Changes</span>
+                  保存
+                  <span className="hidden sm:inline-flex">&nbsp;更改</span>
                 </p>
               )}
             </Button>
           </div>
           <div className="flex flex-col justify-between p-1">
             <p className="text-[13px] text-muted-foreground">
-              Remove this field on real production
+              在实际生产环境中删除此字段
             </p>
           </div>
         </SectionColumns>

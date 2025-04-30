@@ -7,8 +7,8 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import { QrCodeScraping } from "../scrapes";
 
 export const metadata = constructMetadata({
-  title: "Url to QR Code API - kedaya.xyz",
-  description: "Generate QR Code from URL",
+  title: "网址转二维码API - kedaya.xyz",
+  description: "从URL生成二维码",
 });
 
 export default async function DashboardPage() {
@@ -19,10 +19,10 @@ export default async function DashboardPage() {
   return (
     <>
       <DashboardHeader
-        heading="Url&nbsp;&nbsp;to&nbsp;&nbsp;QR&nbsp;&nbsp;Code"
-        text="Generate QR Code from URL"
+        heading="网址转二维码"
+        text="从URL生成二维码"
         link="/docs/open-api/qrcode"
-        linkText="QR Code API."
+        linkText="二维码API。"
       />
       <QrCodeScraping user={{ id: user.id, apiKey: user.apiKey }} />
     </>

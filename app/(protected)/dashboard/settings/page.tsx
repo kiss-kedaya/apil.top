@@ -9,8 +9,8 @@ import { UserNameForm } from "@/components/forms/user-name-form";
 import { UserRoleForm } from "@/components/forms/user-role-form";
 
 export const metadata = constructMetadata({
-  title: "Settings – kedaya.xyz",
-  description: "Configure your account and website settings.",
+  title: "设置 – kedaya.xyz",
+  description: "配置您的账户和网站设置。",
 });
 
 export default async function SettingsPage() {
@@ -21,8 +21,8 @@ export default async function SettingsPage() {
   return (
     <>
       <DashboardHeader
-        heading="Account Settings"
-        text="Manage account and website settings."
+        heading="账户设置"
+        text="管理账户和网站设置。"
       />
       <div className="divide-y divide-muted pb-10">
         <UserNameForm user={{ id: user.id, name: user.name || "" }} />

@@ -25,7 +25,7 @@ export function DashboardHeader({
           {link && (
             <span>
               {" "}
-              See documentation about{" "}
+              查看关于{" "}
               <Link
                 href={link}
                 target="_blank"
@@ -33,6 +33,7 @@ export function DashboardHeader({
               >
                 {linkText}
               </Link>
+              的文档
             </span>
           )}
         </p>

@@ -7,9 +7,9 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import { MarkdownScraping, TextScraping } from "../scrapes";
 
 export const metadata = constructMetadata({
-  title: "Url to Markdown API - kedaya.xyz",
+  title: "网址转Markdown API - kedaya.xyz",
   description:
-    "Quickly extract website content and convert it to Markdown format",
+    "快速提取网站内容并转换为Markdown格式",
 });
 
 export default async function DashboardPage() {
@@ -20,10 +20,10 @@ export default async function DashboardPage() {
   return (
     <>
       <DashboardHeader
-        heading="Url&nbsp;&nbsp;to&nbsp;&nbsp;Markdown"
-        text="Quickly extract website content and convert it to Markdown format. It's free and unlimited to use!"
+        heading="网址转Markdown"
+        text="快速提取网站内容并转换为Markdown格式。免费且无限制使用！"
         link="/docs/open-api/markdown"
-        linkText="Markdown API."
+        linkText="Markdown API。"
       />
       <MarkdownScraping user={{ id: user.id, apiKey: user.apiKey }} />
       <TextScraping user={{ id: user.id, apiKey: user.apiKey }} />

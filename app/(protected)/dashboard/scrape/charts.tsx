@@ -22,7 +22,7 @@ export default async function DashboardScrapeCharts({ id }: { id: string }) {
     <>
       {all_user_logs && all_user_logs.length > 0 && (
         <>
-          <h2 className="my-1 text-xl font-semibold">Request Statistics</h2>
+          <h2 className="my-1 text-xl font-semibold">请求统计</h2>
           <DailyPVUVChart data={all_user_logs} />
         </>
       )}
@@ -43,7 +43,7 @@ export default async function DashboardScrapeCharts({ id }: { id: string }) {
         )}
       </div>
 
-      <h2 className="my-1 text-xl font-semibold">Request Logs</h2>
+      <h2 className="my-1 text-xl font-semibold">请求日志</h2>
       <LogsTable userId={id} target={"/api/v1/scraping/logs"} />
     </>
   );

@@ -7,8 +7,8 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import UserRecordsList from "./record-list";
 
 export const metadata = constructMetadata({
-  title: "DNS Records - kedaya.xyz",
-  description: "List and manage records.",
+  title: "DNS记录 - kedaya.xyz",
+  description: "列出并管理记录。",
 });
 
 export default async function DashboardPage() {
@@ -19,10 +19,10 @@ export default async function DashboardPage() {
   return (
     <>
       <DashboardHeader
-        heading="Manage&nbsp;&nbsp;DNS&nbsp;&nbsp;Records"
-        text="List and manage records."
+        heading="管理DNS记录"
+        text="列出并管理记录。"
         link="/docs/dns-records"
-        linkText="DNS Records."
+        linkText="DNS记录。"
       />
       <UserRecordsList
         user={{ id: user.id, name: user.name || "", apiKey: user.apiKey || "" }}
