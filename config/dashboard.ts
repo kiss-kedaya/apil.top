@@ -81,11 +81,6 @@ export const sidebarLinks: SidebarNavItem[] = [
       { href: "/dashboard/settings", icon: "settings", title: "设置" },
       { href: "/docs", icon: "bookOpen", title: "文档" },
       {
-        href: siteConfig.links.oichat,
-        icon: "botMessageSquare",
-        title: "OiChat",
-      },
-      {
         href: siteConfig.links.feedback,
         icon: "messageQuoted",
         title: "反馈",
