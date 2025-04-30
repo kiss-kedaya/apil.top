@@ -206,8 +206,9 @@ export default function CustomDomainsList({ user, action }: CustomDomainListProp
             <div className="mb-4 rounded-md border dark:border-slate-700">
               <Table className="table-fixed">
                 <TableHeader>
-                  <TableRow className="grid grid-cols-3 sm:grid-cols-5">
+                  <TableRow className="grid grid-cols-4 sm:grid-cols-6">
                     <TableHead className="col-span-1">域名</TableHead>
+                    <TableHead className="col-span-1">验证密钥</TableHead>
                     <TableHead className="col-span-1">验证方式</TableHead>
                     <TableHead className="col-span-1 hidden sm:table-cell">
                       创建时间
@@ -229,8 +230,9 @@ export default function CustomDomainsList({ user, action }: CustomDomainListProp
             <div className="mb-4 rounded-md border dark:border-slate-700">
               <Table className="table-fixed">
                 <TableHeader>
-                  <TableRow className="grid grid-cols-3 sm:grid-cols-5">
+                  <TableRow className="grid grid-cols-4 sm:grid-cols-6">
                     <TableHead className="col-span-1">域名</TableHead>
+                    <TableHead className="col-span-1">验证密钥</TableHead>
                     <TableHead className="col-span-1">验证方式</TableHead>
                     <TableHead className="col-span-1 hidden sm:table-cell">
                       创建时间
@@ -249,10 +251,13 @@ export default function CustomDomainsList({ user, action }: CustomDomainListProp
                       return (
                         <TableRow
                           key={domain.id || Math.random()}
-                          className="grid grid-cols-3 items-center sm:grid-cols-5"
+                          className="grid grid-cols-4 items-center sm:grid-cols-6"
                         >
                           <TableCell className="col-span-1 font-medium">
                             {domain.domainName || "未知域名"}
+                          </TableCell>
+                          <TableCell className="col-span-1 break-all">
+                            {domain.verificationKey || "无"}
                           </TableCell>
                           <TableCell className="col-span-1">
                             <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950">
