@@ -179,34 +179,35 @@ export async function deleteUserCustomDomain(userId: string, id: string) {
 // 更新自定义域名
 export async function updateUserCustomDomain(userId: string, data: any) {
   try {
-    const { id, domainName, isVerified, enableEmail, emailVerified } = updateCustomDomainSchema.parse(data);
+    const { id, domainName, isVerified, enableEmail, emailVerified } =
+      updateCustomDomainSchema.parse(data);
 
     let updateQuery = `
       UPDATE user_custom_domains
       SET 
     `;
 
-    const updateParts = [];
-    
+    const updateParts: string[] = [];
+
     if (domainName !== undefined) {
       updateParts.push(`"domainName" = '${domainName}'`);
     }
-    
+
     if (isVerified !== undefined) {
       updateParts.push(`"isVerified" = ${isVerified}`);
     }
-    
+
     if (enableEmail !== undefined) {
       updateParts.push(`"enableEmail" = ${enableEmail}`);
     }
-    
+
     if (emailVerified !== undefined) {
       updateParts.push(`"emailVerified" = ${emailVerified}`);
     }
-    
+
     updateParts.push(`updated_at = NOW()`);
-    
-    updateQuery += updateParts.join(', ');
+
+    updateQuery += updateParts.join(", ");
     updateQuery += ` WHERE id = '${id}' AND "userId" = '${userId}' RETURNING *`;
 
     const result = await prisma.$queryRawUnsafe(updateQuery);
@@ -652,7 +653,7 @@ async function verifySPFRecord(
       const txtRecords = await resolveTxt(domainName);
 
       // 查找SPF记录
-      let spfRecord = null;
+      let spfRecord: string | null = null;
       for (const txtParts of txtRecords) {
         const txtValue = txtParts.join("");
         if (txtValue.startsWith("v=spf1")) {

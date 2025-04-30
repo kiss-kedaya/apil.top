@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { auth } from "auth";
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import {
   configureEmailService,
   verifyEmailConfiguration,
@@ -12,7 +11,7 @@ import {
 // 配置邮箱服务
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions as any);
+    const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "未授权访问" },
@@ -45,7 +44,7 @@ export async function POST(request: Request) {
 // 验证邮箱配置
 export async function PUT(request: Request) {
   try {
-    const session = await getServerSession(authOptions as any);
+    const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "未授权访问" },

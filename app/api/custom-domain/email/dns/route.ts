@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
+import { auth } from "auth";
 
-import { authConfig } from "@/lib/auth";
 import { verifyEmailDNSRecords } from "@/lib/dto/custom-domain";
 
 // 验证邮箱DNS记录
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authConfig);
+    const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "未授权访问" },
