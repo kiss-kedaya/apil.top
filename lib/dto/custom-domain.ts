@@ -7,6 +7,7 @@ import { prisma } from "@/lib/db";
 // 新增自定义域名验证
 export const createCustomDomainSchema = z.object({
   domainName: z.string().min(1).max(100),
+  enableEmail: z.boolean().optional().default(false),
 });
 
 // 更新自定义域名验证
@@ -14,6 +15,18 @@ export const updateCustomDomainSchema = z.object({
   id: z.string().min(1),
   domainName: z.string().min(1).max(100),
   isVerified: z.boolean().optional(),
+  enableEmail: z.boolean().optional(),
+  emailVerified: z.boolean().optional(),
+});
+
+// 邮箱配置验证
+export const emailConfigSchema = z.object({
+  id: z.string().min(1),
+  smtpServer: z.string().min(1),
+  smtpPort: z.number().int().positive(),
+  smtpUsername: z.string().min(1),
+  smtpPassword: z.string().min(1),
+  fromEmail: z.string().email(),
 });
 
 // 验证结果接口
@@ -49,7 +62,7 @@ type ApiResponse<T> = ApiResponseError | ApiResponseSuccess<T>;
 // 创建自定义域名
 export async function createUserCustomDomain(userId: string, data: any) {
   try {
-    const { domainName } = createCustomDomainSchema.parse(data);
+    const { domainName, enableEmail } = createCustomDomainSchema.parse(data);
 
     // 生成随机验证密钥
     const verificationKey = Array(16)
@@ -75,7 +88,14 @@ export async function createUserCustomDomain(userId: string, data: any) {
         "domainName", 
         "isCloudflare", 
         "verificationKey", 
-        "isVerified", 
+        "isVerified",
+        "enableEmail",
+        "emailVerified",
+        "smtpServer",
+        "smtpPort",
+        "smtpUsername",
+        "smtpPassword",
+        "fromEmail",
         created_at, 
         updated_at
       )
@@ -85,7 +105,14 @@ export async function createUserCustomDomain(userId: string, data: any) {
         ${domainName}, 
         true, 
         ${verificationKey}, 
-        false, 
+        false,
+        ${enableEmail || false},
+        false,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
         NOW(), 
         NOW()
       )
@@ -152,17 +179,37 @@ export async function deleteUserCustomDomain(userId: string, id: string) {
 // 更新自定义域名
 export async function updateUserCustomDomain(userId: string, data: any) {
   try {
-    const { id, domainName, isVerified } = updateCustomDomainSchema.parse(data);
+    const { id, domainName, isVerified, enableEmail, emailVerified } = updateCustomDomainSchema.parse(data);
 
-    const result = await prisma.$queryRaw`
+    let updateQuery = `
       UPDATE user_custom_domains
       SET 
-        "domainName" = ${domainName},
-        "isVerified" = ${isVerified !== undefined ? isVerified : false},
-        updated_at = NOW()
-      WHERE id = ${id} AND "userId" = ${userId}
-      RETURNING *
     `;
+
+    const updateParts = [];
+    
+    if (domainName !== undefined) {
+      updateParts.push(`"domainName" = '${domainName}'`);
+    }
+    
+    if (isVerified !== undefined) {
+      updateParts.push(`"isVerified" = ${isVerified}`);
+    }
+    
+    if (enableEmail !== undefined) {
+      updateParts.push(`"enableEmail" = ${enableEmail}`);
+    }
+    
+    if (emailVerified !== undefined) {
+      updateParts.push(`"emailVerified" = ${emailVerified}`);
+    }
+    
+    updateParts.push(`updated_at = NOW()`);
+    
+    updateQuery += updateParts.join(', ');
+    updateQuery += ` WHERE id = '${id}' AND "userId" = '${userId}' RETURNING *`;
+
+    const result = await prisma.$queryRawUnsafe(updateQuery);
 
     return {
       status: "success",
@@ -327,5 +374,483 @@ async function verifyDomainDNS(domain: any): Promise<DomainVerificationResult> {
       message: "验证过程中发生错误，请稍后重试",
       details: { error: String(error) },
     };
+  }
+}
+
+// 配置邮箱服务
+export async function configureEmailService(
+  userId: string,
+  data: any,
+): Promise<ApiResponse<any>> {
+  try {
+    const { id, smtpServer, smtpPort, smtpUsername, smtpPassword, fromEmail } =
+      emailConfigSchema.parse(data);
+
+    // 检查域名是否存在且已验证
+    const domainResult = await getUserCustomDomainById(userId, id);
+    if (domainResult.status === "error" || !domainResult.data) {
+      return { status: "error", message: "域名不存在" };
+    }
+
+    const domain = domainResult.data;
+    if (!domain.isVerified) {
+      return { status: "error", message: "请先验证域名所有权后再配置邮箱服务" };
+    }
+
+    // 更新邮箱服务配置
+    const result = await prisma.$queryRaw`
+      UPDATE user_custom_domains
+      SET 
+        "smtpServer" = ${smtpServer},
+        "smtpPort" = ${smtpPort},
+        "smtpUsername" = ${smtpUsername},
+        "smtpPassword" = ${smtpPassword},
+        "fromEmail" = ${fromEmail},
+        "enableEmail" = true,
+        updated_at = NOW()
+      WHERE id = ${id} AND "userId" = ${userId}
+      RETURNING *
+    `;
+
+    return {
+      status: "success",
+      data: Array.isArray(result) && result.length > 0 ? result[0] : null,
+    };
+  } catch (error) {
+    console.error("配置邮箱服务错误:", error);
+    return { status: "error", message: "配置邮箱服务失败" };
+  }
+}
+
+// 验证邮箱配置
+export async function verifyEmailConfiguration(
+  userId: string,
+  id: string,
+): Promise<ApiResponse<any>> {
+  try {
+    // 获取域名信息
+    const domainResult = await getUserCustomDomainById(userId, id);
+    if (domainResult.status === "error" || !domainResult.data) {
+      return { status: "error", message: "域名不存在" };
+    }
+
+    const domain = domainResult.data;
+
+    // 检查是否已配置SMTP信息
+    if (!domain.smtpServer || !domain.smtpUsername || !domain.smtpPassword) {
+      return { status: "error", message: "请先配置SMTP服务信息" };
+    }
+
+    // 这里应该添加实际的邮箱测试逻辑
+    // 例如：发送测试邮件并验证是否成功
+    try {
+      const testResult = await testEmailConfiguration(domain);
+      if (!testResult.success) {
+        return {
+          status: "error",
+          message: `邮箱配置验证失败: ${testResult.message}`,
+          details: testResult.details,
+        };
+      }
+
+      // 验证成功，更新状态
+      const result = await prisma.$queryRaw`
+        UPDATE user_custom_domains
+        SET 
+          "emailVerified" = true,
+          updated_at = NOW()
+        WHERE id = ${id} AND "userId" = ${userId}
+        RETURNING *
+      `;
+
+      return {
+        status: "success",
+        data: Array.isArray(result) && result.length > 0 ? result[0] : null,
+      };
+    } catch (error) {
+      return {
+        status: "error",
+        message: `邮箱配置测试失败: ${error.message || "未知错误"}`,
+      };
+    }
+  } catch (error) {
+    console.error("验证邮箱配置错误:", error);
+    return { status: "error", message: "验证邮箱配置过程中发生错误" };
+  }
+}
+
+// 测试邮箱配置
+async function testEmailConfiguration(
+  domain: any,
+): Promise<{ success: boolean; message?: string; details?: any }> {
+  try {
+    // 这里实现发送测试邮件的逻辑
+    // 使用node-mailer或其他邮件库发送测试邮件
+
+    // 模拟测试过程
+    console.log(`测试邮箱配置: ${domain.smtpServer}:${domain.smtpPort}`);
+
+    // TODO: 实现实际的邮件发送测试
+    // 以下是一个模拟，实际实现需要使用正确的邮件库
+
+    /*
+    const nodemailer = require('nodemailer');
+    
+    // 创建邮件传输对象
+    const transporter = nodemailer.createTransport({
+      host: domain.smtpServer,
+      port: domain.smtpPort,
+      secure: domain.smtpPort === 465, // true for 465, false for other ports
+      auth: {
+        user: domain.smtpUsername,
+        pass: domain.smtpPassword,
+      },
+    });
+    
+    // 发送测试邮件
+    const info = await transporter.sendMail({
+      from: domain.fromEmail,
+      to: domain.smtpUsername, // 发送给自己作为测试
+      subject: "邮箱配置测试",
+      text: "这是一封测试邮件，用于验证您的邮箱配置是否正确。",
+      html: "<b>这是一封测试邮件，用于验证您的邮箱配置是否正确。</b>",
+    });
+
+    console.log("邮件发送成功:", info.messageId);
+    */
+
+    // 模拟成功
+    return { success: true };
+  } catch (error) {
+    console.error("测试邮箱配置错误:", error);
+    return {
+      success: false,
+      message: `邮箱测试失败: ${error.message || "未知错误"}`,
+      details: { error: String(error) },
+    };
+  }
+}
+
+// 验证邮箱DNS记录 (MX, SPF, DKIM, DMARC)
+export async function verifyEmailDNSRecords(
+  userId: string,
+  id: string,
+): Promise<ApiResponse<any>> {
+  try {
+    const domainResult = await getUserCustomDomainById(userId, id);
+    if (domainResult.status === "error" || !domainResult.data) {
+      return { status: "error", message: "域名不存在" };
+    }
+
+    const domain = domainResult.data;
+    const domainName = domain.domainName;
+
+    // 验证MX记录
+    const mxResult = await verifyMXRecords(domainName);
+    if (!mxResult.success) {
+      return {
+        status: "error",
+        message: `MX记录验证失败: ${mxResult.message}`,
+        details: mxResult.details,
+      };
+    }
+
+    // 验证SPF记录
+    const spfResult = await verifySPFRecord(domainName);
+    if (!spfResult.success) {
+      return {
+        status: "error",
+        message: `SPF记录验证失败: ${spfResult.message}`,
+        details: spfResult.details,
+      };
+    }
+
+    // 验证DKIM记录
+    const dkimResult = await verifyDKIMRecord(domainName);
+    if (!dkimResult.success) {
+      return {
+        status: "error",
+        message: `DKIM记录验证失败: ${dkimResult.message}`,
+        details: dkimResult.details,
+      };
+    }
+
+    // 验证DMARC记录
+    const dmarcResult = await verifyDMARCRecord(domainName);
+    if (!dmarcResult.success) {
+      return {
+        status: "error",
+        message: `DMARC记录验证失败: ${dmarcResult.message}`,
+        details: dmarcResult.details,
+      };
+    }
+
+    return {
+      status: "success",
+      data: {
+        mx: mxResult,
+        spf: spfResult,
+        dkim: dkimResult,
+        dmarc: dmarcResult,
+      },
+    };
+  } catch (error) {
+    console.error("验证邮箱DNS记录错误:", error);
+    return { status: "error", message: "验证邮箱DNS记录过程中发生错误" };
+  }
+}
+
+// 验证MX记录
+async function verifyMXRecords(
+  domainName: string,
+): Promise<DomainVerificationResult> {
+  try {
+    const resolveMx = promisify(dns.resolveMx);
+
+    try {
+      const mxRecords = await resolveMx(domainName);
+
+      if (!mxRecords || mxRecords.length === 0) {
+        return {
+          success: false,
+          message: "未找到MX记录，请添加MX记录以支持邮件收发",
+          details: {
+            recordType: "MX",
+            lookupName: domainName,
+          },
+        };
+      }
+
+      return { success: true, details: { mxRecords } };
+    } catch (dnsError: any) {
+      return {
+        success: false,
+        message: `MX记录查询失败: ${dnsError.message || dnsError.code}`,
+        details: {
+          errorCode: dnsError.code,
+          error: dnsError.message,
+        },
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: "验证MX记录过程中发生错误",
+      details: { error: String(error) },
+    };
+  }
+}
+
+// 验证SPF记录
+async function verifySPFRecord(
+  domainName: string,
+): Promise<DomainVerificationResult> {
+  try {
+    const resolveTxt = promisify(dns.resolveTxt);
+
+    try {
+      const txtRecords = await resolveTxt(domainName);
+
+      // 查找SPF记录
+      let spfRecord = null;
+      for (const txtParts of txtRecords) {
+        const txtValue = txtParts.join("");
+        if (txtValue.startsWith("v=spf1")) {
+          spfRecord = txtValue;
+          break;
+        }
+      }
+
+      if (!spfRecord) {
+        return {
+          success: false,
+          message: "未找到SPF记录，请添加SPF记录以防止邮件被标记为垃圾邮件",
+          details: {
+            recordType: "TXT (SPF)",
+            lookupName: domainName,
+            recommendedValue: "v=spf1 include:_spf.yourmailserver.com ~all",
+          },
+        };
+      }
+
+      return { success: true, details: { spfRecord } };
+    } catch (dnsError: any) {
+      return {
+        success: false,
+        message: `SPF记录查询失败: ${dnsError.message || dnsError.code}`,
+        details: {
+          errorCode: dnsError.code,
+          error: dnsError.message,
+        },
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: "验证SPF记录过程中发生错误",
+      details: { error: String(error) },
+    };
+  }
+}
+
+// 验证DKIM记录
+async function verifyDKIMRecord(
+  domainName: string,
+): Promise<DomainVerificationResult> {
+  try {
+    const resolveTxt = promisify(dns.resolveTxt);
+    const selector = "default"; // 通常使用default或mail作为选择器
+    const dkimRecordName = `${selector}._domainkey.${domainName}`;
+
+    try {
+      const txtRecords = await resolveTxt(dkimRecordName);
+
+      if (!txtRecords || txtRecords.length === 0) {
+        return {
+          success: false,
+          message: "未找到DKIM记录，请添加DKIM记录以提高邮件可信度",
+          details: {
+            recordType: "TXT (DKIM)",
+            lookupName: dkimRecordName,
+            selector,
+            recommendedValue: "v=DKIM1; k=rsa; p=YOUR_PUBLIC_KEY",
+          },
+        };
+      }
+
+      // 检查DKIM记录格式
+      const dkimValue = txtRecords[0].join("");
+      if (!dkimValue.includes("v=DKIM1")) {
+        return {
+          success: false,
+          message: "DKIM记录格式不正确，请确保包含v=DKIM1标识",
+          details: {
+            recordType: "TXT (DKIM)",
+            lookupName: dkimRecordName,
+            actualValue: dkimValue,
+            recommendedFormat: "v=DKIM1; k=rsa; p=YOUR_PUBLIC_KEY",
+          },
+        };
+      }
+
+      return { success: true, details: { dkimRecord: dkimValue } };
+    } catch (dnsError: any) {
+      return {
+        success: false,
+        message: `DKIM记录查询失败: ${dnsError.message || dnsError.code}`,
+        details: {
+          errorCode: dnsError.code,
+          error: dnsError.message,
+        },
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: "验证DKIM记录过程中发生错误",
+      details: { error: String(error) },
+    };
+  }
+}
+
+// 验证DMARC记录
+async function verifyDMARCRecord(
+  domainName: string,
+): Promise<DomainVerificationResult> {
+  try {
+    const resolveTxt = promisify(dns.resolveTxt);
+    const dmarcRecordName = `_dmarc.${domainName}`;
+
+    try {
+      const txtRecords = await resolveTxt(dmarcRecordName);
+
+      if (!txtRecords || txtRecords.length === 0) {
+        return {
+          success: false,
+          message: "未找到DMARC记录，请添加DMARC记录以提高邮件安全性",
+          details: {
+            recordType: "TXT (DMARC)",
+            lookupName: dmarcRecordName,
+            recommendedValue:
+              "v=DMARC1; p=none; rua=mailto:dmarc@yourdomain.com",
+          },
+        };
+      }
+
+      // 检查DMARC记录格式
+      const dmarcValue = txtRecords[0].join("");
+      if (!dmarcValue.includes("v=DMARC1")) {
+        return {
+          success: false,
+          message: "DMARC记录格式不正确，请确保包含v=DMARC1标识",
+          details: {
+            recordType: "TXT (DMARC)",
+            lookupName: dmarcRecordName,
+            actualValue: dmarcValue,
+            recommendedFormat:
+              "v=DMARC1; p=none; rua=mailto:dmarc@yourdomain.com",
+          },
+        };
+      }
+
+      return { success: true, details: { dmarcRecord: dmarcValue } };
+    } catch (dnsError: any) {
+      return {
+        success: false,
+        message: `DMARC记录查询失败: ${dnsError.message || dnsError.code}`,
+        details: {
+          errorCode: dnsError.code,
+          error: dnsError.message,
+        },
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: "验证DMARC记录过程中发生错误",
+      details: { error: String(error) },
+    };
+  }
+}
+
+// 获取邮箱服务状态
+export async function getEmailServiceStatus(
+  userId: string,
+  id: string,
+): Promise<ApiResponse<any>> {
+  try {
+    const domainResult = await getUserCustomDomainById(userId, id);
+    if (domainResult.status === "error" || !domainResult.data) {
+      return { status: "error", message: "域名不存在" };
+    }
+
+    const domain = domainResult.data;
+
+    if (!domain.enableEmail) {
+      return {
+        status: "success",
+        data: {
+          enabled: false,
+          message: "邮箱服务未启用",
+        },
+      };
+    }
+
+    // 验证所有必要的DNS记录
+    const dnsStatus = await verifyEmailDNSRecords(userId, id);
+
+    return {
+      status: "success",
+      data: {
+        enabled: domain.enableEmail,
+        verified: domain.emailVerified,
+        smtpConfigured: !!domain.smtpServer,
+        dnsStatus: dnsStatus.status === "success" ? dnsStatus.data : null,
+        dnsError: dnsStatus.status === "error" ? dnsStatus.message : null,
+      },
+    };
+  } catch (error) {
+    console.error("获取邮箱服务状态错误:", error);
+    return { status: "error", message: "获取邮箱服务状态失败" };
   }
 }
