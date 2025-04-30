@@ -12,9 +12,12 @@ export async function GET(req: Request) {
     if (isAdmin === "true") {
       if (user instanceof Response) return user;
       if (user.role !== "ADMIN") {
-        return Response.json({ message: "未授权" }, {
+        return new Response(JSON.stringify({ message: "未授权" }), {
           status: 401,
-          statusText: "未授权",
+          statusText: "Unauthorized",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8"
+          }
         });
       }
     }
@@ -23,7 +26,11 @@ export async function GET(req: Request) {
       isAdmin === "true" ? undefined : user.id,
     );
 
-    return Response.json(logs);
+    return new Response(JSON.stringify(logs), {
+      headers: {
+        "Content-Type": "application/json; charset=utf-8"
+      }
+    });
   } catch (error) {
     const errorMessage = typeof error === 'string' 
       ? { message: error } 
@@ -31,9 +38,12 @@ export async function GET(req: Request) {
           ? { message: error.statusText || '服务器错误', ...error } 
           : { message: '服务器错误' });
     
-    return Response.json(errorMessage, {
+    return new Response(JSON.stringify(errorMessage), {
       status: error && typeof error === 'object' && 'status' in error ? error.status : 500,
-      statusText: error && typeof error === 'object' && 'statusText' in error ? error.statusText : '服务器错误',
+      statusText: "Internal Server Error",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8"
+      }
     });
   }
 }
