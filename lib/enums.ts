@@ -146,7 +146,7 @@ export const reservedDomains = [
   "tiktok.apil.top",
   "whatsapp.apil.top",
   "telegram.apil.top",
-  "discord.apil.top",
+  "Telegram.apil.top",
   "slack.apil.top",
 
   "blog.apil.top",

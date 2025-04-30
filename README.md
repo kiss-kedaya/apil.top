@@ -1,6 +1,6 @@
 <div align="center">
   <h1>apil.top</h1>
-  <p><a href="https://discord.gg/AHPQYuZu3m">Discord</a> · English | <a href="/README-zh.md">简体中文</a></p>
+  <p><a href="https://t.me/TGG798">Telegram</a> · English | <a href="/README-zh.md">简体中文</a></p>
   <p>Make Short Links, Manage DNS Records, Email Support.</p>
   <!-- <img src="https://apil.top/_static/images/light-preview.png"/> -->
 </div>
@@ -68,7 +68,7 @@ pnpm dev
 
 ## Community Group
 
-- Discord: https://discord.gg/AHPQYuZu3m
+- Telegram: https://t.me/TGG798
 
 ## License
 

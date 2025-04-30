@@ -17,8 +17,8 @@ export const marketingConfig: MarketingConfig = {
       href: siteConfig.links.feedback,
     },
     {
-      title: "Discord",
-      href: "https://discord.gg/AHPQYuZu3m",
+      title: "Telegram",
+      href: siteConfig.links.Telegram,
     },
     {
       title: "价格",

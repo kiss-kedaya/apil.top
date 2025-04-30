@@ -13,7 +13,7 @@ export type SiteConfig = {
     twitter: string;
     github: string;
     feedback: string;
-    discord: string;
+    Telegram: string;
     oichat: string;
   };
   openSignup: boolean;

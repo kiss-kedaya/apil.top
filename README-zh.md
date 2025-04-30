@@ -1,6 +1,6 @@
 <div align="center">
   <h1>apil.top</h1>
-  <p><a href="https://discord.gg/AHPQYuZu3m">Discord</a> · English | <a href="/README-zh.md">简体中文</a></p>
+  <p><a href="https://t.me/TGG798">Telegram</a> · English | <a href="/README-zh.md">简体中文</a></p>
   <p>生成短链接, 创建 DNS 记录, 管理临时邮箱</p>
   <!-- <img src="https://apil.top/_static/images/light-preview.png"/> -->
 </div>
@@ -58,7 +58,7 @@ pnpm dev
 
 ## 社区群组
 
-- Discord: https://discord.gg/AHPQYuZu3m
+- Telegram: https://t.me/TGG798
 
 ## 许可证
 

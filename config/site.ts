@@ -17,7 +17,7 @@ export const siteConfig: SiteConfig = {
     twitter: "https://twitter.com/yesmoree",
     github: "https://github.com/kiss-kedaya/apil.top",
     feedback: "https://github.com/kiss-kedaya/apil.top/issues",
-    discord: "https://discord.gg/AHPQYuZu3m",
+    Telegram: "https://t.me/TGG798",
     oichat: "https://oi.apil.top",
   },
   mailSupport: "kedaya0226@qq.com",
@@ -37,16 +37,6 @@ export const footerLinks: SidebarNavItem[] = [
       { title: "隐私", href: "/privacy" },
       { title: "博客", href: "https://www.kiss-kedaya.dev" },
       { title: "反馈", href: siteConfig.links.feedback },
-    ],
-  },
-  {
-    title: "产品",
-    items: [
-      { title: "Vmail", href: "https://vmail.dev" },
-      { title: "Moise", href: "https://moise.kiss-kedaya.dev" },
-      // { title: "Inke", href: "https://inke.apil.top" },
-      { title: "Iconce", href: "https://iconce.com" },
-      { title: "OiChat", href: siteConfig.links.oichat },
     ],
   },
   {
