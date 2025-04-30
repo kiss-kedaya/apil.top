@@ -43,42 +43,42 @@ const nextConfig = {
       },
       {
         source: "/0",
-        destination: "https://apil.top/s/0",
+        destination: "/s/0",
         permanent: true,
       },
       {
         source: "/9",
-        destination: "https://apil.top/s/9",
+        destination: "/s/9",
         permanent: true,
       },
       {
         source: "/ai",
-        destination: "https://apil.top/s/ai?ref=wrdo",
+        destination: "/s/ai?ref=wrdo",
         permanent: true,
       },
       {
         source: "/cps",
-        destination: "https://apil.top/s/cps",
+        destination: "/s/cps",
         permanent: true,
       },
       {
         source: "/x",
-        destination: "https://apil.top/s/x",
+        destination: "/s/x",
         permanent: true,
       },
       {
         source: "/solo",
-        destination: "https://apil.top/s/solo",
+        destination: "/s/solo",
         permanent: true,
       },
       {
         source: "/rmbg",
-        destination: "https://apil.top/s/rmbg",
+        destination: "/s/rmbg",
         permanent: true,
       },
       {
         source: "/llk",
-        destination: "https://apil.top/s/llk",
+        destination: "/s/llk",
         permanent: true,
       },
     ];
