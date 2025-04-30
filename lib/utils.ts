@@ -241,30 +241,54 @@ export function removeUrlSuffix(url: string): string {
 }
 
 export function getIpInfo(req: Request) {
-  const geo = geolocation(req);
-  const ua = req.headers.get("user-agent") || "";
-  const parser = new UAParser();
-  parser.setUA(ua);
-  const browser = parser.getBrowser();
-  const device = parser.getDevice();
-  const referer = req.headers.get("referer") || "(None)";
-  const ip = req.headers.get("X-Forwarded-For") || "127.0.0.1";
-  const userLanguage =
-    req.headers.get("accept-language")?.split(",")[0] || "en-US";
+  let geo;
+  try {
+    geo = geolocation(req);
+  } catch (error) {
+    console.error("Geolocation error:", error);
+    geo = {}; // 使用空对象作为备选
+  }
 
-  return {
-    referer,
-    ip,
-    city: geo?.city || "",
-    region: geo?.region || "",
-    country: geo?.country || "",
-    latitude: geo?.latitude || "",
-    longitude: geo?.longitude || "",
-    flag: geo?.flag,
-    lang: userLanguage,
-    device: device.model || "Unknown",
-    browser: browser.name || "Unknown",
-  };
+  try {
+    const ua = req.headers.get("user-agent") || "";
+    const parser = new UAParser();
+    parser.setUA(ua);
+    const browser = parser.getBrowser() || { name: "Unknown" };
+    const device = parser.getDevice() || { model: "Unknown" };
+    const referer = req.headers.get("referer") || "(None)";
+    const ip = req.headers.get("X-Forwarded-For") || "127.0.0.1";
+    const userLanguage =
+      req.headers.get("accept-language")?.split(",")[0] || "en-US";
+
+    return {
+      referer,
+      ip,
+      city: geo?.city || "",
+      region: geo?.region || "",
+      country: geo?.country || "",
+      latitude: geo?.latitude || "",
+      longitude: geo?.longitude || "",
+      flag: geo?.flag || "",
+      lang: userLanguage,
+      device: device.model || "Unknown",
+      browser: browser.name || "Unknown",
+    };
+  } catch (error) {
+    console.error("IP info processing error:", error);
+    return {
+      referer: "(None)",
+      ip: "127.0.0.1",
+      city: "",
+      region: "",
+      country: "",
+      latitude: "",
+      longitude: "",
+      flag: "",
+      lang: "en-US",
+      device: "Unknown",
+      browser: "Unknown",
+    };
+  }
 }
 
 export function toCamelCase(str: string) {
