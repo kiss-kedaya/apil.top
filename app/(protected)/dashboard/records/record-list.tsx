@@ -126,7 +126,7 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
       }
     } else {
       setChecked(originalState);
-      toast.error("Failed to update status");
+      toast.error("更新状态失败");
     }
   };
 
@@ -136,30 +136,30 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
         <CardHeader className="flex flex-row items-center">
           {action.includes("/admin") ? (
             <CardDescription className="text-balance text-lg font-bold">
-              <span>Total Records:</span>{" "}
+              <span>记录总数：</span>{" "}
               <span className="font-bold">{data && data.total}</span>
             </CardDescription>
           ) : (
             <div className="grid gap-2">
-              <CardTitle>DNS Records</CardTitle>
+              <CardTitle>DNS记录</CardTitle>
               <CardDescription className="hidden text-balance sm:block">
-                Please read the{" "}
+                使用前请阅读{" "}
                 <Link
                   target="_blank"
                   className="font-semibold text-yellow-600 after:content-['↗'] hover:underline"
                   href="/docs/dns-records#legitimacy-review"
                 >
-                  Legitimacy review
+                  合法性审查
                 </Link>{" "}
-                before using. See{" "}
+                。查看{" "}
                 <Link
                   target="_blank"
                   className="text-blue-500 hover:underline"
                   href="/docs/examples/vercel"
                 >
-                  examples
+                  示例
                 </Link>{" "}
-                for more usage.
+                了解更多用法。
               </CardDescription>
             </div>
           )}
@@ -185,7 +185,7 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
                 setShowForm(!isShowForm);
               }}
             >
-              Add record
+              添加记录
             </Button>
           </div>
         </CardHeader>
@@ -205,25 +205,25 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
             <TableHeader className="bg-gray-100/50 dark:bg-primary-foreground">
               <TableRow className="grid grid-cols-3 items-center sm:grid-cols-8">
                 <TableHead className="col-span-1 flex items-center font-bold">
-                  Type
+                  类型
                 </TableHead>
                 <TableHead className="col-span-1 flex items-center font-bold">
-                  Name
+                  名称
                 </TableHead>
                 <TableHead className="col-span-2 hidden items-center font-bold sm:flex">
-                  Content
+                  内容
                 </TableHead>
                 <TableHead className="col-span-1 hidden items-center font-bold sm:flex">
                   TTL
                 </TableHead>
                 <TableHead className="col-span-1 hidden items-center justify-center font-bold sm:flex">
-                  Status
+                  状态
                 </TableHead>
                 <TableHead className="col-span-1 hidden items-center justify-center font-bold sm:flex">
-                  Updated
+                  更新时间
                 </TableHead>
                 <TableHead className="col-span-1 flex items-center justify-center font-bold">
-                  Actions
+                  操作
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -248,68 +248,52 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
                       </Badge>
                     </TableCell>
                     <TableCell className="col-span-1">
-                      <LinkPreviewer
-                        apiKey={user.apiKey ?? ""}
-                        url={"https://" + record.name}
-                        formatUrl={
-                          "https://" + record.name.endsWith(".kedaya.xyz")
-                            ? record.name.slice(0, -6)
-                            : record.name
-                        }
-                      />
-                    </TableCell>
-                    <TableCell className="col-span-2 hidden truncate text-nowrap sm:inline-block">
                       <TooltipProvider>
                         <Tooltip delayDuration={200}>
-                          <TooltipTrigger className="truncate">
-                            {record.content}
+                          <TooltipTrigger>
+                            <span className="max-w-20 truncate">
+                              {record.name?.slice(0, 16) + "..."}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>{record.name}</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+                    <TableCell className="col-span-2 hidden pr-0 sm:flex">
+                      <TooltipProvider>
+                        <Tooltip delayDuration={200}>
+                          <TooltipTrigger>
+                            <span className="max-w-36 truncate">
+                              {record.content}
+                            </span>
                           </TooltipTrigger>
                           <TooltipContent>{record.content}</TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </TableCell>
-                    <TableCell className="col-span-1 hidden sm:inline-block">
-                      {
-                        TTL_ENUMS.find((ttl) => ttl.value === `${record.ttl}`)
-                          ?.label
-                      }
+                    <TableCell className="col-span-1 hidden sm:flex">
+                      <span
+                        className={
+                          record.ttl === 1
+                            ? "text-xs text-orange-500"
+                            : "text-xs text-blue-500"
+                        }
+                      >
+                        {record.ttl === 1
+                          ? "自动"
+                          : TTL_ENUMS.find((t) => t.value === String(record.ttl))
+                              ?.label || record.ttl}
+                      </span>
                     </TableCell>
-                    <TableCell className="col-span-1 hidden items-center justify-center gap-1 sm:flex">
-                      <SwitchWrapper
-                        record={record}
-                        onChangeStatu={handleChangeStatu}
-                      />
-                      {!record.active && (
-                        <TooltipProvider>
-                          <Tooltip delayDuration={200}>
-                            <TooltipTrigger className="truncate">
-                              <Icons.help className="size-4 cursor-pointer text-yellow-500 opacity-90" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <ul className="list-disc px-3">
-                                <li>The target is currently inaccessible.</li>
-                                <li>Please check the target and try again.</li>
-                                <li>
-                                  If the target is not activated within 3 days,{" "}
-                                  <br />
-                                  the administrator will{" "}
-                                  <strong className="text-red-500">
-                                    delete this record
-                                  </strong>
-                                  .
-                                </li>
-                              </ul>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      )}
+                    <TableCell className="col-span-1 hidden justify-center sm:flex">
+                      <SwitchWrapper record={record} onChangeStatu={handleChangeStatu} />
                     </TableCell>
                     <TableCell className="col-span-1 hidden justify-center sm:flex">
                       {timeAgo(record.modified_on as unknown as Date)}
                     </TableCell>
                     <TableCell className="col-span-1 flex justify-center">
                       <Button
-                        className="text-sm hover:bg-slate-100 dark:hover:text-primary-foreground"
+                        className="h-7 px-1 text-xs hover:bg-slate-100 dark:hover:text-primary-foreground"
                         size="sm"
                         variant={"outline"}
                         onClick={() => {
@@ -325,18 +309,18 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
                           }
                         }}
                       >
-                        <p>Edit</p>
-                        <PenLine className="ml-1 size-4" />
+                        <p className="hidden sm:block">编辑</p>
+                        <PenLine className="mx-0.5 size-4 sm:ml-1 sm:size-3" />
                       </Button>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <EmptyPlaceholder>
-                  <EmptyPlaceholder.Icon name="globeLock" />
-                  <EmptyPlaceholder.Title>No records</EmptyPlaceholder.Title>
+                  <EmptyPlaceholder.Icon name="globe" />
+                  <EmptyPlaceholder.Title>没有记录</EmptyPlaceholder.Title>
                   <EmptyPlaceholder.Description>
-                    You don&apos;t have any record yet. Start creating record.
+                    您还没有任何DNS记录。开始创建记录吧。
                   </EmptyPlaceholder.Description>
                 </EmptyPlaceholder>
               )}
@@ -370,6 +354,7 @@ const SwitchWrapper = ({
 
   return (
     <Switch
+      className="data-[state=checked]:bg-blue-500"
       checked={checked}
       onCheckedChange={(value) => onChangeStatu(value, record, setChecked)}
     />

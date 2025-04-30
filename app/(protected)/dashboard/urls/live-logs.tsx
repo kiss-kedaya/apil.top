@@ -248,14 +248,26 @@ export default function LiveLog({ admin }: { admin: boolean }) {
                           {log.target}
                         </a>
                       </TableCell>
-                      <TableCell className="px-1 py-1.5">
+                      <TableCell className="px-1 py-1.5 text-gray-400">
                         {log.ip}
                       </TableCell>
-                      <TableCell className="px-1 py-1.5">
-                        {log.city ? log.city : ""}
-                        {log.country ? `, ${getCountryName(log.country)}` : ""}
+                      <TableCell className="flex items-center gap-1 px-1 py-1.5">
+                        {log.country && (
+                          <>
+                            <img
+                              src={`https://hatscripts.github.io/circle-flags/flags/${log.country.toLowerCase()}.svg`}
+                              width="14"
+                              height="14"
+                              alt={getCountryName(log.country)}
+                              title={getCountryName(log.country)}
+                            />
+                            {log.city || ""}
+                          </>
+                        )}
                       </TableCell>
-                      <TableCell className="px-1 py-1.5">{log.click}</TableCell>
+                      <TableCell className="px-1 py-1.5 text-blue-500">
+                        {log.click}
+                      </TableCell>
                     </motion.tr>
                   ))}
                 </AnimatePresence>
@@ -264,27 +276,25 @@ export default function LiveLog({ admin }: { admin: boolean }) {
           </div>
         )}
         {isLive && (
-          <div className="flex w-full items-center justify-end gap-2 border-t border-dashed pt-4 text-sm text-gray-500">
-            <p>{logs.length}</p> of
-            <Select
-              onValueChange={(value: string) => {
-                setLimitDisplay(Number(value));
-              }}
-              name="expiration"
-              defaultValue={limitDiplay.toString()}
-            >
-              <SelectTrigger className="w-20 shadow-inner">
-                <SelectValue placeholder="Select a time" />
-              </SelectTrigger>
-              <SelectContent>
-                {LOGS_LIMITEs_ENUMS.map((e) => (
-                  <SelectItem key={e.value} value={e.value}>
-                    {e.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p>total logs</p>
+          <div className="flex items-center justify-end p-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">显示记录数：</span>
+              <Select
+                defaultValue="100"
+                onValueChange={(value) => setLimitDisplay(parseInt(value))}
+              >
+                <SelectTrigger className="h-8 w-32">
+                  <SelectValue placeholder="选择限制" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LOGS_LIMITEs_ENUMS.map((e) => (
+                    <SelectItem key={e.value} value={e.value}>
+                      {e.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         )}
       </CardContent>
