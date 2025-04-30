@@ -6,14 +6,9 @@ import UAParser from "ua-parser-js";
 
 import { siteConfig } from "./config/site";
 
-// 扩展matcher规则，明确排除更多可能导致循环的路径
+// 只匹配 /s/ 路径，其他全部放行
 export const config = {
-  matcher: [
-    // 排除常见的静态资源和API路径
-    "/((?!api|_next|static|images|docs|favicon.ico).*)",
-    // 排除所有带有扩展名的文件
-    "/((?!.*\\..*).+)"
-  ],
+  matcher: ["/s/:path*"],
 };
 
 const redirectMap = {
@@ -28,9 +23,6 @@ const redirectMap = {
 // 提取短链接处理逻辑
 async function handleShortUrl(req: NextAuthRequest) {
   try {
-    // 只处理短链接请求，其他URL模式直接放行
-    if (!req.url.includes("/s/")) return NextResponse.next();
-
     const slug = extractSlug(req.url);
     if (!slug)
       return NextResponse.redirect(`/docs/short-urls`, 302);
@@ -180,11 +172,10 @@ function parseUserAgent(ua: string) {
 
 export default auth(async (req) => {
   try {
-    // 首先检查URL是否是短链接路径，如果不是则直接放行
+    // 只处理 /s/ 路径，其他全部放行
     if (!req.url.includes("/s/")) {
       return NextResponse.next();
     }
-    
     // 处理短链接
     return await handleShortUrl(req);
   } catch (error) {
