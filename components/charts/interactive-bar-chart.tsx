@@ -211,7 +211,7 @@ export function InteractiveBarChart() {
                 />
               }
             />
-            <Bar dataKey={activeChart} fill={`var(--color-${activeChart})`} />
+            <Bar dataKey={activeChart} fill={`var(--color-${activeChart})`} isAnimationActive={false} />
           </BarChart>
         </ChartContainer>
       </CardContent>

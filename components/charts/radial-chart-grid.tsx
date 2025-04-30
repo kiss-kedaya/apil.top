@@ -69,7 +69,7 @@ export function RadialChartGrid() {
               content={<ChartTooltipContent hideLabel nameKey="browser" />}
             />
             <PolarGrid gridType="circle" />
-            <RadialBar dataKey="visitors" />
+            <RadialBar dataKey="visitors" isAnimationActive={false} />
           </RadialBarChart>
         </ChartContainer>
       </CardContent>

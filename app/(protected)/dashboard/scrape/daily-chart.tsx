@@ -214,6 +214,7 @@ export function DailyPVUVChart({ data }: { data: ScrapeMeta[] }) {
               stroke={`var(--color-ip)`}
               fillOpacity={1}
               fill="url(#colorUv)"
+              isAnimationActive={false}
             />
             <Area
               type="monotone"
@@ -221,6 +222,7 @@ export function DailyPVUVChart({ data }: { data: ScrapeMeta[] }) {
               stroke={`var(--color-request)`}
               fillOpacity={1}
               fill="url(#colorPv)"
+              isAnimationActive={false}
             />
           </AreaChart>
         </ChartContainer>

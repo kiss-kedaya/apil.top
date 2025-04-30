@@ -42,7 +42,7 @@ export function RadialShapeChart({
         >
           <RadialBarChart
             data={chartData}
-            endAngle={total}
+            endAngle={total > 0 ? total : 1}
             innerRadius={80}
             outerRadius={140}
           >
@@ -53,7 +53,7 @@ export function RadialShapeChart({
               className="first:fill-muted last:fill-background"
               polarRadius={[86, 74]}
             />
-            <RadialBar dataKey="actived" background />
+            <RadialBar dataKey="actived" background isAnimationActive={false} />
             <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
               <Label
                 content={({ viewBox }) => {

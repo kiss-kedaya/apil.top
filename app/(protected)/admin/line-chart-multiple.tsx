@@ -119,11 +119,17 @@ export function LineChartMultiple({
               axisLine={true}
               tickMargin={2}
               tickFormatter={(value) => {
-                const date = new Date(value);
-                return date.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                });
+                if (!value) return "";
+                try {
+                  const date = new Date(value);
+                  return date.toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  });
+                } catch (e) {
+                  console.error("Date formatting error:", e);
+                  return "";
+                }
               }}
             />
             <YAxis width={20} axisLine={false} tickLine={false} />

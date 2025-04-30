@@ -422,9 +422,9 @@ export function StatsList({ data, title }: { data: Stat[]; title: string }) {
             <div
               className="absolute left-0 top-0 h-7 rounded-lg px-0.5 py-1 leading-none transition-all duration-300"
               style={{
-                width: `${ref.percentage}`,
+                width: `${parseFloat(ref.percentage) || 0}%`,
                 background: `linear-gradient(to right, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.7))`,
-                opacity: parseFloat(ref.percentage) / 100 + 0.3,
+                opacity: (parseFloat(ref.percentage) / 100 || 0) + 0.3,
               }}
             ></div>
           </div>

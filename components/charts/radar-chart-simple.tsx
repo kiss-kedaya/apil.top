@@ -49,6 +49,7 @@ export function RadarChartSimple() {
               dataKey="desktop"
               fill="var(--color-desktop)"
               fillOpacity={0.6}
+              isAnimationActive={false}
             />
           </RadarChart>
         </ChartContainer>

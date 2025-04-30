@@ -43,7 +43,7 @@ export function RadialTextChart({ total }: { total: number }) {
           <RadialBarChart
             data={chartData}
             startAngle={0}
-            endAngle={total}
+            endAngle={total > 0 ? total : 1}
             innerRadius={80}
             outerRadius={110}
           >
@@ -54,7 +54,7 @@ export function RadialTextChart({ total }: { total: number }) {
               className="first:fill-muted last:fill-background"
               polarRadius={[86, 74]}
             />
-            <RadialBar dataKey="visitors" background cornerRadius={10} />
+            <RadialBar dataKey="visitors" background cornerRadius={10} isAnimationActive={false} />
             <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
               <Label
                 content={({ viewBox }) => {
