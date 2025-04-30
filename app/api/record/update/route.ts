@@ -31,9 +31,9 @@ export async function POST(req: Request) {
 
     const { record, recordId } = await req.json();
 
-    const record_name = record.name.endsWith(".kedaya.xyz")
+    const record_name = record.name.endsWith(".apil.top")
       ? record.name
-      : record.name + ".kedaya.xyz";
+      : record.name + ".apil.top";
     if (reservedDomains.includes(record_name)) {
       return Response.json({ message: "Domain name is reserved" }, {
         status: 403,

@@ -8,7 +8,7 @@ import LiveLog from "../../dashboard/urls/live-logs";
 import UserUrlsList from "../../dashboard/urls/url-list";
 
 export const metadata = constructMetadata({
-  title: "Short URLs - kedaya.xyz",
+  title: "Short URLs - apil.top",
   description: "List and manage records.",
 });
 

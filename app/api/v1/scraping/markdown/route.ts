@@ -94,7 +94,7 @@ export async function GET(req: Request) {
       content: markdown,
       format: "markdown",
       timestamp: Date.now(),
-      payload: `https://kedaya.xyz/api/v1/scraping/markdown?url=${link}&key=${custom_apiKey}`,
+      payload: `https://apil.top/api/v1/scraping/markdown?url=${link}&key=${custom_apiKey}`,
     });
   } catch (error) {
     console.log(error);

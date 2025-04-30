@@ -162,7 +162,7 @@ export default function PasswordPrompt() {
         Powered by{" "}
         <Link
           className="hover:underline"
-          href={"https://kedaya.xyz"}
+          href={"https://apil.top"}
           target="_blank"
           style={{ fontFamily: "Bahamas Bold" }}
         >

@@ -11,7 +11,7 @@ description: 创建和管理您的电子邮件。
 
 我们为用户提供免费的电子邮件服务，用于发送和接收电子邮件。用户可以生成唯一的电子邮件地址并用它来发送和接收电子邮件。
 
-在 https://kedaya.xyz/emails 开始使用电子邮件服务！
+在 https://apil.top/emails 开始使用电子邮件服务！
 
 
 ## 工作原理
@@ -49,16 +49,16 @@ curl -X POST \
   -H "Content-Type: application/json" \
   -H "wrdo-api-key: YOUR_API_KEY" \
   -d '{
-    "emailAddress": "your-suffix@kedaya.xyz"
+    "emailAddress": "your-suffix@apil.top"
   }' \
-  https://kedaya.xyz/api/v1/email
+  https://apil.top/api/v1/email
 ```
 
 #### 请求体 (参数)
 
 ```json
 {
-  "emailAddress": "your-suffix@kedaya.xyz" // 必需，后缀必须至少有5个字符
+  "emailAddress": "your-suffix@apil.top" // 必需，后缀必须至少有5个字符
 }
 ```
 
@@ -101,7 +101,7 @@ curl -X POST \
 ```bash
 curl -X GET \
   -H "wrdo-api-key: YOUR_API_KEY" \
-  "https://kedaya.xyz/api/v1/email/inbox?emailAddress=your-suffix@kedaya.xyz&page=1&size=10"
+  "https://apil.top/api/v1/email/inbox?emailAddress=your-suffix@apil.top&page=1&size=10"
 ```
 
 #### 查询参数
@@ -160,7 +160,7 @@ curl -X GET \
 curl -X DELETE \
   -H "wrdo-api-key: YOUR_API_KEY" \
   -d '{
-    "emailAddress": "your-suffix@kedaya.xyz"
+    "emailAddress": "your-suffix@apil.top"
   }' \
-  "https://kedaya.xyz/api/v1/email"
+  "https://apil.top/api/v1/email"
 ```

@@ -7,7 +7,7 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import UserRecordsList from "./record-list";
 
 export const metadata = constructMetadata({
-  title: "DNS记录 - kedaya.xyz",
+  title: "DNS记录 - apil.top",
   description: "列出并管理记录。",
 });
 

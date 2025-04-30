@@ -7,7 +7,7 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import UsersList from "./user-list";
 
 export const metadata = constructMetadata({
-  title: "User Management – kedaya.xyz",
+  title: "User Management – apil.top",
   description: "List and manage all users.",
 });
 

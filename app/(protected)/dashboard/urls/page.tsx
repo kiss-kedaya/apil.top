@@ -9,7 +9,7 @@ import LiveLog from "./live-logs";
 import UserUrlsList from "./url-list";
 
 export const metadata = constructMetadata({
-  title: "短链接 - kedaya.xyz",
+  title: "短链接 - apil.top",
   description: "列出并管理记录。",
 });
 

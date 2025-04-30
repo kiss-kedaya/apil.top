@@ -99,7 +99,7 @@ export default function EmailManagerInnovate() {
             <div>
               <div className="flex items-center gap-2">
                 <p className="text-base font-semibold text-gray-800 dark:text-gray-100">
-                  {viewMode === "inbox" ? "example@gmail.com" : "app@kedaya.xyz"}
+                  {viewMode === "inbox" ? "example@gmail.com" : "app@apil.top"}
                 </p>
                 <div className="flex gap-1">
                   <button className="rounded-full border border-gray-200 p-1.5 text-gray-500 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700">
@@ -133,7 +133,7 @@ export default function EmailManagerInnovate() {
                     strokeWidth="1.5"
                   ></polyline>
                 </svg>
-                {viewMode === "inbox" ? "app@kedaya.xyz" : "example@gmail.com"}
+                {viewMode === "inbox" ? "app@apil.top" : "example@gmail.com"}
               </div>
             </div>
           </div>

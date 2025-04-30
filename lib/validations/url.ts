@@ -23,6 +23,6 @@ export const createUrlSchema = z.object({
   expiration: z.string().default("-1"),
   visible: z.number().default(1),
   active: z.number().default(1),
-  prefix: z.string().default("kedaya.xyz"),
+  prefix: z.string().default("apil.top"),
   password: z.string().max(6).default(""),
 });

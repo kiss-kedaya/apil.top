@@ -156,7 +156,7 @@ export function getVerificationEmailHtml({
 
 //     try {
 //       const { data, error } = await resend.emails.send({
-//         from: 'kedaya.xyz App <onboarding@resend.dev>',
+//         from: 'apil.top App <onboarding@resend.dev>',
 //         to: process.env.NODE_ENV === "development" ? 'delivered@resend.dev' : identifier,
 //         subject: authSubject,
 //         react: MagicLinkEmail({

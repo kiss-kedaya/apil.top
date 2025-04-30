@@ -66,7 +66,7 @@ export default function UrlShotenerExp() {
                 <div>
                   <div className="flex items-center gap-2">
                     <p className="text-base font-bold text-gray-700 dark:text-gray-50">
-                      kedaya.xyz/s/try
+                      apil.top/s/try
                     </p>
                     <div className="flex gap-1">
                       <button className="rounded-full border p-1.5 transition-colors hover:bg-gray-100 dark:bg-gray-600/50">
@@ -102,7 +102,7 @@ export default function UrlShotenerExp() {
                         ></polyline>
                       </g>
                     </svg>
-                    kedaya.xyz/dashboard
+                    apil.top/dashboard
                   </div>
                 </div>
               </div>

@@ -21,7 +21,7 @@ import LiveLog from "./urls/live-logs";
 import UserUrlsList from "./urls/url-list";
 
 export const metadata = constructMetadata({
-  title: "仪表板 - kedaya.xyz",
+  title: "仪表板 - apil.top",
   description: "列出并管理记录。",
 });
 

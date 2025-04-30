@@ -8,7 +8,7 @@ import DashboardScrapeCharts from "../charts";
 import { ScreenshotScraping } from "../scrapes";
 
 export const metadata = constructMetadata({
-  title: "网址转截图API - kedaya.xyz",
+  title: "网址转截图API - apil.top",
   description:
     "快速提取网站截图。免费且无限制使用！",
 });

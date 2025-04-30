@@ -6,7 +6,7 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import CustomDomainsList from "@/app/(protected)/dashboard/custom-domains/domain-list";
 
 export const metadata = constructMetadata({
-  title: "自定义域名 - kedaya.xyz",
+  title: "自定义域名 - apil.top",
   description: "管理您的自定义域名。",
 });
 

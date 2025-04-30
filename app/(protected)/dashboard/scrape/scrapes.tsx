@@ -84,7 +84,7 @@ export function ScreenshotScraping({
 
   return (
     <>
-      <CodeLight content={`https://kedaya.xyz/api/v1/scraping/screenshot`} />
+      <CodeLight content={`https://apil.top/api/v1/scraping/screenshot`} />
       <Card className="bg-gray-50 dark:bg-gray-900">
         <CardHeader>
           <CardTitle>演示场景</CardTitle>
@@ -164,7 +164,7 @@ export function MetaScraping({
   user: { id: string; apiKey: string };
 }) {
   const { theme } = useTheme();
-  const [currentLink, setCurrentLink] = useState("kedaya.xyz");
+  const [currentLink, setCurrentLink] = useState("apil.top");
   const [protocol, setProtocol] = useState("https://");
   const [metaInfo, setMetaInfo] = useState<MetaScrapingProps>({
     title: "",
@@ -199,7 +199,7 @@ export function MetaScraping({
 
   return (
     <>
-      <CodeLight content={`https://kedaya.xyz/api/v1/scraping/meta`} />
+      <CodeLight content={`https://apil.top/api/v1/scraping/meta`} />
       <Card className="bg-gray-50 dark:bg-gray-900">
         <CardHeader>
           <CardTitle>演示场景</CardTitle>
@@ -277,7 +277,7 @@ export function MarkdownScraping({
   user: { id: string; apiKey: string };
 }) {
   const { theme } = useTheme();
-  const [currentLink, setCurrentLink] = useState("kedaya.xyz");
+  const [currentLink, setCurrentLink] = useState("apil.top");
   const [protocol, setProtocol] = useState("https://");
   const [mdInfo, setMdInfo] = useState<MarkdownScrapingProps>({
     url: "",
@@ -308,7 +308,7 @@ export function MarkdownScraping({
 
   return (
     <>
-      <CodeLight content={`https://kedaya.xyz/api/v1/scraping/markdown`} />
+      <CodeLight content={`https://apil.top/api/v1/scraping/markdown`} />
       <Card className="bg-gray-50 dark:bg-gray-900">
         <CardHeader>
           <CardTitle>演示场景</CardTitle>
@@ -380,7 +380,7 @@ export function TextScraping({
   user: { id: string; apiKey: string };
 }) {
   const { theme } = useTheme();
-  const [currentLink, setCurrentLink] = useState("kedaya.xyz");
+  const [currentLink, setCurrentLink] = useState("apil.top");
   const [protocol, setProtocol] = useState("https://");
   const [textInfo, setTextInfo] = useState({
     url: "",
@@ -411,7 +411,7 @@ export function TextScraping({
 
   return (
     <>
-      <CodeLight content={`https://kedaya.xyz/api/v1/scraping/text`} />
+      <CodeLight content={`https://apil.top/api/v1/scraping/text`} />
       <Card className="bg-gray-50 dark:bg-gray-900">
         <CardHeader>
           <CardTitle>演示场景</CardTitle>
@@ -487,7 +487,7 @@ export function QrCodeScraping({
   const [protocol, setProtocol] = useState("https://");
 
   const [isShoting, setIsShoting] = useState(false);
-  const [currentQrLink, setCurrentQrLink] = useState("kedaya.xyz");
+  const [currentQrLink, setCurrentQrLink] = useState("apil.top");
   const [qrInfo, setQrInfo] = useState({
     tmp_url: "",
     payload: "",
@@ -522,7 +522,7 @@ export function QrCodeScraping({
 
   return (
     <>
-      <CodeLight content={`https://kedaya.xyz/api/v1/scraping/qrcode`} />
+      <CodeLight content={`https://apil.top/api/v1/scraping/qrcode`} />
       <Card className="bg-gray-50 dark:bg-gray-900">
         <CardHeader>
           <CardTitle>演示场景</CardTitle>

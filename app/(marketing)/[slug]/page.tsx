@@ -28,7 +28,7 @@ export async function generateMetadata({
   const { title, description } = page;
 
   return constructMetadata({
-    title: `${title} – kedaya.xyz`,
+    title: `${title} – apil.top`,
     description: description,
   });
 }

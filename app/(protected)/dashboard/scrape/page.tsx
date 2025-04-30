@@ -8,7 +8,7 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import DashboardScrapeCharts from "./charts";
 
 export const metadata = constructMetadata({
-  title: "抓取API - kedaya.xyz",
+  title: "抓取API - apil.top",
   description: "快速提取有价值的结构化网站数据",
 });
 

@@ -42,7 +42,7 @@ Worker 依赖于 wrangler.jsonc 文件中定义的两个环境变量：
 
 ```json
 "vars": {
-  "APP_API_URL": "https://kedaya.xyz/api/v1/email-catcher"
+  "APP_API_URL": "https://apil.top/api/v1/email-catcher"
 },
 "r2_buckets": [
   {
@@ -67,7 +67,7 @@ Worker 依赖于 wrangler.jsonc 文件中定义的两个环境变量：
 
 - 用户向 example@yourdomain.com 发送电子邮件。
 - Worker 将任何附件上传到 wremail R2 存储桶。
-- Worker 向 https://kedaya.xyz/api/v1/email-catcher 发送 POST 请求，包含电子邮件详细信息和附件 URL。
+- Worker 向 https://apil.top/api/v1/email-catcher 发送 POST 请求，包含电子邮件详细信息和附件 URL。
 - 第三方应用记录电子邮件，将其存储在数据库中，或转发到其他地方。
 #### 先决条件
 - 启用了电子邮件路由的 Cloudflare 账户。

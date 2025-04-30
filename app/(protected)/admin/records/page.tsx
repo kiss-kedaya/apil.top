@@ -7,7 +7,7 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import UserRecordsList from "../../dashboard/records/record-list";
 
 export const metadata = constructMetadata({
-  title: "DNS Records - kedaya.xyz",
+  title: "DNS Records - apil.top",
   description: "List and manage records.",
 });
 

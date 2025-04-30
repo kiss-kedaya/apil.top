@@ -87,7 +87,7 @@ export async function GET(req: Request) {
       content: text,
       format: "text",
       timestamp: Date.now(),
-      payload: `https://kedaya.xyz/api/v1/scraping/text?url=${link}&key=${custom_apiKey}`,
+      payload: `https://apil.top/api/v1/scraping/text?url=${link}&key=${custom_apiKey}`,
     });
   } catch (error) {
     console.log(error);

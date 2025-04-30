@@ -22,7 +22,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "email-attachment.kedaya.xyz",
+        hostname: "email-attachment.apil.top",
       },
     ],
   },
@@ -43,42 +43,42 @@ const nextConfig = {
       },
       {
         source: "/0",
-        destination: "https://kedaya.xyz/s/0",
+        destination: "https://apil.top/s/0",
         permanent: true,
       },
       {
         source: "/9",
-        destination: "https://kedaya.xyz/s/9",
+        destination: "https://apil.top/s/9",
         permanent: true,
       },
       {
         source: "/ai",
-        destination: "https://kedaya.xyz/s/ai?ref=wrdo",
+        destination: "https://apil.top/s/ai?ref=wrdo",
         permanent: true,
       },
       {
         source: "/cps",
-        destination: "https://kedaya.xyz/s/cps",
+        destination: "https://apil.top/s/cps",
         permanent: true,
       },
       {
         source: "/x",
-        destination: "https://kedaya.xyz/s/x",
+        destination: "https://apil.top/s/x",
         permanent: true,
       },
       {
         source: "/solo",
-        destination: "https://kedaya.xyz/s/solo",
+        destination: "https://apil.top/s/solo",
         permanent: true,
       },
       {
         source: "/rmbg",
-        destination: "https://kedaya.xyz/s/rmbg",
+        destination: "https://apil.top/s/rmbg",
         permanent: true,
       },
       {
         source: "/llk",
-        destination: "https://kedaya.xyz/s/llk",
+        destination: "https://apil.top/s/llk",
         permanent: true,
       },
     ];

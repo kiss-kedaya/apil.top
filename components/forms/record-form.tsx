@@ -67,7 +67,7 @@ export function RecordForm({
       proxied: initData?.proxied || false,
       comment: initData?.comment || "",
       name:
-        (initData?.name.endsWith(".kedaya.xyz")
+        (initData?.name.endsWith(".apil.top")
           ? initData?.name.slice(0, -6)
           : initData?.name) || "",
       content: initData?.content || "",
@@ -198,7 +198,7 @@ export function RecordForm({
                 {currentRecordType === "CNAME" ||
                   (currentRecordType === "A" && (
                     <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-slate-500">
-                      .kedaya.xyz
+                      .apil.top
                     </span>
                   ))}
               </div>

@@ -9,16 +9,16 @@ const email_r2_domain = env.NEXT_PUBLIC_EMAIL_R2_DOMAIN || "";
 const user_custom_domains = env.NEXT_PUBLIC_USER_CUSTOM_DOMAINS || "";
 
 export const siteConfig: SiteConfig = {
-  name: "kedaya.xyz",
+  name: "apil.top",
   description: "DNS记录分发系统",
   url: site_url,
   ogImage: `${site_url}/_static/og.jpg`,
   links: {
     twitter: "https://twitter.com/yesmoree",
-    github: "https://github.com/kiss-kedaya/kedaya.xyz",
-    feedback: "https://github.com/kiss-kedaya/kedaya.xyz/issues",
+    github: "https://github.com/kiss-kedaya/apil.top",
+    feedback: "https://github.com/kiss-kedaya/apil.top/issues",
     discord: "https://discord.gg/AHPQYuZu3m",
-    oichat: "https://oi.kedaya.xyz",
+    oichat: "https://oi.apil.top",
   },
   mailSupport: "kedaya0226@qq.com",
   openSignup: open_signup === "1" ? true : false,
@@ -44,7 +44,7 @@ export const footerLinks: SidebarNavItem[] = [
     items: [
       { title: "Vmail", href: "https://vmail.dev" },
       { title: "Moise", href: "https://moise.kiss-kedaya.dev" },
-      // { title: "Inke", href: "https://inke.kedaya.xyz" },
+      // { title: "Inke", href: "https://inke.apil.top" },
       { title: "Iconce", href: "https://iconce.com" },
       { title: "OiChat", href: siteConfig.links.oichat },
     ],

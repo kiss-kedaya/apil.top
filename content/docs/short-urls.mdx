@@ -9,7 +9,7 @@ description: 创建和管理您的短链接。
 
 ## 生成短链接
 
-1. **导航到短链接页面**：在导航栏中选择[短链接](https://kedaya.xyz/dashboard/urls)选项。
+1. **导航到短链接页面**：在导航栏中选择[短链接](https://apil.top/dashboard/urls)选项。
 2. **输入长 URL**：将您想要缩短的 URL 粘贴或输入到提供的输入框中。
 3. **生成短链接**：点击"生成"按钮，系统将自动为您创建一个短链接。
 4. **复制并使用**：点击"复制"按钮将短链接复制到剪贴板，然后可以在需要的地方使用它。
@@ -19,7 +19,7 @@ description: 创建和管理您的短链接。
 - **点击量**：短链接被点击的次数。
 - **访问者**：访问短链接的唯一访问者数量。
 
-kedaya.xyz 提供简单的访问统计功能，可用于跟踪短链接的点击次数和访问者数量。
+apil.top 提供简单的访问统计功能，可用于跟踪短链接的点击次数和访问者数量。
 
 ## 有效期
 
@@ -48,12 +48,12 @@ curl -X POST \
     "target": "https://www.kiss-kedaya.dev",
     "url": "abc123",
     "expiration": "-1",
-    "prefix": "kedaya.xyz",
+    "prefix": "apil.top",
     "visible": 1,
     "active": 1,
     "password": ""
   }' \
-  https://kedaya.xyz/api/v1/short
+  https://apil.top/api/v1/short
 ```
 
 ### 请求体 (参数)
@@ -63,7 +63,7 @@ curl -X POST \
   "target": "https://www.kiss-kedaya.dev", // 必需
   "url": "abc123", // 必需，短链接标识
   "expiration": "-1", // 可选，秒数，默认："-1"，"-1"表示永不过期；"60"表示60秒
-  "prefix": "kedaya.xyz", // 可选，默认：kedaya.xyz
+  "prefix": "apil.top", // 可选，默认：apil.top
   "visible": 1, // 可选，默认：1，1：可见，0：不可见
   "active": 1, // 可选，默认：1，1：激活，0：未激活
   "password": "" // 可选，最大长度：6
@@ -85,7 +85,7 @@ curl -X POST \
   "userName": "string",
   "target": "https://www.example.com",
   "url": "abc123",
-  "prefix": "kedaya.xyz",
+  "prefix": "apil.top",
   "visible": 1,
   "active": 1,
   "expiration": "-1",

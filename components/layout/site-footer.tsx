@@ -30,7 +30,7 @@ export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
             强大的截图和元数据抓取API。<br /> 
             开源项目。
           </div>
-          <GitHubStarsWithSuspense className="mt-4" owner="kiss-kedaya" repo="kedaya.xyz" />
+          <GitHubStarsWithSuspense className="mt-4" owner="kiss-kedaya" repo="apil.top" />
         </div>
         {footerLinks.map((section) => (
           <div key={section.title}>

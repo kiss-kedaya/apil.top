@@ -7,7 +7,7 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import { QrCodeScraping } from "../scrapes";
 
 export const metadata = constructMetadata({
-  title: "网址转二维码API - kedaya.xyz",
+  title: "网址转二维码API - apil.top",
   description: "从URL生成二维码",
 });
 
