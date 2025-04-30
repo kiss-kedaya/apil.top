@@ -9,22 +9,23 @@ export async function POST(req: Request) {
     const user = checkUserStatus(await getCurrentUser());
     if (user instanceof Response) return user;
     if (user.role !== "ADMIN") {
-      return Response.json("Unauthorized", {
+      return Response.json({ message: "Unauthorized" }, {
         status: 401,
+        statusText: "Unauthorized",
       });
     }
 
     const { record_id, zone_id, userId, active } = await req.json();
     if (!record_id || !userId) {
-      return Response.json("RecordId and userId are required", {
+      return Response.json({ message: "RecordId and userId are required" }, {
         status: 400,
       });
     }
 
     const { CLOUDFLARE_ZONE_ID, CLOUDFLARE_API_KEY, CLOUDFLARE_EMAIL } = env;
     if (!CLOUDFLARE_ZONE_ID || !CLOUDFLARE_API_KEY || !CLOUDFLARE_EMAIL) {
-      return Response.json("API key、zone iD and email are required", {
-        status: 400,
+      return Response.json({ message: "API key、zone iD and email are required" }, {
+        status: 401,
       });
     }
 
@@ -38,11 +39,11 @@ export async function POST(req: Request) {
     if (res && res.result?.id) {
       // Then delete user record.
       await deleteUserRecord(userId, record_id, zone_id, active);
-      return Response.json("success", {
+      return Response.json({ message: "success" }, {
         status: 200,
       });
     }
-    return Response.json("Not Implemented", {
+    return Response.json({ message: "Not Implemented" }, {
       status: 501,
     });
   } catch (error) {

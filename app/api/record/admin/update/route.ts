@@ -9,8 +9,9 @@ export async function POST(req: Request) {
     const user = checkUserStatus(await getCurrentUser());
     if (user instanceof Response) return user;
     if (user.role !== "ADMIN") {
-      return Response.json("Unauthorized", {
+      return Response.json({ message: "Unauthorized" }, {
         status: 401,
+        statusText: "Unauthorized",
       });
     }
 
@@ -26,14 +27,14 @@ export async function POST(req: Request) {
       !CLOUDFLARE_API_KEY ||
       !CLOUDFLARE_EMAIL
     ) {
-      return Response.json("API key、zone iD and email are required", {
-        status: 400,
+      return Response.json({ message: "API key、zone iD and email are required" }, {
+        status: 401,
       });
     }
 
     const { record, recordId, userId } = await req.json();
     if (!recordId || !userId) {
-      return Response.json("RecordId and userId are required", {
+      return Response.json({ message: "RecordId and userId are required" }, {
         status: 400,
       });
     }

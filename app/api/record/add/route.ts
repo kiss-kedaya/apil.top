@@ -29,9 +29,8 @@ export async function POST(req: Request) {
       !CLOUDFLARE_API_KEY ||
       !CLOUDFLARE_EMAIL
     ) {
-      return Response.json("API key、zone iD and email are required", {
-        status: 400,
-        statusText: "API key、zone iD and email are required",
+      return Response.json({ message: "API key、zone iD and email are required" }, {
+        status: 401,
       });
     }
 
@@ -41,8 +40,8 @@ export async function POST(req: Request) {
       user.role !== "ADMIN" &&
       total >= TeamPlanQuota[user.team].RC_NewRecords
     ) {
-      return Response.json("Your records have reached the free limit.", {
-        status: 409,
+      return Response.json({ message: "Your records have reached the free limit." }, {
+        status: 403,
       });
     }
 
@@ -59,7 +58,7 @@ export async function POST(req: Request) {
       : record.name + ".kedaya.xyz";
 
     if (reservedDomains.includes(record_name)) {
-      return Response.json("Domain name is reserved", {
+      return Response.json({ message: "Domain name is reserved" }, {
         status: 403,
       });
     }
@@ -72,8 +71,8 @@ export async function POST(req: Request) {
       1,
     );
     if (user_record && user_record.length > 0) {
-      return Response.json("Record already exists", {
-        status: 403,
+      return Response.json({ message: "Record already exists" }, {
+        status: 400,
       });
     }
 

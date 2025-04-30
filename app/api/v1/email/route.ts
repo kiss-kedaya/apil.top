@@ -110,11 +110,11 @@ export async function DELETE(req: NextRequest) {
 
   try {
     await deleteUserEmailByAddress(emailAddress);
-    return NextResponse.json("success", { status: 201 });
+    return NextResponse.json({ message: "success" }, { status: 201 });
   } catch (error) {
     console.error("Error deleting user email:", error);
     if (error.message === "User email not found or already deleted") {
-      return NextResponse.json("未找到该邮箱或已被删除", { status: 404 });
+      return NextResponse.json({ message: "未找到该邮箱或已被删除" }, { status: 404 });
     }
     return NextResponse.json({ message: "服务器内部错误" }, { status: 500 });
   }

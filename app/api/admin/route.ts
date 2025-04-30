@@ -11,9 +11,8 @@ export async function GET(req: Request) {
     const user = checkUserStatus(await getCurrentUser());
     if (user instanceof Response) return user;
     if (user.role !== "ADMIN") {
-      return Response.json("Unauthorized", {
+      return Response.json({ message: "Unauthorized" }, {
         status: 401,
-        statusText: "Unauthorized",
       });
     }
 

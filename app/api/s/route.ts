@@ -19,19 +19,19 @@ export async function POST(req: NextRequest) {
       password,
     } = await req.json();
 
-    if (!slug || !ip) return Response.json("Missing[0000]");
+    if (!slug || !ip) return Response.json({ message: "Missing[0000]" });
 
     const res = await getUrlBySuffix(slug);
-    if (!res) return Response.json("Disabled[0002]");
+    if (!res) return Response.json({ message: "Disabled[0002]" });
 
-    if (res.active !== 1) return Response.json("Disabled[0002]");
+    if (res.active !== 1) return Response.json({ message: "Disabled[0002]" });
 
     if (res.password !== "") {
       if (!password) {
-        return Response.json("PasswordRequired[0004]");
+        return Response.json({ message: "PasswordRequired[0004]" });
       }
       if (password !== res.password) {
-        return Response.json("IncorrectPassword[0005]");
+        return Response.json({ message: "IncorrectPassword[0005]" });
       }
     }
 
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     const expirationTime = createdAt + expirationMilliseconds;
 
     if (res.expiration !== "-1" && now > expirationTime) {
-      return Response.json("Expired[0001]");
+      return Response.json({ message: "Expired[0001]" });
     }
 
     await createUserShortUrlMeta({
@@ -58,8 +58,8 @@ export async function POST(req: NextRequest) {
       device,
       browser,
     });
-    return Response.json(res.target);
+    return Response.json({ target: res.target });
   } catch (error) {
-    return Response.json("Error[0003]");
+    return Response.json({ message: "Error[0003]" });
   }
 }

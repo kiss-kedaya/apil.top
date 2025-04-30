@@ -47,8 +47,8 @@ export async function PUT(
   const { id } = params;
   const { emailAddress } = await req.json();
 
-  if (!emailAddress) {
-    return NextResponse.json("Missing emailAddress", { status: 400 });
+  if (!emailAddress || !id) {
+    return NextResponse.json({ message: "Missing emailAddress" }, { status: 400 });
   }
 
   try {
@@ -60,7 +60,7 @@ export async function PUT(
       return NextResponse.json(error.message, { status: 404 });
     }
     if (error.code === "P2002") {
-      return NextResponse.json("Email address already exists", { status: 409 });
+      return NextResponse.json({ message: "Email address already exists" }, { status: 409 });
     }
     return NextResponse.json("Internal Server Error", { status: 500 });
   }

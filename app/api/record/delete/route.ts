@@ -13,8 +13,8 @@ export async function POST(req: Request) {
     const { CLOUDFLARE_ZONE_ID, CLOUDFLARE_API_KEY, CLOUDFLARE_EMAIL } = env;
 
     if (!CLOUDFLARE_ZONE_ID || !CLOUDFLARE_API_KEY || !CLOUDFLARE_EMAIL) {
-      return Response.json("API key、zone iD and email are required", {
-        status: 400,
+      return Response.json({ message: "API key、zone iD and email are required" }, {
+        status: 401,
       });
     }
 
@@ -28,9 +28,8 @@ export async function POST(req: Request) {
     if (res && res.result?.id) {
       // Then delete user record.
       await deleteUserRecord(user.id, record_id, zone_id, active);
-      return Response.json("success", {
-        status: 200,
-        statusText: "success",
+      return Response.json({ message: "success" }, {
+        status: 201,
       });
     }
     return Response.json({

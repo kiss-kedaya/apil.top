@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       !CLOUDFLARE_API_KEY ||
       !CLOUDFLARE_EMAIL
     ) {
-      return Response.json("API key andzone id are required.", { status: 401 });
+      return Response.json({ message: "API key andzone id are required." }, { status: 401 });
     }
 
     const { record, recordId } = await req.json();
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       ? record.name
       : record.name + ".kedaya.xyz";
     if (reservedDomains.includes(record_name)) {
-      return Response.json("Domain name is reserved", {
+      return Response.json({ message: "Domain name is reserved" }, {
         status: 403,
       });
     }
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
         active: 1,
       });
       if (res.status !== "success") {
-        return Response.json(res.status, {
+        return Response.json({ message: res.status }, {
           status: 502,
         });
       }
@@ -92,7 +92,7 @@ export async function PUT(req: Request) {
 
     const { CLOUDFLARE_ZONE_ID, CLOUDFLARE_API_KEY, CLOUDFLARE_EMAIL } = env;
     if (!CLOUDFLARE_ZONE_ID || !CLOUDFLARE_API_KEY || !CLOUDFLARE_EMAIL) {
-      return Response.json("API key and zone id are required.", {
+      return Response.json({ message: "API key and zone id are required." }, {
         status: 401,
       });
     }
@@ -116,10 +116,10 @@ export async function PUT(req: Request) {
     );
 
     if (!res) {
-      return Response.json("An error occurred.", { status: 502 });
+      return Response.json({ message: "An error occurred." }, { status: 502 });
     }
     return Response.json(
-      isTargetAccessible ? "Target is accessible!" : "Target is unaccessible!",
+      isTargetAccessible ? { message: "Target is accessible!" } : { message: "Target is unaccessible!" },
     );
   } catch (error) {
     console.error(error);

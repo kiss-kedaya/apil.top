@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(userEmails, { status: 200 });
   } catch (error) {
     console.error("Error fetching user emails:", error);
-    return NextResponse.json("Internal Server Error", { status: 500 });
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -51,23 +51,23 @@ export async function POST(req: NextRequest) {
     rangeType: "month",
   });
   if (limit)
-    return NextResponse.json(limit.statusText, { status: limit.status });
+    return NextResponse.json({ message: limit.statusText }, { status: limit.status });
 
   const { emailAddress } = await req.json();
 
   if (!emailAddress) {
-    return NextResponse.json("Missing userId or emailAddress", { status: 400 });
+    return NextResponse.json({ message: "Missing userId or emailAddress" }, { status: 400 });
   }
 
   const prefix = emailAddress.split("@")[0];
   if (!prefix || prefix.length < 5) {
-    return NextResponse.json("Email address length must be at least 5", {
+    return NextResponse.json({ message: "Email address length must be at least 5" }, {
       status: 400,
     });
   }
 
   if (reservedAddressSuffix.includes(prefix)) {
-    return NextResponse.json("Invalid email address", { status: 400 });
+    return NextResponse.json({ message: "Invalid email address" }, { status: 400 });
   }
 
   try {
@@ -79,11 +79,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
     if (error.code === "P2002") {
-      return NextResponse.json("Email address already exists", {
+      return NextResponse.json({ message: "Email address already exists" }, {
         status: 409,
       });
     }
 
-    return NextResponse.json("Internal Server Error", { status: 500 });
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }

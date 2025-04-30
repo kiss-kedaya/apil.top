@@ -119,15 +119,19 @@ export const deleteUserById = async (userId: string) => {
 
 export function checkUserStatus(user: any) {
   if (!user?.id) {
-    throw new Response("Unauthorized", {
+    throw new Response(JSON.stringify({ message: "Unauthorized" }), {
       status: 401,
-      statusText: "Unauthorized",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
   }
   if (user.active === 0) {
-    throw new Response("Forbidden", {
+    throw new Response(JSON.stringify({ message: "Forbidden" }), {
       status: 403,
-      statusText: "Forbidden",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
   }
   return user;
