@@ -25,7 +25,7 @@ async function handleShortUrl(req: NextAuthRequest) {
 
   const slug = extractSlug(req.url);
   if (!slug)
-    return NextResponse.redirect(`${siteConfig.url}/docs/short-urls`, 302);
+    return NextResponse.redirect(`/docs/short-urls`, 302);
 
   const geo = geolocation(req);
   const headers = req.headers;
@@ -50,7 +50,10 @@ async function handleShortUrl(req: NextAuthRequest) {
     password,
   };
 
-  const res = await fetch(`${siteConfig.url}/api/s`, {
+  // 构建api请求的完整URL
+  const apiUrl = new URL("/api/s", req.url);
+  
+  const res = await fetch(apiUrl.toString(), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(trackingData),
@@ -58,7 +61,7 @@ async function handleShortUrl(req: NextAuthRequest) {
 
   if (!res.ok)
     return NextResponse.redirect(
-      `${siteConfig.url}${redirectMap["Error[0003]"]}`,
+      `${redirectMap["Error[0003]"]}`,
       302,
     );
 
@@ -66,7 +69,7 @@ async function handleShortUrl(req: NextAuthRequest) {
 
   if (!target || typeof target !== "string") {
     return NextResponse.redirect(
-      `${siteConfig.url}${redirectMap["Error[0003]"]}`,
+      `${redirectMap["Error[0003]"]}`,
       302,
     );
   }
@@ -76,13 +79,13 @@ async function handleShortUrl(req: NextAuthRequest) {
       ["PasswordRequired[0004]", "IncorrectPassword[0005]"].includes(target)
     ) {
       return NextResponse.redirect(
-        `${siteConfig.url}${redirectMap[target]}${slug}`,
+        `${redirectMap[target]}${slug}`,
         302,
       );
     }
 
     return NextResponse.redirect(
-      `${siteConfig.url}${redirectMap[target]}`,
+      `${redirectMap[target]}`,
       302,
     );
   }
@@ -111,6 +114,6 @@ export default auth(async (req) => {
     return await handleShortUrl(req);
   } catch (error) {
     console.error("Middleware error:", error);
-    return NextResponse.redirect(siteConfig.url, 302);
+    return NextResponse.redirect("/", 302);
   }
 });

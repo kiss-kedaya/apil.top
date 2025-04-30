@@ -14,13 +14,13 @@ export async function GET(req: Request) {
     if (!id) {
       return Response.json(
         { status: "error", message: "缺少域名ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // 获取域名详情
     const result = await getUserCustomDomainById(user.id, id);
-    
+
     if (result.status === "error") {
       return Response.json(result, { status: 400 });
     }
@@ -28,7 +28,7 @@ export async function GET(req: Request) {
     if (!result.data) {
       return Response.json(
         { status: "error", message: "域名不存在" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -45,8 +45,9 @@ export async function GET(req: Request) {
         type: "TXT",
         name: `_kedaya.${domain.domainName}`,
         value: domain.verificationKey,
-        instructions: "请在您的DNS控制面板中添加以上TXT记录，然后点击验证按钮。"
-      }
+        instructions:
+          "请在您的DNS控制面板中添加以上TXT记录，然后点击验证按钮。",
+      },
     };
 
     return Response.json({ status: "success", data: statusInfo });
@@ -54,7 +55,7 @@ export async function GET(req: Request) {
     console.error("获取域名状态错误:", error);
     return Response.json(
       { status: "error", message: "获取域名状态失败" },
-      { status: 500 }
+      { status: 500 },
     );
   }
-} 
+}
