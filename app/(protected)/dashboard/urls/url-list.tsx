@@ -160,7 +160,7 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
   };
   const handleCopyQrCode = (url: string) => {
     navigator.clipboard.writeText(qrcodeInfo.payload);
-    toast.success("Copied to clipboard");
+    toast.success("已复制到剪贴板");
   };
   const handleChangeStatu = async (checked: boolean, id: string) => {
     const res = await fetch(`/api/url/update/active`, {
@@ -173,10 +173,10 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
     if (res.ok) {
       const data = await res.json();
       if (data) {
-        toast.success("Successed!");
+        toast.success("操作成功！");
       }
     } else {
-      toast.error("Activation failed!");
+      toast.error("激活失败！");
     }
   };
 
@@ -186,14 +186,14 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
         <CardHeader className="flex flex-row items-center">
           {action.includes("/admin") ? (
             <CardDescription className="text-balance text-lg font-bold">
-              <span>Total URLs:</span>{" "}
+              <span>短链接总数：</span>{" "}
               <span className="font-bold">{data && data.total}</span>
             </CardDescription>
           ) : (
             <div className="grid gap-2">
-              <CardTitle>Short URLs</CardTitle>
+              <CardTitle>短链接</CardTitle>
               <CardDescription className="text-balance">
-                Your Short URLs. Create links manually or use the API.
+                您的短链接。手动创建链接或使用API。
               </CardDescription>
             </div>
           )}
@@ -219,7 +219,7 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
                 setShowForm(!isShowForm);
               }}
             >
-              Add url
+              添加链接
             </Button>
           </div>
         </CardHeader>
@@ -239,7 +239,7 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
             <div className="relative w-full">
               <Input
                 className="h-8 text-xs md:text-xs"
-                placeholder="Search by slug..."
+                placeholder="按短链搜索..."
                 value={searchParams.slug}
                 onChange={(e) => {
                   setSearchParams({
@@ -262,7 +262,7 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
             <div className="relative w-full">
               <Input
                 className="h-8 text-xs md:text-xs"
-                placeholder="Search by target..."
+                placeholder="按目标链接搜索..."
                 value={searchParams.target}
                 onChange={(e) => {
                   setSearchParams({
@@ -288,7 +288,7 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
               <div className="relative w-full">
                 <Input
                   className="h-8 text-xs md:text-xs"
-                  placeholder="Search by user name..."
+                  placeholder="按用户名搜索..."
                   value={searchParams.userName}
                   onChange={(e) => {
                     setSearchParams({
@@ -316,28 +316,28 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
             <TableHeader className="bg-gray-100/50 dark:bg-primary-foreground">
               <TableRow className="grid grid-cols-3 items-center sm:grid-cols-11">
                 <TableHead className="col-span-1 flex items-center font-bold sm:col-span-2">
-                  Slug
+                  短链
                 </TableHead>
                 <TableHead className="col-span-1 flex items-center font-bold sm:col-span-2">
-                  Target
+                  目标链接
                 </TableHead>
                 <TableHead className="col-span-1 hidden items-center font-bold sm:flex">
-                  User
+                  用户
                 </TableHead>
                 <TableHead className="col-span-1 hidden items-center font-bold sm:flex">
-                  Enabled
+                  启用
                 </TableHead>
                 <TableHead className="col-span-1 hidden items-center font-bold sm:flex">
-                  Expiration
+                  过期时间
                 </TableHead>
                 <TableHead className="col-span-1 hidden items-center font-bold sm:flex">
-                  Updated
+                  更新时间
                 </TableHead>
                 <TableHead className="col-span-1 hidden items-center font-bold sm:flex">
-                  Created
+                  创建时间
                 </TableHead>
                 <TableHead className="col-span-1 flex items-center font-bold sm:col-span-2">
-                  Actions
+                  操作
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -389,10 +389,10 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
                         <TooltipProvider>
                           <Tooltip delayDuration={200}>
                             <TooltipTrigger className="truncate">
-                              {short.userName ?? "Anonymous"}
+                              {short.userName ?? "匿名"}
                             </TooltipTrigger>
                             <TooltipContent>
-                              {short.userName ?? "Anonymous"}
+                              {short.userName ?? "匿名"}
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -433,7 +433,7 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
                             }
                           }}
                         >
-                          <p className="hidden sm:block">Edit</p>
+                          <p className="hidden sm:block">编辑</p>
                           <PenLine className="mx-0.5 size-4 sm:ml-1 sm:size-3" />
                         </Button>
                         <HoverCard
@@ -462,29 +462,28 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
                             {!user.apiKey && (
                               <div className="flex flex-col items-center gap-2">
                                 <p className="text-center text-sm">
-                                  Please generate api key before use this
-                                  feature. Learn more about{" "}
+                                  使用此功能前请生成API密钥。了解更多关于{" "}
                                   <Link
                                     className="py-1 text-blue-600 hover:text-blue-400 hover:underline dark:hover:text-primary-foreground"
                                     href={"/docs/open-api#api-key"}
                                   >
-                                    api key
+                                    API密钥
                                   </Link>
-                                  .
+                                  的信息。
                                 </p>
 
                                 <Link
                                   className="flex h-8 items-center justify-center rounded-md bg-blue-500 px-2 py-1 text-xs text-white hover:bg-blue-400 dark:hover:text-primary-foreground"
                                   href={"/dashboard/settings"}
                                 >
-                                  Generate Api Key
+                                  生成API密钥
                                 </Link>
                               </div>
                             )}
                             {user.apiKey && (
                               <BlurImg
                                 src={qrcodeInfo.tmp_url}
-                                alt="ligth preview landing"
+                                alt="二维码预览"
                                 className="rounded-md border"
                                 width={200}
                                 height={200}
@@ -502,7 +501,7 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
                                   size="sm"
                                   variant={"blue"}
                                 >
-                                  Download
+                                  下载
                                   <Icons.download className="ml-1 size-4" />
                                 </Button>
                                 <Button
@@ -513,7 +512,7 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
                                   size="sm"
                                   variant={"default"}
                                 >
-                                  Copy Link
+                                  复制链接
                                   <Icons.copy className="ml-1 size-4" />
                                 </Button>
                               </div>
@@ -548,9 +547,9 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
               ) : (
                 <EmptyPlaceholder>
                   <EmptyPlaceholder.Icon name="link" />
-                  <EmptyPlaceholder.Title>No urls</EmptyPlaceholder.Title>
+                  <EmptyPlaceholder.Title>没有链接</EmptyPlaceholder.Title>
                   <EmptyPlaceholder.Description>
-                    You don&apos;t have any url yet. Start creating url.
+                    您还没有创建任何链接。开始创建链接吧。
                   </EmptyPlaceholder.Description>
                 </EmptyPlaceholder>
               )}
