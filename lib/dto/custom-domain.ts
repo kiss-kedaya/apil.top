@@ -1,3 +1,5 @@
+import * as dns from "dns";
+import { promisify } from "util";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db";
@@ -224,87 +226,100 @@ export async function verifyUserCustomDomain(
   }
 }
 
-// 验证域名TXT记录
+// 验证域名TXT记录 - 使用Node.js DNS模块
 async function verifyDomainDNS(domain: any): Promise<DomainVerificationResult> {
   try {
     // 构建需要验证的TXT记录名称
     const txtRecordName = `_kedaya.${domain.domainName}`;
     console.log(`验证DNS TXT记录: ${txtRecordName}`);
 
-    // 通过DNS解析查询TXT记录
-    const dnsResponse = await fetch(
-      `https://cloudflare-dns.com/dns-query?name=${txtRecordName}&type=TXT`,
-      {
-        headers: {
-          Accept: "application/dns-json",
-        },
-      },
-    );
+    // 使用Node.js内置dns模块查询TXT记录
+    const resolveTxt = promisify(dns.resolveTxt);
 
-    if (!dnsResponse.ok) {
-      console.error(`DNS查询失败: status=${dnsResponse.status}`);
-      return {
-        success: false,
-        message: `DNS查询失败，请稍后重试 (状态码: ${dnsResponse.status})`,
-        details: { errorCode: dnsResponse.status },
-      };
-    }
+    try {
+      const txtRecords = await resolveTxt(txtRecordName);
+      console.log(`DNS查询响应:`, txtRecords);
 
-    const dnsData = await dnsResponse.json();
-    console.log(`DNS查询响应:`, dnsData);
-
-    // 检查DNS响应是否包含TXT记录
-    if (!dnsData.Answer || dnsData.Answer.length === 0) {
-      console.error(`未找到TXT记录: ${txtRecordName}`);
-      return {
-        success: false,
-        message: `未找到验证TXT记录，请确保您已添加TXT记录：【主机记录: _kedaya，记录值: ${domain.verificationKey}】${
-          dnsData
-        }`,
-        details: {
-          recordType: "TXT",
-          host: "_kedaya",
-          expectedValue: domain.verificationKey,
-          lookupName: txtRecordName,
-        },
-      };
-    }
-
-    // 检查TXT记录值是否匹配验证密钥
-    console.log(`检查TXT记录值是否匹配验证密钥: ${domain.verificationKey}`);
-    let foundValidKey = false;
-    const recordValues: string[] = [];
-
-    for (const answer of dnsData.Answer) {
-      // TXT记录返回值通常包含引号，需要去除
-      const txtValue = answer.data.replace(/"/g, "");
-      recordValues.push(txtValue);
-
-      console.log(
-        `- 比较 DNS值="${txtValue}" 与 验证密钥="${domain.verificationKey}"`,
-      );
-      if (txtValue === domain.verificationKey) {
-        foundValidKey = true;
-        console.log(`找到匹配的验证密钥!`);
-        break;
+      // 检查是否有TXT记录
+      if (!txtRecords || txtRecords.length === 0) {
+        console.error(`未找到TXT记录: ${txtRecordName}`);
+        return {
+          success: false,
+          message: `未找到验证TXT记录，请确保您已添加TXT记录：【主机记录: _kedaya，记录值: ${domain.verificationKey}】`,
+          details: {
+            recordType: "TXT",
+            host: "_kedaya",
+            expectedValue: domain.verificationKey,
+            lookupName: txtRecordName,
+          },
+        };
       }
-    }
 
-    if (!foundValidKey) {
-      console.error(`TXT记录验证失败，找不到匹配的验证密钥`);
+      // 检查TXT记录值是否匹配验证密钥
+      console.log(`检查TXT记录值是否匹配验证密钥: ${domain.verificationKey}`);
+      let foundValidKey = false;
+      const recordValues: string[] = [];
+
+      // DNS模块的resolveTxt返回的是二维数组，每个TXT记录可能包含多个字符串片段
+      for (const txtParts of txtRecords) {
+        // 将可能分片的TXT记录合并
+        const txtValue = txtParts.join("");
+        recordValues.push(txtValue);
+
+        console.log(
+          `- 比较 DNS值="${txtValue}" 与 验证密钥="${domain.verificationKey}"`,
+        );
+
+        if (txtValue === domain.verificationKey) {
+          foundValidKey = true;
+          console.log(`找到匹配的验证密钥!`);
+          break;
+        }
+      }
+
+      if (!foundValidKey) {
+        console.error(`TXT记录验证失败，找不到匹配的验证密钥`);
+        return {
+          success: false,
+          message:
+            "TXT记录验证失败，请确保TXT记录值与系统生成的验证密钥完全一致",
+          details: {
+            expectedValue: domain.verificationKey,
+            actualValues: recordValues,
+            lookupName: txtRecordName,
+          },
+        };
+      }
+
+      console.log(`域名验证成功!`);
+      return { success: true };
+    } catch (dnsError: any) {
+      // DNS查询错误处理
+      console.error(`DNS查询错误:`, dnsError);
+      // ENOTFOUND表示域名不存在，ENODATA表示没有对应类型的记录
+      if (dnsError.code === "ENOTFOUND" || dnsError.code === "ENODATA") {
+        return {
+          success: false,
+          message: `未找到验证TXT记录，请确保您已添加TXT记录：【主机记录: _kedaya，记录值: ${domain.verificationKey}】`,
+          details: {
+            recordType: "TXT",
+            host: "_kedaya",
+            expectedValue: domain.verificationKey,
+            lookupName: txtRecordName,
+            error: dnsError.code,
+          },
+        };
+      }
+
       return {
         success: false,
-        message: "TXT记录验证失败，请确保TXT记录值与系统生成的验证密钥完全一致",
+        message: `DNS查询失败: ${dnsError.message || dnsError.code}`,
         details: {
-          expectedValue: domain.verificationKey,
-          actualValues: recordValues,
-          lookupName: txtRecordName,
+          errorCode: dnsError.code,
+          error: dnsError.message,
         },
       };
     }
-
-    console.log(`域名验证成功!`);
-    return { success: true };
   } catch (error) {
     console.error("域名DNS验证错误:", error);
     return {
