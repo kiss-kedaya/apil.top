@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   try {
     const custom_api_key = req.headers.get("wrdo-api-key");
     if (!custom_api_key) {
-      return Response.json("Unauthorized", {
+      return Response.json("未授权", {
         status: 401,
       });
     }
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     const user = await checkApiKey(custom_api_key);
     if (!user?.id) {
       return Response.json(
-        "Invalid API key. You can get your API key from https://kedaya.xyz/dashboard/settings.",
+        "API 密钥无效。你可以在 https://kedaya.xyz/dashboard/settings 获取你的 API 密钥。",
         { status: 401 },
       );
     }
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     const { target, url, prefix, visible, active, expiration, password } =
       createUrlSchema.parse(data);
     if (!target || !url) {
-      return Response.json("Target url and slug are required", {
+      return Response.json("目标链接和短链标识为必填项", {
         status: 400,
       });
     }

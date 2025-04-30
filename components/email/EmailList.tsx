@@ -88,13 +88,13 @@ export default function EmailList({
         body: JSON.stringify({ emailId }),
       }).then(() => mutate());
     } catch (error) {
-      console.log("Error marking email as read");
+      console.log("标记邮件为已读时出错");
     }
   };
 
   const handleMarkSelectedAsRead = async () => {
     if (selectedEmails.length === 0) {
-      toast.error("Please select at least one email");
+      toast.error("请至少选择一封邮件");
       return;
     }
 
@@ -110,10 +110,10 @@ export default function EmailList({
         mutate();
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || "Failed to mark emails as read");
+        toast.error(errorData.error || "标记邮件为已读失败");
       }
     } catch (error) {
-      toast.error("Error marking emails as read");
+      toast.error("标记邮件为已读时出错");
     }
   };
 
@@ -155,7 +155,7 @@ export default function EmailList({
     <div className={cn("grids flex flex-1 flex-col", className)}>
       <div className="flex items-center gap-2 bg-neutral-200/40 p-2 text-base font-semibold text-neutral-600 backdrop-blur dark:bg-neutral-800 dark:text-neutral-50">
         <Icons.inbox size={20} />
-        <span>INBOX</span>
+        <span>收件箱</span>
         <div className="ml-auto flex items-center justify-center gap-2">
           <SendEmailModal emailAddress={emailAddress} onSuccess={mutate} />
           <TooltipProvider>
@@ -165,10 +165,10 @@ export default function EmailList({
                   className="mt-1 data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-neutral-300 dark:data-[state=unchecked]:bg-neutral-200"
                   onCheckedChange={handleSetAutoRefresh}
                   defaultChecked={isAutoRefresh}
-                  aria-label="Auto refresh"
+                  aria-label="自动刷新"
                 />
               </TooltipTrigger>
-              <TooltipContent side="bottom">Auto refresh</TooltipContent>
+              <TooltipContent side="bottom">自动刷新</TooltipContent>
             </Tooltip>
           </TooltipProvider>
           <Button
@@ -204,7 +204,7 @@ export default function EmailList({
                   size="sm"
                   className="flex w-full items-center gap-1"
                 >
-                  <span className="text-sm">more</span>
+                  <span className="text-sm">更多</span>
                   <Icons.chevronDown className="mt-0.5 size-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -216,13 +216,13 @@ export default function EmailList({
                     onClick={handleMarkSelectedAsRead}
                     className="w-full"
                   >
-                    <span className="text-xs">Mask as read</span>
+                    <span className="text-xs">标记为已读</span>
                   </Button>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Button variant="ghost" size="sm" className="w-full">
-                    <span className="text-xs">Delete selected</span>
+                    <span className="text-xs">删除所选</span>
                   </Button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -248,137 +248,135 @@ export default function EmailList({
             />
           ) : (
             <>
-              {data && data.total > 0 ? (
-                data.list.map((email) => (
-                  <div
-                    key={email.id}
-                    className="border-b border-dotted bg-neutral-100/50 px-3 py-2 hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-900 hover:dark:bg-neutral-700"
-                  >
-                    <div className="flex items-center justify-between">
+              {!data || data.list.length === 0 ? (
+                <div className="flex h-full flex-col items-center justify-center">
+                  <Icons.mailPlus size={50} className="text-neutral-300" />
+                  <h3 className="mt-2 text-xl text-neutral-400">
+                    没有邮件
+                  </h3>
+                  <p className="text-sm text-neutral-400">
+                    您的收件箱中暂无邮件
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-1 p-2">
+                  {data.list.map((email) => (
+                    <div
+                      key={email.id}
+                      className={cn(
+                        "flex w-full cursor-pointer items-center gap-2 rounded-md border p-2 hover:bg-neutral-100/80 dark:hover:bg-neutral-800",
+                        email.id === selectedEmailId
+                          ? "border-primary bg-primary/10"
+                          : "border-transparent",
+                        !email.readAt && "bg-blue-50 dark:bg-blue-950/20",
+                      )}
+                      onClick={() => {
+                        if (showMutiCheckBox) {
+                          handleSelectEmail(email.id);
+                        } else {
+                          handleEmailSelection(email.id);
+                        }
+                      }}
+                    >
                       {showMutiCheckBox && (
                         <div
-                          className="flex items-center gap-2"
-                          onClick={(e) => e.stopPropagation()}
+                          className="ml-0.5"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelectEmail(email.id);
+                          }}
                         >
                           <Checkbox
-                            defaultChecked={selectedEmails.includes(email.id)}
+                            className="h-3.5 w-3.5 dark:text-neutral-500"
+                            checked={selectedEmails.includes(email.id)}
                             onCheckedChange={() => handleSelectEmail(email.id)}
-                            className="mr-2 size-4 border-neutral-300 bg-neutral-100 data-[state=checked]:border-neutral-900 data-[state=checked]:bg-neutral-600 data-[state=checked]:text-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:data-[state=checked]:border-neutral-300 dark:data-[state=checked]:bg-neutral-300"
                           />
                         </div>
                       )}
                       <div
-                        className="flex-1 cursor-pointer"
-                        onClick={() => handleEmailSelection(email.id)}
+                        className={cn(
+                          "h-10 w-10 shrink-0 overflow-hidden rounded-full",
+                          showMutiCheckBox && "hidden sm:block",
+                        )}
                       >
-                        <div className="mb-1 flex items-center justify-between">
-                          <span className="w-3/4 truncate text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-                            {email.fromName || email.subject || "Untitled"}
-                          </span>
-                          <span className="ml-auto text-xs text-neutral-600 dark:text-neutral-400">
-                            {timeAgo((email.date as any) || email.createdAt)}
-                          </span>
-                          {email.readAt && (
-                            <Icons.checkCheck className="ml-2 size-3 text-green-600" />
+                        <BlurImage
+                          className="h-10 w-10 border bg-neutral-200 object-cover"
+                          width={40}
+                          height={40}
+                          src={getRandomImageUrl(email.from)}
+                          alt={email.from || "发件人"}
+                        />
+                      </div>
+                      <div className="flex-1 truncate">
+                        <p
+                          className={cn(
+                            "text-md line-clamp-1 truncate font-semibold text-neutral-900 dark:text-neutral-50",
+                            email.readAt && "text-neutral-700",
+                          )}
+                        >
+                          {email.from}
+                        </p>
+
+                        <div className="flex items-center gap-2">
+                          <p
+                            className={cn(
+                              "line-clamp-1 text-sm text-neutral-600 dark:text-neutral-400",
+                            )}
+                          >
+                            {email.subject || "无主题"}
+                          </p>
+                          {!email.readAt && (
+                            <span className="h-2 w-2 rounded-full bg-blue-500" />
                           )}
                         </div>
-                        <div className="mb-0.5 line-clamp-1 w-3/4 truncate text-xs font-medium text-neutral-600 dark:text-neutral-400">
-                          {email.subject}
-                        </div>
-                        <div className="line-clamp-2 break-all text-xs text-neutral-500">
-                          {email.html
-                            ? htmlToText(email.html)
-                            : email.text || "No content"}
-                        </div>
+                        <p className="line-clamp-1 text-xs text-neutral-500 dark:text-neutral-400">
+                          {htmlToText(email.text || "")}
+                        </p>
+                      </div>
+                      <div className="space-y-1 text-right">
+                        <p className="truncate text-xs text-neutral-400">
+                          {timeAgo(new Date(email.createdAt))}
+                        </p>
                       </div>
                     </div>
-                  </div>
-                ))
-              ) : (
-                <div className="flex h-[calc(100vh-135px)] flex-col items-center justify-center gap-8">
-                  <Loader />
-                  <p className="font-mono font-semibold text-neutral-500">
-                    Waiting for emails...
-                  </p>
+                  ))}
+                  {data.total > pageSize && (
+                    <PaginationWrapper
+                      total={Math.ceil(data.total / pageSize)}
+                      currentPage={currentPage}
+                      setCurrentPage={setCurrentPage}
+                    />
+                  )}
                 </div>
               )}
             </>
           )}
         </div>
       )}
-      {data && Math.ceil(data.total / pageSize) > 1 && (
-        <PaginationWrapper
-          className="mx-2 my-1 justify-center"
-          total={Math.ceil(data.total / pageSize)}
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-        />
-      )}
     </div>
   );
 }
 
+const getRandomImageUrl = (email: string | null) => {
+  if (!email) return "";
+  return `https://api.dicebear.com/7.x/shapes/svg?seed=${email}`;
+};
+
 export function EmptyInboxSection() {
   return (
-    <div className="grids flex flex-1 animate-fade-in flex-col items-center justify-center p-4 text-center text-neutral-600 dark:text-neutral-400">
-      <BlurImage
-        className="size-40"
-        src="/_static/landing/mailbox.svg"
-        height={200}
-        width={200}
-        alt="Inbox"
-      />
-      <h2 className="my-2 text-lg font-semibold">No Email Address Selected</h2>
-      <p className="max-w-md text-sm">
-        Please select an email address from the list to view your inbox. Once
-        selected, your emails will appear here automatically.
-      </p>
-      <ul className="mt-3 list-disc text-left">
-        <li>
-          <Link
-            className="text-blue-500 underline"
-            href="/docs/emails#how-it-works"
-            target="_blank"
-            rel="noreferrer"
-          >
-            How to use email to send or receive emails?
+    <div className="flex h-full flex-col items-center justify-center space-y-3">
+      <Icons.inbox className="size-12 text-neutral-300" />
+      <div className="space-y-0.5 text-center">
+        <h1 className="text-lg font-semibold">无可用的邮箱</h1>
+        <p className="text-sm text-muted-foreground">请先从左侧选择一个邮箱</p>
+      </div>
+      <div className="py-2">
+        <Button variant="outline" size="sm">
+          <Link href="/dashboard/email/add" className="flex items-center">
+            <Icons.add className="size-3.5" />
+            <span className="ml-1 text-xs">创建邮箱</span>
           </Link>
-        </li>
-        <li>
-          <Link
-            className="text-blue-500 underline"
-            href="/docs/emails#expiration"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Will my email or inbox expire?
-          </Link>
-        </li>
-        <li>
-          <Link
-            className="text-blue-500 underline"
-            href="/docs/emails#limit"
-            target="_blank"
-            rel="noreferrer"
-          >
-            What is the limit? It's free?
-          </Link>
-        </li>
-        <li>
-          <Link
-            className="text-blue-500 underline"
-            href="/docs/emails#api-reference"
-            target="_blank"
-            rel="noreferrer"
-          >
-            How to create emails with api?
-          </Link>
-        </li>
-      </ul>
-      <div className="mt-6 flex gap-2">
-        <span className="h-2 w-2 animate-pulse rounded-full bg-neutral-300 dark:bg-neutral-600" />
-        <span className="h-2 w-2 animate-pulse rounded-full bg-neutral-300 delay-100 dark:bg-neutral-600" />
-        <span className="h-2 w-2 animate-pulse rounded-full bg-neutral-300 delay-200 dark:bg-neutral-600" />
+        </Button>
       </div>
     </div>
   );

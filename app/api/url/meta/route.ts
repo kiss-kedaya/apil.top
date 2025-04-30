@@ -12,7 +12,7 @@ export async function GET(req: Request) {
     const range = url.searchParams.get("range") || "24h";
 
     if (!urlId) {
-      return Response.json("url id is required", {
+      return Response.json("链接ID为必填项", {
         status: 400,
       });
     }

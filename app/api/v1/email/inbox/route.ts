@@ -7,7 +7,7 @@ import { getEmailsByEmailAddress } from "@/lib/dto/email";
 export async function GET(req: NextRequest) {
   const custom_api_key = req.headers.get("wrdo-api-key");
   if (!custom_api_key) {
-    return Response.json("Unauthorized", {
+    return Response.json("未授权", {
       status: 401,
     });
   }
@@ -16,14 +16,14 @@ export async function GET(req: NextRequest) {
   const user = await checkApiKey(custom_api_key);
   if (!user?.id) {
     return Response.json(
-      "Invalid API key. You can get your API key from https://kedaya.xyz/dashboard/settings.",
+      "API 密钥无效。你可以在 https://kedaya.xyz/dashboard/settings 获取你的 API 密钥。",
       { status: 401 },
     );
   }
   if (user.active === 0) {
-    return Response.json("Forbidden", {
+    return Response.json("禁止访问", {
       status: 403,
-      statusText: "Forbidden",
+      statusText: "禁止访问",
     });
   }
 
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
 
   if (!emailAddress) {
     return NextResponse.json(
-      { error: "Missing emailAddress parameter" },
+      { error: "缺少邮箱地址参数" },
       { status: 400 },
     );
   }
@@ -45,10 +45,10 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("Error fetching emails:", error);
     if (error.message === "Email address not found") {
-      return NextResponse.json({ error: error.message }, { status: 404 });
+      return NextResponse.json({ error: "未找到该邮箱地址" }, { status: 404 });
     }
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "服务器内部错误" },
       { status: 500 },
     );
   }

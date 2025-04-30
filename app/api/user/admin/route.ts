@@ -7,9 +7,9 @@ export async function GET(req: Request) {
     const user = checkUserStatus(await getCurrentUser());
     if (user instanceof Response) return user;
     if (user.role !== "ADMIN") {
-      return Response.json("Unauthorized", {
+      return Response.json("未授权", {
         status: 401,
-        statusText: "Unauthorized",
+        statusText: "未授权",
       });
     }
 
@@ -27,6 +27,6 @@ export async function GET(req: Request) {
 
     return Response.json(data);
   } catch (error) {
-    return Response.json({ statusText: "Server error" }, { status: 500 });
+    return Response.json({ statusText: "服务器错误" }, { status: 500 });
   }
 }

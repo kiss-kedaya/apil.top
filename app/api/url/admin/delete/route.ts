@@ -8,26 +8,26 @@ export async function POST(req: Request) {
     const user = checkUserStatus(await getCurrentUser());
     if (user instanceof Response) return user;
     if (user.role !== "ADMIN") {
-      return Response.json("Unauthorized", {
+      return Response.json("未授权", {
         status: 401,
-        statusText: "Unauthorized",
+        statusText: "未授权",
       });
     }
 
     const { url_id, userId } = await req.json();
     if (!url_id || !userId) {
-      return Response.json("url id is required", {
+      return Response.json("链接ID为必填项", {
         status: 400,
-        statusText: "url id is required",
+        statusText: "链接ID为必填项",
       });
     }
 
     await deleteUserShortUrl(userId, url_id);
-    return Response.json("success");
+    return Response.json("成功");
   } catch (error) {
     return Response.json(error?.statusText || error, {
       status: error.status || 500,
-      statusText: error.statusText || "Server error",
+      statusText: error.statusText || "服务器错误",
     });
   }
 }

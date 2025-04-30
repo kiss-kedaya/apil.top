@@ -48,12 +48,12 @@ export default function SendsEmailList({
   return (
     <Card className="mx-auto w-full max-w-4xl">
       <CardHeader>
-        <CardTitle>Sent Emails</CardTitle>
+        <CardTitle>已发送邮件</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="mb-2 flex items-center justify-between gap-4">
           <Input
-            placeholder="Search by send to email..."
+            placeholder="按收件人邮箱搜索..."
             value={searchQuery}
             onChange={handleSearch}
             className="max-w-sm"
@@ -67,11 +67,11 @@ export default function SendsEmailList({
           </div>
         ) : error ? (
           <div className="text-center text-red-500">
-            Failed to load emails. Please try again.
+            加载邮件失败。请重试。
           </div>
         ) : !data || data.list.length === 0 ? (
           <div className="text-center text-muted-foreground">
-            No emails found.
+            未找到邮件。
           </div>
         ) : (
           <div className="scrollbar-hidden max-h-[50vh] overflow-y-auto">
@@ -85,19 +85,19 @@ export default function SendsEmailList({
                     <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
                       <div className="text-start">
                         <div className="truncate text-xs font-semibold text-neutral-600 dark:text-neutral-200">
-                          <strong>From:</strong> {email.from}
+                          <strong>发件人:</strong> {email.from}
                         </div>
                         <div className="truncate text-xs font-semibold text-neutral-600 dark:text-neutral-200">
-                          <strong>To:</strong> {email.to}
+                          <strong>收件人:</strong> {email.to}
                         </div>
                         <div className="text-xs text-neutral-600 dark:text-neutral-400">
-                          <strong>Date:</strong>{" "}
+                          <strong>日期:</strong>{" "}
                           {formatDate(email.createdAt as any)}
                         </div>
                       </div>
                       <div className="text-start">
                         <p className="line-clamp-1 truncate text-sm font-semibold text-neutral-600 dark:text-neutral-400">
-                          {email.subject || "No subject"}
+                          {email.subject || "无主题"}
                         </p>
                         <p className="line-clamp-2 break-all text-xs text-neutral-500">
                           {htmlToText(email.html || "")}

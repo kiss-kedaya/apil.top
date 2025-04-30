@@ -76,7 +76,7 @@ export function ScreenshotScraping({
           tmp_url: imageUrl,
           payload: `${window.location.origin}${payload}`,
         });
-        toast.success("Success!");
+        toast.success("成功！");
       }
       setIsShoting(false);
     }
@@ -87,10 +87,9 @@ export function ScreenshotScraping({
       <CodeLight content={`https://kedaya.xyz/api/v1/scraping/screenshot`} />
       <Card className="bg-gray-50 dark:bg-gray-900">
         <CardHeader>
-          <CardTitle>Playground</CardTitle>
+          <CardTitle>演示场景</CardTitle>
           <CardDescription>
-            Automate your website screenshots and turn them into stunning
-            visuals for your applications.
+            自动截取网站截图并将其转换为应用程序的精美视觉效果。
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -103,7 +102,7 @@ export function ScreenshotScraping({
               defaultValue="https://"
             >
               <SelectTrigger className="h-10 w-24 rounded-r-none bg-transparent shadow-inner">
-                <SelectValue placeholder="Protocol" />
+                <SelectValue placeholder="协议" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem key="https" value="https://">
@@ -128,7 +127,7 @@ export function ScreenshotScraping({
               disabled={isShoting}
               className="rounded-l-none"
             >
-              {isShoting ? "Scraping..." : "Send"}
+              {isShoting ? "抓取中..." : "发送"}
             </Button>
           </div>
 
@@ -144,7 +143,7 @@ export function ScreenshotScraping({
             {screenshotInfo.tmp_url && (
               <BlurImage
                 src={screenshotInfo.tmp_url}
-                alt="ligth preview landing"
+                alt="网站预览图"
                 className="my-4 flex rounded-md border object-contain object-center shadow-md"
                 width={1500}
                 height={750}
@@ -192,7 +191,7 @@ export function MetaScraping({
       } else {
         const data = await res.json();
         setMetaInfo(data);
-        toast.success("Success!");
+        toast.success("成功！");
       }
       setIsScraping(false);
     }
@@ -203,8 +202,8 @@ export function MetaScraping({
       <CodeLight content={`https://kedaya.xyz/api/v1/scraping/meta`} />
       <Card className="bg-gray-50 dark:bg-gray-900">
         <CardHeader>
-          <CardTitle>Playground</CardTitle>
-          <CardDescription>Scrape the meta data of a website.</CardDescription>
+          <CardTitle>演示场景</CardTitle>
+          <CardDescription>抓取网站的元数据信息。</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center">
@@ -216,7 +215,7 @@ export function MetaScraping({
               defaultValue={"https://"}
             >
               <SelectTrigger className="h-10 w-24 rounded-r-none bg-transparent shadow-inner">
-                <SelectValue placeholder="Protocol" />
+                <SelectValue placeholder="协议" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem key="https" value="https://">
@@ -241,17 +240,30 @@ export function MetaScraping({
               disabled={isScraping}
               className="rounded-l-none"
             >
-              {isScraping ? "Scraping..." : "Send"}
+              {isScraping ? "抓取中..." : "发送"}
             </Button>
           </div>
 
           <div className="mt-4 rounded-md border p-3">
             <JsonView
               style={theme === "dark" ? vscodeTheme : githubLightTheme}
+              className="max-w-2xl overflow-auto p-2"
               value={metaInfo}
               displayObjectSize={false}
               displayDataTypes={false}
+              // shortenTextAfterLength={50}
             />
+            {metaInfo.image && (
+              <BlurImage
+                src={metaInfo.image}
+                alt={metaInfo.title || "网站图片"}
+                className="my-4 max-h-64 rounded-lg border shadow-sm"
+                width={512}
+                height={512}
+                priority
+                // placeholder="blur"
+              />
+            )}
           </div>
         </CardContent>
       </Card>
@@ -267,7 +279,7 @@ export function MarkdownScraping({
   const { theme } = useTheme();
   const [currentLink, setCurrentLink] = useState("kedaya.xyz");
   const [protocol, setProtocol] = useState("https://");
-  const [metaInfo, setMetaInfo] = useState<MarkdownScrapingProps>({
+  const [mdInfo, setMdInfo] = useState<MarkdownScrapingProps>({
     url: "",
     content: "",
     format: "",
@@ -287,8 +299,8 @@ export function MarkdownScraping({
         toast.error(data.statusText);
       } else {
         const data = await res.json();
-        setMetaInfo(data);
-        toast.success("Success!");
+        setMdInfo(data);
+        toast.success("成功！");
       }
       setIsScraping(false);
     }
@@ -299,7 +311,8 @@ export function MarkdownScraping({
       <CodeLight content={`https://kedaya.xyz/api/v1/scraping/markdown`} />
       <Card className="bg-gray-50 dark:bg-gray-900">
         <CardHeader>
-          <CardTitle>Markdown</CardTitle>
+          <CardTitle>演示场景</CardTitle>
+          <CardDescription>将网站内容转换为Markdown格式。</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center">
@@ -311,7 +324,7 @@ export function MarkdownScraping({
               defaultValue={"https://"}
             >
               <SelectTrigger className="h-10 w-24 rounded-r-none bg-transparent shadow-inner">
-                <SelectValue placeholder="Protocol" />
+                <SelectValue placeholder="协议" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem key="https" value="https://">
@@ -336,17 +349,24 @@ export function MarkdownScraping({
               disabled={isScraping}
               className="rounded-l-none"
             >
-              {isScraping ? "Scraping..." : "Send"}
+              {isScraping ? "抓取中..." : "发送"}
             </Button>
           </div>
-
           <div className="mt-4 rounded-md border p-3">
             <JsonView
               style={theme === "dark" ? vscodeTheme : githubLightTheme}
-              value={metaInfo}
+              className="max-w-2xl overflow-auto p-2"
+              value={mdInfo}
               displayObjectSize={false}
               displayDataTypes={false}
+              shortenTextAfterLength={50}
             />
+
+            {mdInfo.content && (
+              <pre className="my-4 max-h-64 overflow-y-auto rounded-md border bg-slate-50 p-4 text-xs dark:bg-slate-900">
+                {mdInfo.content}
+              </pre>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -362,7 +382,7 @@ export function TextScraping({
   const { theme } = useTheme();
   const [currentLink, setCurrentLink] = useState("kedaya.xyz");
   const [protocol, setProtocol] = useState("https://");
-  const [metaInfo, setMetaInfo] = useState<MarkdownScrapingProps>({
+  const [textInfo, setTextInfo] = useState({
     url: "",
     content: "",
     format: "",
@@ -382,8 +402,8 @@ export function TextScraping({
         toast.error(data.statusText);
       } else {
         const data = await res.json();
-        setMetaInfo(data);
-        toast.success("Success!");
+        setTextInfo(data);
+        toast.success("成功！");
       }
       setIsScraping(false);
     }
@@ -394,7 +414,8 @@ export function TextScraping({
       <CodeLight content={`https://kedaya.xyz/api/v1/scraping/text`} />
       <Card className="bg-gray-50 dark:bg-gray-900">
         <CardHeader>
-          <CardTitle>Text</CardTitle>
+          <CardTitle>演示场景</CardTitle>
+          <CardDescription>提取网站纯文本内容。</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center">
@@ -406,7 +427,7 @@ export function TextScraping({
               defaultValue={"https://"}
             >
               <SelectTrigger className="h-10 w-24 rounded-r-none bg-transparent shadow-inner">
-                <SelectValue placeholder="Protocol" />
+                <SelectValue placeholder="协议" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem key="https" value="https://">
@@ -431,17 +452,25 @@ export function TextScraping({
               disabled={isScraping}
               className="rounded-l-none"
             >
-              {isScraping ? "Scraping..." : "Send"}
+              {isScraping ? "抓取中..." : "发送"}
             </Button>
           </div>
 
           <div className="mt-4 rounded-md border p-3">
             <JsonView
               style={theme === "dark" ? vscodeTheme : githubLightTheme}
-              value={metaInfo}
+              className="max-w-2xl overflow-auto p-2"
+              value={textInfo}
               displayObjectSize={false}
               displayDataTypes={false}
+              shortenTextAfterLength={50}
             />
+
+            {textInfo.content && (
+              <pre className="my-4 max-h-64 overflow-y-auto rounded-md border bg-slate-50 p-4 text-xs dark:bg-slate-900">
+                {textInfo.content}
+              </pre>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -458,31 +487,37 @@ export function QrCodeScraping({
   const [protocol, setProtocol] = useState("https://");
 
   const [isShoting, setIsShoting] = useState(false);
-  const [currentScreenshotLink, setCurrentScreenshotLink] =
-    useState("vmail.dev");
-  const [screenshotInfo, setScreenshotInfo] = useState({
+  const [currentQrLink, setCurrentQrLink] = useState("kedaya.xyz");
+  const [qrInfo, setQrInfo] = useState({
     tmp_url: "",
     payload: "",
   });
 
   const handleScrapingScreenshot = async () => {
-    if (currentScreenshotLink) {
+    if (currentQrLink) {
       setIsShoting(true);
-      const payload = `/api/v1/scraping/qrcode?url=${protocol}${currentScreenshotLink}&key=${user.apiKey}`;
+      const payload = `/api/v1/scraping/qrcode?url=${protocol}${currentQrLink}&key=${user.apiKey}`;
       const res = await fetch(payload);
       if (!res.ok || res.status !== 200) {
         toast.error(res.statusText);
       } else {
-        // const blob = await res.blob();
-        // const imageUrl = URL.createObjectURL(blob);
-        setScreenshotInfo({
-          tmp_url: await res.text(),
+        const blob = await res.blob();
+        const imageUrl = URL.createObjectURL(blob);
+        setQrInfo({
+          tmp_url: imageUrl,
           payload: `${window.location.origin}${payload}`,
         });
-        toast.success("Success!");
+        toast.success("成功！");
       }
       setIsShoting(false);
     }
+  };
+
+  const handleDownloadQrCode = async () => {
+    const link = document.createElement("a");
+    link.download = `QRCODE-${currentQrLink}.png`;
+    link.href = qrInfo.tmp_url;
+    link.click();
   };
 
   return (
@@ -490,10 +525,9 @@ export function QrCodeScraping({
       <CodeLight content={`https://kedaya.xyz/api/v1/scraping/qrcode`} />
       <Card className="bg-gray-50 dark:bg-gray-900">
         <CardHeader>
-          <CardTitle>Playground</CardTitle>
+          <CardTitle>演示场景</CardTitle>
           <CardDescription>
-            Automate your website screenshots and turn them into stunning
-            visuals for your applications.
+            生成任何URL的二维码，方便在移动设备上快速访问网站。
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -506,7 +540,7 @@ export function QrCodeScraping({
               defaultValue="https://"
             >
               <SelectTrigger className="h-10 w-24 rounded-r-none bg-transparent shadow-inner">
-                <SelectValue placeholder="Protocol" />
+                <SelectValue placeholder="协议" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem key="https" value="https://">
@@ -521,9 +555,9 @@ export function QrCodeScraping({
               type="text"
               placeholder="www.example.com"
               className="h-10 rounded-none border focus:border-primary active:border-primary"
-              value={currentScreenshotLink}
+              value={currentQrLink}
               size={100}
-              onChange={(e) => setCurrentScreenshotLink(e.target.value)}
+              onChange={(e) => setCurrentQrLink(e.target.value)}
             />
             <Button
               variant="blue"
@@ -531,7 +565,7 @@ export function QrCodeScraping({
               disabled={isShoting}
               className="rounded-l-none"
             >
-              {isShoting ? "Scraping..." : "Send"}
+              {isShoting ? "生成中..." : "发送"}
             </Button>
           </div>
 
@@ -539,21 +573,30 @@ export function QrCodeScraping({
             <JsonView
               className="max-w-2xl overflow-auto p-2"
               style={theme === "dark" ? vscodeTheme : githubLightTheme}
-              value={screenshotInfo}
+              value={qrInfo}
               displayObjectSize={false}
               displayDataTypes={false}
               // shortenTextAfterLength={50}
             />
-            {screenshotInfo.tmp_url && (
-              <BlurImage
-                src={screenshotInfo.tmp_url}
-                alt="ligth preview landing"
-                className="my-4 flex rounded-md border object-contain object-center shadow-md"
-                width={150}
-                height={150}
-                priority
-                // placeholder="blur"
-              />
+            {qrInfo.tmp_url && (
+              <div className="flex flex-col items-center justify-center">
+                <BlurImage
+                  src={qrInfo.tmp_url}
+                  alt="QR Code"
+                  className="my-4 flex max-h-52 rounded-md border object-contain object-center shadow-md"
+                  width={200}
+                  height={200}
+                  priority
+                  // placeholder="blur"
+                />
+                <Button
+                  className="mt-2"
+                  variant="outline"
+                  onClick={handleDownloadQrCode}
+                >
+                  下载二维码
+                </Button>
+              </div>
             )}
           </div>
         </CardContent>
@@ -563,38 +606,22 @@ export function QrCodeScraping({
 }
 
 export const CodeLight = ({ content }: { content: string }) => {
-  const code = content.trim();
-
   return (
-    <div className="mx-auto w-full">
-      <pre className="overflow-x-auto rounded-lg bg-gray-900 p-4 text-gray-100">
-        <code className="block font-mono text-sm">
-          {code.split("\n").map((line, i) => (
-            <div key={i} className="group relative">
-              {/* Line number */}
-              <span className="inline-block w-8 select-none text-gray-500">
-                {i + 1}
-              </span>
-              {/* Code content */}
-              <span className="text-blue-400">
-                {line
-                  .replace(
-                    /function/,
-                    (match) => `<span class="text-purple-400">${match}</span>`,
-                  )
-                  .replace(
-                    /"[^"]*"/,
-                    (match) => `<span class="text-green-400">${match}</span>`,
-                  )
-                  .replace(
-                    /console/,
-                    (match) => `<span class="text-yellow-400">${match}</span>`,
-                  )}
-              </span>
-            </div>
-          ))}
-        </code>
-      </pre>
-    </div>
+    <>
+      <div className="relative -mt-1 mb-2 flex items-center gap-2 rounded-lg border bg-slate-50 p-2 dark:bg-slate-950">
+        <pre className="text-xs text-neutral-700 dark:text-neutral-300">
+          {content}
+        </pre>
+        <div
+          className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded bg-neutral-200 px-1 py-0.5 text-xs text-neutral-700 hover:bg-neutral-300 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+          onClick={() => {
+            navigator.clipboard.writeText(content);
+            toast.success("已复制到剪贴板!");
+          }}
+        >
+          复制
+        </div>
+      </div>
+    </>
   );
 };

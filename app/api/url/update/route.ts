@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
     const { data } = await req.json();
     if (!data?.id) {
-      return Response.json(`Url id is required`, {
+      return Response.json(`链接ID为必填项`, {
         status: 400,
       });
     }

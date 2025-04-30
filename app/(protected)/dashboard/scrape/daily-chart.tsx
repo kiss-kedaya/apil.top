@@ -184,7 +184,7 @@ export function DailyPVUVChart({ data }: { data: ScrapeMeta[] }) {
               minTickGap={32}
               tickFormatter={(value) => {
                 const date = new Date(value);
-                return date.toLocaleDateString("en-US", {
+                return date.toLocaleDateString("zh-CN", {
                   month: "short",
                   day: "numeric",
                 });
@@ -196,7 +196,7 @@ export function DailyPVUVChart({ data }: { data: ScrapeMeta[] }) {
                   className="w-[150px]"
                   nameKey="views"
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
+                    return new Date(value).toLocaleDateString("zh-CN", {
                       month: "short",
                       day: "numeric",
                       year: "numeric",
@@ -249,38 +249,105 @@ export function DailyPVUVChart({ data }: { data: ScrapeMeta[] }) {
   );
 }
 
+export function DailyTopUsageChart({ data }: { data: ScrapeMeta[] }) {
+  const metadata = React.useMemo(() => {
+    const typeMap: Record<string, { count: number; lastUsed: Date }> = {};
+
+    // 统计每个type的使用次数和最近使用时间
+    data.forEach((entry) => {
+      const type = entry.type;
+      if (!typeMap[type]) {
+        typeMap[type] = { count: 0, lastUsed: new Date(0) };
+      }
+      typeMap[type].count += entry.click;
+      const entryDate = new Date(entry.updatedAt);
+      if (entryDate > typeMap[type].lastUsed) {
+        typeMap[type].lastUsed = entryDate;
+      }
+    });
+
+    // 转换为数组并按使用次数排序
+    return Object.entries(typeMap)
+      .map(([type, stats]) => ({
+        type,
+        count: stats.count,
+        lastUsed: stats.lastUsed,
+      }))
+      .sort((a, b) => b.count - a.count);
+  }, [data]);
+
+  const totalClicks = metadata.reduce((sum, item) => sum + item.count, 0);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>API类型使用统计</CardTitle>
+        <CardDescription>
+          您最常使用的API类型及其使用频率
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {metadata.map((item) => (
+            <div key={item.type} className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">{item.type}</span>
+                <span className="text-muted-foreground text-xs">
+                  {timeAgo(item.lastUsed)}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">{item.count}</span>
+                <span className="text-xs text-muted-foreground">
+                  {((item.count / totalClicks) * 100).toFixed(1)}%
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function StatsList({ data, title }: { data: Stat[]; title: string }) {
   return (
-    <div className="rounded-lg border p-4">
-      <h1 className="text-lg font-bold">{title}</h1>
-      {data.slice(0, 10).map((ref) => (
-        <div className="mt-1" key={ref.dimension}>
-          <div className="mb-0.5 flex items-center justify-between text-sm">
-            {isLink(ref.dimension) ? (
-              <Link
-                className="truncate font-medium hover:opacity-70 hover:after:content-['↗']"
-                href={ref.dimension}
-              >
-                {removeUrlSuffix(ref.dimension)}
-              </Link>
-            ) : (
-              <p className="font-medium">{decodeURIComponent(ref.dimension)}</p>
-            )}
-            <p className="text-slate-500">
-              {ref.clicks} ({ref.percentage})
-            </p>
+    <div className="rounded-xl border p-2">
+      <div className="mb-4 flex items-center justify-between px-4 pt-4">
+        <h3 className="text-sm font-medium">{title}</h3>
+      </div>
+
+      <div className="-mx-2 flex flex-col gap-1">
+        {data.map((stat) => (
+          <div
+            key={stat.dimension}
+            className="flex items-center justify-between rounded-lg px-4 py-2 hover:bg-muted/50"
+          >
+            <div className="truncate text-sm">
+              {isLink(stat.dimension) ? (
+                <Link
+                  href={stat.dimension}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 truncate text-blue-700 hover:underline"
+                >
+                  {removeUrlSuffix(stat.dimension)}
+                </Link>
+              ) : (
+                stat.dimension
+              )}
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="text-sm tabular-nums text-muted-foreground">
+                {stat.clicks.toLocaleString()}
+              </div>
+              <div className="w-10 text-right text-xs text-muted-foreground">
+                {stat.percentage}
+              </div>
+            </div>
           </div>
-          <div className="w-full rounded-lg bg-neutral-200 dark:bg-neutral-600">
-            <div
-              className="rounded-lg bg-blue-500/90 px-0.5 py-1 leading-none transition-all duration-300"
-              style={{
-                width: `${ref.percentage}`,
-                opacity: parseFloat(ref.percentage) / 10,
-              }}
-            ></div>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

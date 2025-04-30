@@ -11,7 +11,7 @@ import { restrictByTimeRange } from "@/lib/team";
 export async function POST(req: NextRequest) {
   const custom_api_key = req.headers.get("wrdo-api-key");
   if (!custom_api_key) {
-    return Response.json("Unauthorized", {
+    return Response.json("未授权", {
       status: 401,
     });
   }
@@ -20,14 +20,14 @@ export async function POST(req: NextRequest) {
   const user = await checkApiKey(custom_api_key);
   if (!user?.id) {
     return Response.json(
-      "Invalid API key. You can get your API key from https://kedaya.xyz/dashboard/settings.",
+      "API 密钥无效。你可以在 https://kedaya.xyz/dashboard/settings 获取你的 API 密钥。",
       { status: 401 },
     );
   }
   if (user.active === 0) {
-    return Response.json("Forbidden", {
+    return Response.json("禁止访问", {
       status: 403,
-      statusText: "Forbidden",
+      statusText: "禁止访问",
     });
   }
 
@@ -44,21 +44,21 @@ export async function POST(req: NextRequest) {
   const { emailAddress } = await req.json();
 
   if (!emailAddress) {
-    return NextResponse.json("Missing userId or emailAddress", { status: 400 });
+    return NextResponse.json("缺少用户ID或邮箱地址", { status: 400 });
   }
 
   const [prefix, suffix] = emailAddress.split("@");
   if (!prefix || prefix.length < 5) {
-    return NextResponse.json("Email address length must be at least 5", {
+    return NextResponse.json("邮箱前缀长度至少为5位", {
       status: 400,
     });
   }
   if (!siteConfig.emailDomains.includes(suffix)) {
-    return NextResponse.json("Invalid email suffix address", { status: 400 });
+    return NextResponse.json("邮箱后缀无效", { status: 400 });
   }
 
   if (reservedAddressSuffix.includes(prefix)) {
-    return NextResponse.json("Invalid email address", { status: 400 });
+    return NextResponse.json("邮箱地址无效", { status: 400 });
   }
 
   try {
@@ -67,21 +67,21 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     // console.log("Error creating user email:", error);
     if (error.message === "Invalid userId") {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      return NextResponse.json({ error: "用户ID无效" }, { status: 400 });
     }
     if (error.code === "P2002") {
-      return NextResponse.json("Email address already exists", {
+      return NextResponse.json("邮箱地址已存在", {
         status: 409,
       });
     }
-    return NextResponse.json(error.message, { status: 500 });
+    return NextResponse.json("服务器内部错误", { status: 500 });
   }
 }
 
 export async function DELETE(req: NextRequest) {
   const custom_api_key = req.headers.get("wrdo-api-key");
   if (!custom_api_key) {
-    return Response.json("Unauthorized", {
+    return Response.json("未授权", {
       status: 401,
     });
   }
@@ -90,20 +90,20 @@ export async function DELETE(req: NextRequest) {
   const user = await checkApiKey(custom_api_key);
   if (!user?.id) {
     return Response.json(
-      "Invalid API key. You can get your API key from https://kedaya.xyz/dashboard/settings.",
+      "API 密钥无效。你可以在 https://kedaya.xyz/dashboard/settings 获取你的 API 密钥。",
       { status: 401 },
     );
   }
   if (user.active === 0) {
-    return Response.json("Forbidden", {
+    return Response.json("禁止访问", {
       status: 403,
-      statusText: "Forbidden",
+      statusText: "禁止访问",
     });
   }
 
   const { emailAddress } = await req.json();
   if (!emailAddress) {
-    return NextResponse.json("Missing email address parameter", {
+    return NextResponse.json("缺少邮箱地址参数", {
       status: 400,
     });
   }
@@ -114,8 +114,8 @@ export async function DELETE(req: NextRequest) {
   } catch (error) {
     console.error("Error deleting user email:", error);
     if (error.message === "User email not found or already deleted") {
-      return NextResponse.json(error.message, { status: 404 });
+      return NextResponse.json("未找到该邮箱或已被删除", { status: 404 });
     }
-    return NextResponse.json("Internal Server Error", { status: 500 });
+    return NextResponse.json("服务器内部错误", { status: 500 });
   }
 }

@@ -118,7 +118,7 @@ export default function EmailDetail({
       attachments = JSON.parse(email.attachments);
     }
   } catch (error) {
-    console.log("Failed to parse attachments:", error);
+    console.log("解析附件失败:", error);
   }
 
   // 处理邮件内容中的图片链接
@@ -183,7 +183,7 @@ export default function EmailDetail({
           <TooltipProvider>
             <Tooltip delayDuration={100}>
               <TooltipTrigger className="line-clamp-2 text-wrap text-left text-xs">
-                <strong>From:</strong> {email.fromName} &lt;{email.from}&gt;
+                <strong>发件人:</strong> {email.fromName} &lt;{email.from}&gt;
               </TooltipTrigger>
               <TooltipContent side="bottom" className="w-60 text-wrap text-xs">
                 {email.fromName} <br />
@@ -192,19 +192,19 @@ export default function EmailDetail({
             </Tooltip>
           </TooltipProvider>
           <p className="text-xs">
-            <strong>To:</strong> {email.to}
+            <strong>收件人:</strong> {email.to}
           </p>
           {email.replyTo && (
             <p className="text-xs">
-              <strong>Reply-To:</strong> {email.replyTo}
+              <strong>回复地址:</strong> {email.replyTo}
             </p>
           )}
           <p className="text-xs">
-            <strong>Date:</strong> {formatDate(email.date as any)}
+            <strong>日期:</strong> {formatDate(email.date as any)}
           </p>
           {attachments.length > 0 && (
             <p className="text-xs">
-              <strong>Attachments</strong>: {attachments.length}
+              <strong>附件</strong>: {attachments.length}
             </p>
           )}
         </div>
@@ -229,7 +229,7 @@ export default function EmailDetail({
         {attachments.length > 0 && (
           <div className="mt-auto border-t border-dashed py-3">
             <h3 className="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-400">
-              Attachments ({attachments.length})
+              附件 ({attachments.length})
             </h3>
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
               {attachments.map((attachment, index) => {
@@ -250,32 +250,27 @@ export default function EmailDetail({
                               `${siteConfig.emailR2Domain}/${attachment.r2Path}`,
                             )
                           }
+                          width={40}
+                          height={40}
                         />
                       ) : (
-                        <FileIcon className="size-4 text-neutral-500 dark:text-neutral-400" />
+                        <FileIcon className="h-10 w-10 rounded bg-neutral-200 p-2 text-neutral-700" />
                       )}
-                      <div>
-                        <p
-                          className="max-w-full truncate text-xs text-neutral-800 dark:text-neutral-400"
-                          title={attachment.filename}
-                        >
+                      <div className="flex-1 overflow-hidden">
+                        <p className="truncate text-xs font-medium">
                           {attachment.filename}
                         </p>
                         <p className="text-xs text-neutral-500">
-                          {fileTypeMap[attachment.mimeType] ||
-                            attachment.mimeType}{" "}
-                          • {formatFileSize(attachment.size)}
+                          {formatFileSize(attachment.size)}
                         </p>
                       </div>
                     </div>
-                    <Button
+                    <button
+                      className="ml-2 flex shrink-0 items-center justify-center rounded-full bg-neutral-200 p-1 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-neutral-700"
                       onClick={() => handleDownload(attachment)}
-                      className="absolute right-0 top-0 hidden animate-fade-in px-2 group-hover:block"
-                      size="sm"
-                      variant="ghost"
                     >
-                      <Icons.download className="size-4" />
-                    </Button>
+                      <Icons.download className="h-3 w-3 text-neutral-700 dark:text-neutral-200" />
+                    </button>
                   </div>
                 );
               })}
@@ -284,21 +279,29 @@ export default function EmailDetail({
         )}
       </div>
 
-      {/* 图片预览 Modal */}
-      {previewImage && (
-        <Modal
-          showModal={!!previewImage}
-          setShowModal={() => setPreviewImage(null)}
-        >
-          <div className="flex flex-col items-center p-2">
+      <Modal
+        showModal={!!previewImage}
+        setShowModal={() => setPreviewImage(null)}
+        className="flex h-[90vh] max-h-[90vh] w-auto max-w-[90vw] flex-col overflow-hidden p-0"
+      >
+        <div className="relative h-full w-full overflow-hidden">
+          {previewImage && (
             <img
               src={previewImage}
-              alt="Preview"
-              className="max-h-[80vh] max-w-full object-contain"
+              alt="预览图片"
+              className="h-full w-full object-contain"
             />
-          </div>
-        </Modal>
-      )}
+          )}
+          <Button
+            onClick={() => setPreviewImage(null)}
+            className="absolute right-2 top-2 z-10 rounded-full bg-neutral-900/30 p-2 text-white backdrop-blur-md hover:bg-neutral-900/60"
+            size={"sm"}
+            variant={"ghost"}
+          >
+            <Icons.close className="h-4 w-4" />
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

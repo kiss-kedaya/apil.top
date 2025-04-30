@@ -39,11 +39,11 @@ export function SendEmailModal({
 
   const handleSendEmail = async () => {
     if (!emailAddress) {
-      toast.error("No email address selected");
+      toast.error("未选择邮箱地址");
       return;
     }
     if (!sendForm.to || !sendForm.subject || !sendForm.html) {
-      toast.error("Please fill in all fields");
+      toast.error("请填写所有字段");
       return;
     }
 
@@ -60,17 +60,17 @@ export function SendEmailModal({
         });
 
         if (response.ok) {
-          toast.success("Email sent successfully");
+          toast.success("邮件发送成功");
           setIsOpen(false);
           setSendForm({ to: "", subject: "", html: "" });
           onSuccess?.();
         } else {
-          toast.error("Failed to send email", {
+          toast.error("邮件发送失败", {
             description: await response.text(),
           });
         }
       } catch (error) {
-        toast.error(error.message || "Error sending email");
+        toast.error(error.message || "发送邮件时出错");
       }
     });
   };
@@ -94,7 +94,7 @@ export function SendEmailModal({
         <DrawerContent className="fixed bottom-0 right-0 top-0 w-full rounded-none sm:max-w-xl">
           <DrawerHeader>
             <DrawerTitle className="flex items-center gap-1">
-              Send Email{" "}
+              发送邮件{" "}
               <Icons.help className="size-5 text-neutral-600 hover:text-neutral-400" />
             </DrawerTitle>
             <DrawerClose asChild>
@@ -106,13 +106,13 @@ export function SendEmailModal({
           <div className="scrollbar-hidden h-[calc(100vh)] space-y-4 overflow-y-auto p-6">
             <div>
               <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                From
+                发件人
               </label>
               <Input value={emailAddress || ""} disabled className="mt-1" />
             </div>
             <div>
               <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                To
+                收件人
               </label>
               <Input
                 value={sendForm.to}
@@ -125,34 +125,34 @@ export function SendEmailModal({
             </div>
             <div>
               <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                Subject
+                主题
               </label>
               <Input
                 value={sendForm.subject}
                 onChange={(e) =>
                   setSendForm({ ...sendForm, subject: e.target.value })
                 }
-                placeholder="Enter subject"
+                placeholder="输入邮件主题"
                 className="mt-1"
               />
             </div>
             <div>
               <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                Content
+                内容
               </label>
               <ReactQuill
                 value={sendForm.html}
                 onChange={(value) => setSendForm({ ...sendForm, html: value })}
                 className="mt-1 h-40 rounded-lg"
                 theme="snow"
-                placeholder="Enter your message"
+                placeholder="输入邮件内容"
               />
             </div>
           </div>
           <DrawerFooter>
             <DrawerClose asChild>
               <Button variant="outline" disabled={isPending}>
-                Cancel
+                取消
               </Button>
             </DrawerClose>
             <Button
@@ -160,7 +160,7 @@ export function SendEmailModal({
               disabled={isPending}
               variant="default"
             >
-              {isPending ? "Sending..." : "Send"}
+              {isPending ? "发送中..." : "发送"}
             </Button>
           </DrawerFooter>
         </DrawerContent>

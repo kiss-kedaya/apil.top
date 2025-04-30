@@ -12,9 +12,9 @@ export async function GET(req: Request) {
     if (isAdmin === "true") {
       if (user instanceof Response) return user;
       if (user.role !== "ADMIN") {
-        return Response.json("Unauthorized", {
+        return Response.json("未授权", {
           status: 401,
-          statusText: "Unauthorized",
+          statusText: "未授权",
         });
       }
     }
@@ -27,7 +27,7 @@ export async function GET(req: Request) {
   } catch (error) {
     return Response.json(error?.statusText || error, {
       status: error.status || 500,
-      statusText: error.statusText || "Server error",
+      statusText: error.statusText || "服务器错误",
     });
   }
 }

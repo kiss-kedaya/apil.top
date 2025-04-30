@@ -10,17 +10,17 @@ export async function POST(req: Request) {
     const user = checkUserStatus(await getCurrentUser());
     if (user instanceof Response) return user;
     if (user.role !== "ADMIN") {
-      return Response.json("Unauthorized", {
+      return Response.json("未授权", {
         status: 401,
-        statusText: "Unauthorized",
+        statusText: "未授权",
       });
     }
 
     const { data, userId } = await req.json();
     if (!data?.id || !userId) {
-      return Response.json(`Url id is required`, {
+      return Response.json(`链接ID为必填项`, {
         status: 400,
-        statusText: `Url id is required`,
+        statusText: `链接ID为必填项`,
       });
     }
 
@@ -41,14 +41,14 @@ export async function POST(req: Request) {
     if (res.status !== "success") {
       return Response.json(res.status, {
         status: 400,
-        statusText: `An error occurred. ${res.status}`,
+        statusText: `发生错误。${res.status}`,
       });
     }
     return Response.json(res.data);
   } catch (error) {
     return Response.json(error?.statusText || error, {
       status: error.status || 500,
-      statusText: error.statusText || "Server error",
+      statusText: error.statusText || "服务器错误",
     });
   }
 }
