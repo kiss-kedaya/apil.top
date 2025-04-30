@@ -25,8 +25,7 @@ async function handleShortUrl(req: NextAuthRequest) {
     if (!req.url.includes("/s/")) return NextResponse.next();
 
     const slug = extractSlug(req.url);
-    if (!slug)
-      return NextResponse.redirect(`/docs/short-urls`, 302);
+    if (!slug) return NextResponse.redirect(`/docs/short-urls`, 302);
 
     // 安全获取地理位置信息，防止undefined错误
     let geo;
@@ -61,7 +60,7 @@ async function handleShortUrl(req: NextAuthRequest) {
 
     // 构建api请求的完整URL
     const apiUrl = new URL("/api/s", req.url);
-    
+
     try {
       const res = await fetch(apiUrl.toString(), {
         method: "POST",
@@ -70,10 +69,7 @@ async function handleShortUrl(req: NextAuthRequest) {
       });
 
       if (!res.ok)
-        return NextResponse.redirect(
-          `${redirectMap["Error[0003]"]}`,
-          302,
-        );
+        return NextResponse.redirect(`${redirectMap["Error[0003]"]}`, 302);
 
       const target = await res.json();
 
@@ -82,29 +78,27 @@ async function handleShortUrl(req: NextAuthRequest) {
         // 检查是否是预定义的重定向
         if (target in redirectMap) {
           if (
-            ["PasswordRequired[0004]", "IncorrectPassword[0005]"].includes(target)
+            ["PasswordRequired[0004]", "IncorrectPassword[0005]"].includes(
+              target,
+            )
           ) {
-            return NextResponse.redirect(
-              `${redirectMap[target]}${slug}`,
-              302,
-            );
+            return NextResponse.redirect(`${redirectMap[target]}${slug}`, 302);
           }
 
-          return NextResponse.redirect(
-            `${redirectMap[target]}`,
-            302,
-          );
+          return NextResponse.redirect(`${redirectMap[target]}`, 302);
         }
-        
+
         // 否则将target作为URL直接重定向
         return NextResponse.redirect(target, 302);
       }
-      
+
       // 兼容旧格式的响应
       if (target && typeof target === "object") {
         if (target.message && target.message in redirectMap) {
           if (
-            ["PasswordRequired[0004]", "IncorrectPassword[0005]"].includes(target.message)
+            ["PasswordRequired[0004]", "IncorrectPassword[0005]"].includes(
+              target.message,
+            )
           ) {
             return NextResponse.redirect(
               `${redirectMap[target.message]}${slug}`,
@@ -112,10 +106,7 @@ async function handleShortUrl(req: NextAuthRequest) {
             );
           }
 
-          return NextResponse.redirect(
-            `${redirectMap[target.message]}`,
-            302,
-          );
+          return NextResponse.redirect(`${redirectMap[target.message]}`, 302);
         }
 
         if (target.target && typeof target.target === "string") {
@@ -124,10 +115,7 @@ async function handleShortUrl(req: NextAuthRequest) {
       }
 
       // 如果无法解析响应
-      return NextResponse.redirect(
-        `${redirectMap["Error[0003]"]}`,
-        302,
-      );
+      return NextResponse.redirect(`${redirectMap["Error[0003]"]}`, 302);
     } catch (error) {
       console.error("API fetch error:", error);
       return NextResponse.redirect(`${redirectMap["Error[0003]"]}`, 302);
