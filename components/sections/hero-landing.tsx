@@ -157,7 +157,7 @@ export function LandingImages() {
               多域名支持
             </h3>
             <p className="text-lg">
-              🤩 通过多域名灵活性增强您的业务，如kedaya.xyz、uv.do等。建立强大的数字足迹，创建品牌链接或管理多元化项目—全部在一个统一平台上进行。
+              🤩 通过多域名灵活性增强您的业务，如kedaya.xyz、apil.top等。建立强大的数字足迹，创建品牌链接或管理多元化项目—全部在一个统一平台上进行。
             </p>
           </div>
         </div>
