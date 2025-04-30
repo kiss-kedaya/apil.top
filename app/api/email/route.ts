@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { TeamPlanQuota } from "@/config/team";
-import { createUserEmail, getAllUserEmails } from "@/lib/dto/email";
+import { createUserEmail, getAllUserEmails, deleteUserEmail, getUserEmailByAddress } from "@/lib/dto/email";
 import { checkUserStatus } from "@/lib/dto/user";
 import { reservedAddressSuffix } from "@/lib/enums";
 import { getCurrentUser } from "@/lib/session";
 import { restrictByTimeRange } from "@/lib/team";
+import { getVerifiedUserCustomDomains } from "@/lib/dto/custom-domain";
+import { siteConfig } from "@/config/site";
+import { z } from "zod";
+
+const createEmailSchema = z.object({
+  emailAddress: z.string().min(5),
+});
 
 // 查询所有 UserEmail 地址
 export async function GET(req: NextRequest) {
@@ -13,28 +20,31 @@ export async function GET(req: NextRequest) {
     const user = checkUserStatus(await getCurrentUser());
     if (user instanceof Response) return user;
 
-    const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const size = parseInt(searchParams.get("size") || "10", 10);
-    const search = searchParams.get("search") || "";
-    const all = searchParams.get("all") || "false";
-    const unread = searchParams.get("unread") || "false";
+    // 获取用户的所有邮箱和已验证的自定义域名
+    const [emailResult, domainsResult] = await Promise.all([
+      getAllUserEmails(user.id),
+      getVerifiedUserCustomDomains(user.id),
+    ]);
 
-    if (all === "true" && user.role === "ADMIN") {
+    // 为结果添加可用域名列表
+    const availableDomains = [...siteConfig.emailDomains];
+    
+    // 如果有已验证的自定义域名，将其添加到可用域名列表
+    if (domainsResult.status === "success" && domainsResult.data.length > 0) {
+      const customDomains = domainsResult.data.map((domain: any) => domain.domainName);
+      availableDomains.push(...customDomains);
     }
 
-    const userEmails = await getAllUserEmails(
-      user.id,
-      page,
-      size,
-      search,
-      user.role === "ADMIN" && all === "true",
-      unread === "true",
-    );
-    return NextResponse.json(userEmails, { status: 200 });
+    return NextResponse.json({
+      ...emailResult,
+      availableDomains,
+    }, { status: 200 });
   } catch (error) {
-    console.error("获取用户邮箱时出错:", error);
-    return NextResponse.json({ message: "服务器内部错误" }, { status: 500 });
+    console.error("获取用户邮箱列表失败:", error);
+    return NextResponse.json(
+      { status: "error", message: "获取用户邮箱列表失败" },
+      { status: 500 }
+    );
   }
 }
 
@@ -53,7 +63,7 @@ export async function POST(req: NextRequest) {
   if (limit)
     return NextResponse.json({ message: limit.statusText }, { status: limit.status });
 
-  const { emailAddress } = await req.json();
+  const { emailAddress } = createEmailSchema.parse(await req.json());
 
   if (!emailAddress) {
     return NextResponse.json({ message: "缺少用户ID或邮箱地址" }, { status: 400 });
@@ -68,6 +78,27 @@ export async function POST(req: NextRequest) {
 
   if (reservedAddressSuffix.includes(prefix)) {
     return NextResponse.json({ message: "无效的邮箱地址" }, { status: 400 });
+  }
+
+  // 检查域名是否是系统默认域名或用户验证的自定义域名
+  const domain = emailAddress.split("@")[1];
+  let isValidDomain = siteConfig.emailDomains.includes(domain);
+
+  if (!isValidDomain) {
+    // 检查是否是用户验证的自定义域名
+    const domainsResult = await getVerifiedUserCustomDomains(user.id);
+    if (domainsResult.status === "success") {
+      isValidDomain = domainsResult.data.some(
+        (d: any) => d.domainName === domain
+      );
+    }
+  }
+
+  if (!isValidDomain) {
+    return NextResponse.json(
+      { status: "error", message: "域名不合法，请使用系统提供的域名或您已验证的自定义域名" },
+      { status: 400 }
+    );
   }
 
   try {

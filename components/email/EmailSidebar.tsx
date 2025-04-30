@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useCallback, useEffect } from "react";
 import { User, UserEmail } from "@prisma/client";
 import randomName from "@scaleway/random-name";
 import {
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { usePathname, useRouter } from "next/navigation";
 
 import { siteConfig } from "@/config/site";
 import { TeamPlanQuota } from "@/config/team";
@@ -71,22 +72,25 @@ export default function EmailSidebar({
   setAdminModel,
 }: EmailSidebarProps) {
   const { isMobile } = useMediaQuery();
-
+  const pathname = usePathname();
+  const router = useRouter();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isEdit, setIsEdit] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [domainSuffix, setDomainSuffix] = useState<string | null>(
-    siteConfig.shortDomains[0],
-  );
+  const [domainSuffix, setDomainSuffix] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [emailToDelete, setEmailToDelete] = useState<string | null>(null);
   const [deleteInput, setDeleteInput] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [onlyUnread, setOnlyUnread] = useState(false);
-
   const [showSendsModal, setShowSendsModal] = useState(false);
+  const [userEmails, setUserEmails] = useState<UserEmailList[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [availableDomains, setAvailableDomains] = useState<string[]>([]);
+  const [isLoadingDomains, setIsLoadingDomains] = useState(true);
+  const [emailListPages, setEmailListPages] = useState(1);
 
   const pageSize = 10;
 
@@ -95,6 +99,7 @@ export default function EmailSidebar({
     total: number;
     totalInboxCount: number;
     totalUnreadCount: number;
+    availableDomains: string[];
   }>(
     `/api/email?page=${currentPage}&size=${pageSize}&search=${searchQuery}&all=${isAdminModel}&unread=${onlyUnread}`,
     fetcher,
@@ -109,11 +114,38 @@ export default function EmailSidebar({
     },
   );
 
+  const fetchEmails = useCallback(
+    async (page = 1) => {
+      try {
+        const size = 50;
+        const response = await fetch(
+          `/api/email?page=${page}&size=${size}${isAdminModel ? "&all=true" : ""}`
+        );
+        if (response.ok) {
+          const result = await response.json();
+          if (result.list && Array.isArray(result.list)) {
+            setUserEmails(result.list);
+            setAvailableDomains(result.availableDomains || siteConfig.emailDomains);
+            setEmailListPages(Math.ceil((result.total || 0) / size));
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching emails:", error);
+      } finally {
+        setIsLoadingDomains(false);
+      }
+    },
+    [isAdminModel]
+  );
+
+  useEffect(() => {
+    fetchEmails();
+  }, [fetchEmails]);
+
   if (!selectedEmailAddress && data && data.list.length > 0) {
     onSelectEmail(data.list[0].emailAddress);
   }
 
-  const userEmails = data?.list || [];
   const totalPages = data ? Math.ceil(data.total / pageSize) : 0;
 
   const handleSubmitEmail = async (emailSuffix: string) => {
@@ -147,6 +179,7 @@ export default function EmailSidebar({
         });
         if (res.ok) {
           mutate();
+          fetchEmails();
           setShowEmailModal(false);
           toast.success("Email updated successfully");
         } else {
@@ -165,6 +198,7 @@ export default function EmailSidebar({
           });
           if (res.ok) {
             mutate();
+            fetchEmails();
             setShowEmailModal(false);
             toast.success("Email created successfully");
           } else {
@@ -180,7 +214,7 @@ export default function EmailSidebar({
     });
   };
 
-  const handleOpenEditEmail = async (email: UserEmail) => {
+  const handleOpenEditEmail = async (email: UserEmailList) => {
     onSelectEmail(email.emailAddress);
     setDomainSuffix(email.emailAddress.split("@")[1]);
     if (selectedEmailAddress === email.emailAddress) {
@@ -197,6 +231,7 @@ export default function EmailSidebar({
         });
         if (res.ok) {
           mutate();
+          fetchEmails();
           setShowDeleteModal(false);
           setDeleteInput("");
           setEmailToDelete(null);
@@ -242,6 +277,7 @@ export default function EmailSidebar({
                 onClick={async () => {
                   setIsRefreshing(true);
                   await mutate();
+                  await fetchEmails();
                   setIsRefreshing(false);
                 }}
                 disabled={isRefreshing}
@@ -523,14 +559,14 @@ export default function EmailSidebar({
             {!isCollapsed && (
               <div className="mt-2 flex items-center justify-between gap-2 text-xs text-gray-500">
                 <div className="flex items-center gap-1">
-                  {email.unreadCount > 0 && (
+                  {'unreadCount' in email && email.unreadCount > 0 && (
                     <Badge variant="default">{email.unreadCount}</Badge>
                   )}
-                  {email.count} recived
+                  {'count' in email ? email.count : 0} recived
                 </div>
                 <span>
-                  {isAdminModel
-                    ? `Created by ${email.user || email.email.slice(0, 5)} at`
+                  {isAdminModel && 'user' in email && 'email' in email
+                    ? `Created by ${email.user || (email.email && email.email.slice(0, 5))} at`
                     : ""}{" "}
                   {timeAgo(email.createdAt)}
                 </span>
@@ -598,18 +634,25 @@ export default function EmailSidebar({
                       setDomainSuffix(value);
                     }}
                     name="suffix"
-                    defaultValue={domainSuffix || siteConfig.emailDomains[0]}
+                    defaultValue={domainSuffix || availableDomains[0] || siteConfig.emailDomains[0]}
                     disabled={isEdit}
                   >
                     <SelectTrigger className="w-1/3 rounded-none border-x-0 shadow-inner">
                       <SelectValue placeholder="Select a domain" />
                     </SelectTrigger>
                     <SelectContent>
-                      {siteConfig.emailDomains.map((v) => (
-                        <SelectItem key={v} value={v}>
-                          @{v}
+                      {isLoadingDomains ? (
+                        <SelectItem value={siteConfig.emailDomains[0]}>
+                          <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                          Loading...
                         </SelectItem>
-                      ))}
+                      ) : (
+                        availableDomains.map((v) => (
+                          <SelectItem key={v} value={v}>
+                            @{v}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                   <Button

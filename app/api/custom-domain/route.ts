@@ -4,33 +4,53 @@ import {
   createUserCustomDomain,
   getUserCustomDomainById,
   getUserCustomDomains,
+  getVerifiedUserCustomDomains,
+  deleteUserCustomDomain,
+  updateUserCustomDomain,
+  verifyUserCustomDomain,
 } from "@/lib/dto/custom-domain";
 import { checkUserStatus } from "@/lib/dto/user";
 import { getCurrentUser } from "@/lib/session";
 import { z } from "zod";
+import { NextResponse } from "next/server";
+import { auth } from "auth";
 
 // 获取用户自定义域名列表
 export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const verified = url.searchParams.get("verified");
+  const id = url.searchParams.get("id");
+  
   try {
-    const user = checkUserStatus(await getCurrentUser());
-    if (user instanceof Response) return user;
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        {
+          status: 401,
+        }
+      );
+    }
 
-    const url = new URL(req.url);
-    const id = url.searchParams.get("id");
+    const userId = session.user.id;
 
     if (id) {
       // 获取单个自定义域名详情
-      const result = await getUserCustomDomainById(user.id, id);
-      return Response.json(result);
+      const result = await getUserCustomDomainById(userId, id);
+      return NextResponse.json(result);
+    } else if (verified === "true") {
+      // 获取所有已验证的自定义域名
+      const result = await getVerifiedUserCustomDomains(userId);
+      return NextResponse.json(result);
     } else {
       // 获取所有自定义域名
-      const result = await getUserCustomDomains(user.id);
-      return Response.json(result);
+      const result = await getUserCustomDomains(userId);
+      return NextResponse.json(result);
     }
   } catch (error) {
-    console.error("获取自定义域名错误:", error);
-    return Response.json(
-      { status: "error", message: "获取自定义域名失败" },
+    console.error("Error getting custom domains:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

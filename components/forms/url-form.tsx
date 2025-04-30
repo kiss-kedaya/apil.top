@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useTransition } from "react";
+import { Dispatch, SetStateAction, useTransition, useState, useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "@prisma/client";
 import { Sparkles } from "lucide-react";
@@ -49,7 +49,39 @@ export function UrlForm({
   onRefresh,
 }: RecordFormProps) {
   const [isPending, startTransition] = useTransition();
-  const [isDeleting, startDeleteTransition] = useTransition();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [customDomains, setCustomDomains] = useState<string[]>([]);
+  const [isLoadingDomains, setIsLoadingDomains] = useState(true);
+
+  useEffect(() => {
+    // 获取用户已验证的自定义域名
+    const fetchCustomDomains = async () => {
+      try {
+        setIsLoadingDomains(true);
+        const response = await fetch('/api/custom-domain?verified=true');
+        if (!response.ok) {
+          throw new Error('Failed to fetch verified domains');
+        }
+        const data = await response.json();
+        if (data.status === 'success' && data.data && Array.isArray(data.data)) {
+          // 提取域名列表
+          const domains = data.data.map((domain: any) => domain.domainName);
+          setCustomDomains(domains);
+        }
+      } catch (error) {
+        console.error('Error fetching verified domains:', error);
+      } finally {
+        setIsLoadingDomains(false);
+      }
+    };
+
+    fetchCustomDomains();
+  }, []);
+
+  // 组合默认域名和自定义域名
+  const availableDomains = useMemo(() => {
+    return [...siteConfig.shortDomains, ...customDomains];
+  }, [customDomains]);
 
   const {
     handleSubmit,
@@ -131,7 +163,7 @@ export function UrlForm({
 
   const handleDeleteUrl = async () => {
     if (type === "edit") {
-      startDeleteTransition(async () => {
+      startTransition(async () => {
         const response = await fetch(`${action}/delete`, {
           method: "POST",
           body: JSON.stringify({
@@ -203,16 +235,20 @@ export function UrlForm({
                     <SelectValue placeholder="Select a domain" />
                   </SelectTrigger>
                   <SelectContent>
-                    {siteConfig.shortDomains.map((v) => (
-                      <SelectItem key={v} value={v}>
-                        {v}
+                    {isLoadingDomains ? (
+                      <SelectItem value={siteConfig.shortDomains[0]}>
+                        <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                        Loading...
                       </SelectItem>
-                    ))}
+                    ) : (
+                      availableDomains.map((v) => (
+                        <SelectItem key={v} value={v}>
+                          {v}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
-                {/* <span className="pointer-events-none absolute left-20 whitespace-nowrap text-sm text-gray-400">
-                /s/
-              </span> */}
                 <Input
                   id="url"
                   className="w-3/5 flex-1 rounded-none pl-[8px] shadow-inner"

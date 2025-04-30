@@ -142,6 +142,22 @@ export async function getUserCustomDomains(userId: string) {
   }
 }
 
+// 获取用户已验证的自定义域名
+export async function getVerifiedUserCustomDomains(userId: string) {
+  try {
+    const domains = await prisma.$queryRaw`
+      SELECT * FROM user_custom_domains
+      WHERE "userId" = ${userId} AND "isVerified" = true
+      ORDER BY created_at DESC
+    `;
+
+    return { status: "success", data: domains };
+  } catch (error) {
+    console.error("获取已验证自定义域名列表错误:", error);
+    return { status: "error", message: "获取已验证自定义域名列表失败" };
+  }
+}
+
 // 获取单个自定义域名
 export async function getUserCustomDomainById(userId: string, id: string) {
   try {
