@@ -1,54 +1,51 @@
 ---
-title: Authentification
-description: How to config the authentification.
+title: 认证
+description: 如何配置认证。
 ---
 
 <Callout type="note" twClass="mt-0">
-  The auth part is similar at the [authjs](https://authjs.dev/) documentation.
-  You can follow the official documentation
-  [here](https://authjs.dev/getting-started/installation#setup-environment) if
-  you want.
+  认证部分与 [authjs](https://authjs.dev/) 文档类似。
+  如果需要，您可以按照 [此处](https://authjs.dev/getting-started/installation#setup-environment) 的官方文档操作。
 </Callout>
 
 <Callout type="danger" twClass="mt-3">
-  After upgrade Auth.js to v5: `NEXTAUTH_URL` has removed from `.env` file. Same
-  thing **in production**.
+  升级到 Auth.js v5 后：`NEXTAUTH_URL` 已从 `.env` 文件中移除。在**生产环境**中也是如此。
 </Callout>
 
-## Update auth_secret variable
+## 更新 auth_secret 变量
 
-The only environment variable that is mandatory is the `AUTH_SECRET`. This is a random value used by the library to encrypt tokens and email verification hashes. You can generate one via running:
+唯一必需的环境变量是 `AUTH_SECRET`。这是库用来加密令牌和电子邮件验证哈希的随机值。您可以通过运行以下命令生成一个：
 
 ```bash
 npx auth secret
 ```
 
-Alternatively, you can use the `openssl` CLI, `openssl rand -base64 33`.
+或者，您可以使用 `openssl` CLI：`openssl rand -base64 33`。
 
-Then add it to your `.env` file:
+然后将其添加到您的 `.env` 文件中：
 
 ```js title=".env"
 AUTH_SECRET = secret;
 ```
 
-## Google config
+## Google 配置
 
-In this section, you can update these variables:
+在本节中，您可以更新这些变量：
 
 ```js title=".env"
 GOOGLE_CLIENT_ID = your_secret_client_id.apps.googleusercontent.com;
 GOOGLE_CLIENT_SECRET = your_secret_client;
 ```
 
-See config tutorial in [Authjs - Google OAuth](https://authjs.dev/getting-started/providers/google).
+参见 [Authjs - Google OAuth](https://authjs.dev/getting-started/providers/google) 的配置教程。
 
-## Github config
+## Github 配置
 
-In this section, you can update these variables:
+在本节中，您可以更新这些变量：
 
 ```js title=".env"
 GITHUB_ID = your_secret_client_id;
 GITHUB_SECRET = your_secret_client;
 ```
 
-See config tutorial in [Authjs - Github OAuth](https://authjs.dev/getting-started/providers/github).
+参见 [Authjs - Github OAuth](https://authjs.dev/getting-started/providers/github) 的配置教程。

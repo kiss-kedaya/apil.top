@@ -1,11 +1,11 @@
 ---
-title: Cloudflare Configs
-description: How to config the cloudflare api.
+title: Cloudflare 配置
+description: 如何配置 Cloudflare API。
 ---
 
-Before you start, you must have a Cloudflare account and be hosted on Cloudflare.
+开始之前，您必须拥有 Cloudflare 账户并托管在 Cloudflare 上。
 
-In this section, you can update these variables:
+在本节中，您可以更新这些变量：
 
 ```js title=".env"
 CLOUDFLARE_ZONE_ID=abcdef1234567890
@@ -14,17 +14,17 @@ CLOUDFLARE_EMAIL=user@example.com
 CLOUDFLARE_ZONE_NAME=kedaya.xyz
 ```
 
-### Variable Descriptions
+### 变量说明
 
-- **CLOUDFLARE_ZONE_ID**: This is the unique identifier for your Cloudflare zone. You can find it in the Cloudflare dashboard under the Overview section of your domain.
+- **CLOUDFLARE_ZONE_ID**：这是您 Cloudflare 区域的唯一标识符。您可以在 Cloudflare 仪表板的域名概览部分找到它。
 
-> Follow [this way](https://dash.cloudflare.com/Your_Acount_Id/kedaya.xyz), and scroll down to `Zone ID`.
+> 按照 [这种方式](https://dash.cloudflare.com/Your_Acount_Id/kedaya.xyz)，向下滚动至 `Zone ID`。
   
-- **CLOUDFLARE_API_KEY**: This is the API key that you use to authenticate requests to the Cloudflare API. You can generate or find your API key in the Cloudflare dashboard under the `profile` -> `api-tokens` section.
+- **CLOUDFLARE_API_KEY**：这是您用于验证 Cloudflare API 请求的 API 密钥。您可以在 Cloudflare 仪表板的 `profile` -> `api-tokens` 部分生成或找到您的 API 密钥。
 
-> Follow [https://dash.cloudflare.com/profile/api-tokens](https://dash.cloudflare.com/profile/api-tokens), and scroll down to `API Token`, the `Global API Key` should be used.
+> 访问 [https://dash.cloudflare.com/profile/api-tokens](https://dash.cloudflare.com/profile/api-tokens)，向下滚动至 `API Token`，应使用 `Global API Key`。
   
-- **CLOUDFLARE_EMAIL**: This is the email address associated with your Cloudflare account. It is used for authentication alongside the API key.
+- **CLOUDFLARE_EMAIL**：这是与您的 Cloudflare 账户关联的电子邮件地址。它与 API 密钥一起用于认证。
 
-- **CLOUDFLARE_ZONE_NAME**: This is the name of your Cloudflare zone. It is used to specify the zone in the Cloudflare API requests.
+- **CLOUDFLARE_ZONE_NAME**：这是您 Cloudflare 区域的名称。它用于在 Cloudflare API 请求中指定区域。
 

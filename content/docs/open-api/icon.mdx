@@ -1,37 +1,37 @@
 ---
-title: Svg Icon API
-description: Simple way to generate your svg icon
+title: SVG 图标 API
+description: 生成 SVG 图标的简单方法
 ---
 
-## Usage
+## 使用方法
 
 ```bash
 https://kedaya.xyz/api/v1/icon
 ```
 
-### Query Parameters
+### 查询参数
 
-- `type` (optional): The type of the icon. Default is `text`.
-- `w` (optional): The width of the icon. Default is `128`.
-- `h` (optional): The height of the icon. Default is `64`.
-- `value`: The value of the icon.
-- `animate` (optional): Whether to animate the icon. Default is `false`.
-- `fillType` (optional): The fill type of the icon. Default is `Linear`.
-- `primaryColor` (optional): The primary color of the icon. Default is `#FC466B`.
-- `secondaryColor` (optional): The secondary color of the icon. Default is `#3F5EFB`.
-- `angle` (optional): The angle of the icon. Default is `45`.
-- `radialGlare` (optional): Whether to apply radial glare to the icon. Default is `false`.
-- `radius` (optional): The radius of the icon. Default is `12`.
-- `strokeSize` (optional): The stroke size of the icon. Default is `0`.
-- `strokeColor` (optional): The stroke color of the icon. Default is `#FFFFFF`.
-- `strokeOpacity` (optional): The stroke opacity of the icon. Default is `100`.
-- `color` (optional): The color of the icon. Default is `#FFFFFF`.
-- `size` (optional): The size of the icon. Default is `15`.
-- `family` (optional): The font family of the icon. Default is `sans-serif`.
+- `type` (可选): 图标类型。默认为 `text`。
+- `w` (可选): 图标宽度。默认为 `128`。
+- `h` (可选): 图标高度。默认为 `64`。
+- `value`: 图标值。
+- `animate` (可选): 是否为图标添加动画。默认为 `false`。
+- `fillType` (可选): 图标填充类型。默认为 `Linear`。
+- `primaryColor` (可选): 图标主要颜色。默认为 `#FC466B`。
+- `secondaryColor` (可选): 图标次要颜色。默认为 `#3F5EFB`。
+- `angle` (可选): 图标角度。默认为 `45`。
+- `radialGlare` (可选): 是否应用径向眩光。默认为 `false`。
+- `radius` (可选): 图标圆角半径。默认为 `12`。
+- `strokeSize` (可选): 描边大小。默认为 `0`。
+- `strokeColor` (可选): 描边颜色。默认为 `#FFFFFF`。
+- `strokeOpacity` (可选): 描边不透明度。默认为 `100`。
+- `color` (可选): 图标颜色。默认为 `#FFFFFF`。
+- `size` (可选): 图标大小。默认为 `15`。
+- `family` (可选): 图标字体系列。默认为 `sans-serif`。
 
-### Example
+### 示例
 
-Use in markdown:
+在 markdown 中使用：
 
 ![example](/api/v1/icon?type=text&w=400&h=35&value=🥰你做出一个很酷的东西出来，想给他起什么名都可以&animate=true&fillType=Linear&primaryColor=%23FC466B&secondaryColor=%233F5EFB&angle=45&radialGlare=false&radius=8&strokeSize=0&strokeColor=%23FFFFFF&strokeOpacity=100&color=%23FFFFFF&size=15&family=cursive)
 
@@ -45,12 +45,12 @@ Use in markdown:
 ![example](https://kedaya.xyz/api/v1/icon?type=text&w=100&h=100&value=kedaya.xyz&animate=true&fillType=Linear&primaryColor=%2300B4DB&secondaryColor=%23003357&angle=45&radialGlare=false&radius=40&strokeSize=0&strokeColor=%23FFFFFF&strokeOpacity=100&color=%23FFFFFF&size=15&family=cursive)
 ```
 
-Use in your HTML:
+在 HTML 中使用：
 
 ```html
 <img
   src="https://kedaya.xyz/api/v1/icon?type=text&w=400&h=35&value=🥰你做出一个很酷的东西出来，想给他起什么名都可以&animate=true&fillType=Linear&primaryColor=%23FC466B&secondaryColor=%233F5EFB&angle=45&radialGlare=false&radius=8&strokeSize=0&strokeColor=%23FFFFFF&strokeOpacity=100&color=%23FFFFFF&size=15&family=cursive"
-  alt="Your SVG Icon"
+  alt="您的 SVG 图标"
 />
 ```
 

@@ -1,99 +1,99 @@
 ---
-title: Components
-description: Use React components in Markdown using MDX.
+title: 组件
+description: 在 Markdown 中使用 MDX 实现 React 组件。
 ---
 
-The following components are available out of the box for use in Markdown.
+以下组件可直接在 Markdown 中使用。
 
-If you'd like to build and add your own custom components, see the [Custom Components](#custom-components) section below.
+如果您想构建并添加自己的自定义组件，请参阅下面的[自定义组件](#自定义组件)部分。
 
-## Built-in Components
+## 内置组件
 
-### 1. Callout
+### 1. 提示框 (Callout)
 
 ```jsx
 <Callout type="default | warning | danger | note | info | success">
-  This is a default callout. You can embed **Markdown** inside a `callout`.
+  这是一个默认提示框。您可以在 `callout` 中嵌入 **Markdown**。
 </Callout>
 ```
 
 <Callout>
-  This is a default callout. You can embed **Markdown** inside a `callout`.
+  这是一个默认提示框。您可以在 `callout` 中嵌入 **Markdown**。
 </Callout>
 
 <Callout type="warning">
-  This is a warning callout. It uses the props `type="warning"`.
+  这是一个警告提示框。它使用属性 `type="warning"`。
 </Callout>
 
 <Callout type="danger">
-  This is a danger callout. It uses the props `type="danger"`.
+  这是一个危险提示框。它使用属性 `type="danger"`。
 </Callout>
 
 <Callout type="note">
-  This is a warning callout. It uses the props `type="note"`.
+  这是一个注意提示框。它使用属性 `type="note"`。
 </Callout>
 
 <Callout type="info">
-  This is a danger callout. It uses the props `type="info"`.
+  这是一个信息提示框。它使用属性 `type="info"`。
 </Callout>
 
 <Callout type="success">
-  This is a warning callout. It uses the props `type="success"`.
+  这是一个成功提示框。它使用属性 `type="success"`。
 </Callout>
 
-### 2. Card
+### 2. 卡片 (Card)
 
 ```mdx
 <Card href="#">
 
-#### Heading
+#### 标题
 
-You can use **markdown** inside cards.
+您可以在卡片中使用 **markdown**。
 
 </Card>
 ```
 
 <Card href="#">
 
-#### Heading
+#### 标题
 
-You can use **markdown** inside cards.
+您可以在卡片中使用 **markdown**。
 
 </Card>
 
-You can also use HTML to embed cards in a grid.
+您还可以使用 HTML 将卡片嵌入网格中。
 
 ```mdx
 <div className="grid grid-cols-2 gap-4">
   <Card href="#">
-    #### Card One 
-    You can use **markdown** inside cards.
+    #### 卡片一
+    您可以在卡片中使用 **markdown**。
   </Card>
 
   <Card href="#">
-    #### Card Two 
-    You can also use `inline code` and code blocks.
+    #### 卡片二
+    您还可以使用 `内联代码` 和代码块。
   </Card>
 </div>
 ```
 
 <div className="grid grid-cols-2 gap-4">
   <Card href="#">
-    #### Card One 
-    You can use **markdown** inside cards.
+    #### 卡片一
+    您可以在卡片中使用 **markdown**。
   </Card>
 
   <Card href="#">
-    #### Card Two 
-    You can also use `inline code` and code blocks.
+    #### 卡片二
+    您还可以使用 `内联代码` 和代码块。
   </Card>
 </div>
 
 ---
 
-## Custom Components
+## 自定义组件
 
-You can add your own custom components using the `components` props from `useMDXComponent`.
+您可以使用 `useMDXComponent` 的 `components` 属性添加自己的自定义组件。
 
 ```ts title="components/mdx.tsx" {2,6}
 import { Callout } from "@/components/callout"
@@ -115,7 +115,7 @@ export function Mdx({ code }) {
 }
 ```
 
-Once you've added your custom component, you can use it in MDX as follows:
+添加自定义组件后，您可以在 MDX 中按如下方式使用它：
 
 ```js
 <CustomComponent propName="value" />
@@ -123,9 +123,9 @@ Once you've added your custom component, you can use it in MDX as follows:
 
 ---
 
-## HTML Elements
+## HTML 元素
 
-You can overwrite HTML elements using the same technique above.
+您可以使用上述相同技术重写 HTML 元素。
 
 ```ts {4}
 const components = {
@@ -135,16 +135,16 @@ const components = {
 }
 ```
 
-This will overwrite the `<hr />` tag or `---` in Mardown with the HTML output above.
+这将用上面的 HTML 输出重写 `<hr />` 标签或 Markdown 中的 `---`。
 
 ---
 
-## Styling
+## 样式
 
-Tailwind CSS classes can be used inside MDX for styling.
+Tailwind CSS 类可以在 MDX 中用于样式设置。
 
 ```jsx
-<p className="text-red-600">This text will be red.</p>
+<p className="text-red-600">这段文本将是红色的。</p>
 ```
 
-Make sure you have configured the path to your content in your `tailwind.config.js` file:
+确保您在 `tailwind.config.js` 文件中配置了内容路径：

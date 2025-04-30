@@ -1,33 +1,31 @@
 ---
-title: Email
-description: How to manage emails in this project.
+title: 电子邮件
+description: 如何在此项目中管理电子邮件。
 ---
 
 <Callout type="success" twClass="mt-0">
-  The magic-link feature with Resend works with Auth.js v5! <br />
-  You can use it in your local environment and in your own production setup.
+  带有 Resend 的魔术链接功能与 Auth.js v5 兼容！<br />
+  您可以在本地环境和自己的生产设置中使用它。
 </Callout>
 
-## Steps
+## 步骤
 
 <Callout type="note">
-  The email part is similar at the [resend](https://resend.com/) documentation.
-  You can find the official documentation
-  [here](https://authjs.dev/getting-started/installation#setup-environment) if
-  you want.
+  电子邮件部分与 [resend](https://resend.com/) 文档类似。
+  如果需要，您可以在 [此处](https://authjs.dev/getting-started/installation#setup-environment) 查找官方文档。
 </Callout>
 
 <Steps>
 
-### Create an account
+### 创建账户
 
-If don't have an account on Resend, just follow their steps after signup [here](https://resend.com/signup).
+如果您在 Resend 上没有账户，请在注册后按照 [此处](https://resend.com/signup) 的步骤操作。
 
-### Create an API key
+### 创建 API 密钥
 
-After signin on Resend, he propurse you to create your first API key.
+登录 Resend 后，系统会建议您创建第一个 API 密钥。
 
-Copy/paste in your `.env` file.
+复制/粘贴到您的 `.env` 文件中。
 
 ```js
 RESEND_API_KEY = re_your_resend_api_key;
@@ -38,6 +36,6 @@ RESEND_API_KEY = re_your_resend_api_key;
 {/* 
 react-email
 > [!WARNING]  
-> You need update `.react-email` folder before use `pnpm run email`. Check the link [here](https://github.com/resend/react-email/issues/868#issuecomment-1828411325) if you have the error : `renderToReadableStream not found`
+> 在使用 `pnpm run email` 之前，您需要更新 `.react-email` 文件夹。如果您遇到错误 `renderToReadableStream not found`，请查看 [此处](https://github.com/resend/react-email/issues/868#issuecomment-1828411325) 的链接。
 
 */}

@@ -1,21 +1,21 @@
 ---
-title: Markdown Files
-description: How works blog and docs.
+title: Markdown 文件
+description: 博客和文档的工作原理。
 ---
 
-The project includes a blog and documentation built using [Contentlayer](https://contentlayer.dev/) and [MDX](https://mdxjs.com/).
+该项目包含使用 [Contentlayer](https://contentlayer.dev/) 和 [MDX](https://mdxjs.com/) 构建的博客和文档。
 
 ## Contentlayer
 
-Contentlayer is a Markdown-based CMS that's flexible and extensible. It lets you organize content using Markdown files and offers a straightforward API for accessing data in your app.
+Contentlayer 是一个基于 Markdown 的 CMS，灵活且可扩展。它允许您使用 Markdown 文件组织内容，并提供一个简单的 API 用于在应用程序中访问数据。
 
-You can create reusable data models for various content types like blog posts, docs, and pages with Contentlayer.
+您可以使用 Contentlayer 为各种内容类型（如博客文章、文档和页面）创建可重用的数据模型。
 
-Frontmatter in Markdown files allows you to define metadata such as title, description, authors, and images, simplifying content management.
+Markdown 文件中的 Frontmatter 允许您定义元数据，如标题、描述、作者和图像，简化了内容管理。
 
 ### contentlayer.config.js
 
-Here's an example of a `contentlayer.config.js` file to configure Contentlayer in your project:
+以下是在项目中配置 Contentlayer 的 `contentlayer.config.js` 文件示例：
 
 ```typescript title="contentlayer.config.js"
 import { defineDocumentType, makeSource } from "contentlayer/source-files";
@@ -108,17 +108,17 @@ export default makeSource({
 });
 ```
 
-This file configures Contentlayer to look for Markdown files in the specified directories (`content/blog`, `content/authors`, `content/docs`, `content/pages`). It also defines the different document types you use in your project along with the fields associated with each document type.
+该文件配置 Contentlayer 在指定目录（`content/blog`、`content/authors`、`content/docs`、`content/pages`）中查找 Markdown 文件。它还定义了项目中使用的不同文档类型以及与每种文档类型相关的字段。
 
-You can customize this file according to your project's needs by adding new document types or adjusting existing fields as per your specific requirements.
+您可以根据项目需求自定义此文件，根据特定需求添加新的文档类型或调整现有字段。
 
 ## Frontmatters
 
-Here's the list of all frontmatters available for each parts:
+以下是各部分可用的所有 frontmatter 列表：
 
 <Steps>
 
-### Authors
+### 作者
 
 ```md
 ---
@@ -128,12 +128,12 @@ twitter: mickasmt
 ---
 ```
 
-### Blog
+### 博客
 
 ```md
 ---
-title: Deploying Next.js Apps
-description: How to deploy your Next.js apps on Vercel.
+title: 部署 Next.js 应用
+description: 如何在 Vercel 上部署 Next.js 应用。
 image: /_static/blog/blog-post-3.jpg
 date: "2023-01-02"
 authors:
@@ -141,21 +141,21 @@ authors:
 ---
 ```
 
-### Docs
+### 文档
 
 ```md
 ---
-title: Database
-description: How to config your Neon database.
+title: 数据库
+description: 如何配置 Neon 数据库。
 ---
 ```
 
-### Pages
+### 页面
 
 ```md
 ---
-title: Privacy
-description: The Privacy Policy for your app.
+title: 隐私
+description: 应用程序的隐私政策。
 ---
 ```
 

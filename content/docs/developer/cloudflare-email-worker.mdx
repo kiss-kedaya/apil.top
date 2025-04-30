@@ -1,44 +1,44 @@
 ---
-title: Cloudflare Email Worker Configs
-description: How to config the cloudflare api.
+title: Cloudflare 电子邮件 Worker 配置
+description: 如何配置 Cloudflare API。
 ---
 
-Before you start, you must have a Cloudflare account and a domain be hosted on Cloudflare.
+开始之前，您必须拥有 Cloudflare 账户并且域名托管在 Cloudflare 上。
 
-### Introduction to Cloudflare Email Worker and R2
+### Cloudflare 电子邮件 Worker 和 R2 简介
 
-#### Cloudflare Email Worker
+#### Cloudflare 电子邮件 Worker
 
-Cloudflare Email Worker is a feature of Cloudflare's Email Routing service combined with the Workers platform. 
-It allows users to process incoming emails programmatically at Cloudflare's edge network. 
-When an email is sent to a custom address configured in Email Routing,
-the associated Worker is triggered, receiving the email data (e.g., sender, recipient, headers, and body). 
-Developers can write JavaScript code to define custom logic, 
-such as forwarding emails to specific addresses, filtering spam, 
-or integrating with external APIs.
+Cloudflare 电子邮件 Worker 是 Cloudflare 的电子邮件路由服务与 Workers 平台相结合的功能。
+它允许用户在 Cloudflare 的边缘网络上以编程方式处理传入的电子邮件。
+当电子邮件发送到电子邮件路由中配置的自定义地址时，
+相关联的 Worker 会被触发，接收电子邮件数据（例如发件人、收件人、标头和正文）。
+开发人员可以编写 JavaScript 代码来定义自定义逻辑，
+例如将电子邮件转发到特定地址、过滤垃圾邮件、
+或与外部 API 集成。
 
 #### Cloudflare R2
 
-Cloudflare R2 (Object Storage) is a scalable, S3-compatible storage solution provided by Cloudflare. 
-It allows users to store and retrieve files (e.g., email attachments) at the edge with zero egress fees. 
-In the context of an Email Worker, R2 can be used to store email attachments or other data, accessible via environment bindings in the Worker script.
+Cloudflare R2（对象存储）是由 Cloudflare 提供的可扩展的、S3 兼容的存储解决方案。
+它允许用户在边缘存储和检索文件（例如电子邮件附件），且无出口费用。
+在电子邮件 Worker 的上下文中，R2 可用于存储电子邮件附件或其他数据，通过 Worker 脚本中的环境绑定可访问。
 
-### Overview of cf-email-forwarding-worker
+### cf-email-forwarding-worker 概述
 
-[kiss-kedaya/cf-email-forwarding-worker](https://github.com/kiss-kedaya/cf-email-forwarding-worker), 
-implements an advanced email forwarding solution using Cloudflare Email Worker and R2. 
-Instead of directly forwarding emails to another email address, 
-it sends the email data to a third-party API endpoint for custom processing. 
-Additionally, it leverages Cloudflare R2 to store email attachments, making them accessible to the third-party application.
+[kiss-kedaya/cf-email-forwarding-worker](https://github.com/kiss-kedaya/cf-email-forwarding-worker) 
+使用 Cloudflare 电子邮件 Worker 和 R2 实现了高级电子邮件转发解决方案。
+它不是直接将电子邮件转发到另一个电子邮件地址，
+而是将电子邮件数据发送到第三方 API 端点进行自定义处理。
+此外，它利用 Cloudflare R2 存储电子邮件附件，使第三方应用程序可以访问它们。
 
-#### Key Features
+#### 主要功能
 
-- **API-based Forwarding**: Emails are sent as structured data to a configurable third-party API (APP_API_URL) via HTTP POST requests.
-- **Attachment Storage**: Email attachments are uploaded to an R2 bucket and their URLs are included in the API payload.
-- **Customizable**: The third-party app can process the email data (e.g., sender, subject, body, attachments) as needed.
-#### Configuration
+- **基于 API 的转发**：通过 HTTP POST 请求将电子邮件作为结构化数据发送到可配置的第三方 API（APP_API_URL）。
+- **附件存储**：电子邮件附件上传到 R2 存储桶，其 URL 包含在 API 有效负载中。
+- **可定制**：第三方应用可以根据需要处理电子邮件数据（例如发件人、主题、正文、附件）。
+#### 配置
 
-The Worker relies on two environment variables defined in the wrangler.jsonc file:
+Worker 依赖于 wrangler.jsonc 文件中定义的两个环境变量：
 
 ```json
 "vars": {
@@ -52,29 +52,29 @@ The Worker relies on two environment variables defined in the wrangler.jsonc fil
 ]
 ```
 
-`APP_API_URL`: The URL of the third-party API endpoint that receives the email data. This allows the third-party app to handle emails in a custom way (e.g., logging, processing, or forwarding).
+`APP_API_URL`：接收电子邮件数据的第三方 API 端点的 URL。这允许第三方应用以自定义方式处理电子邮件（例如，记录、处理或转发）。
 
-`R2_BUCKET`: The binding name for the R2 storage bucket, accessible in the Worker code as env.R2_BUCKET. The bucket_name (`wremail`) specifies the R2 bucket where email attachments are stored. Note: R2 must be activated and configured in your Cloudflare account beforehand.
+`R2_BUCKET`：R2 存储桶的绑定名称，在 Worker 代码中作为 env.R2_BUCKET 访问。bucket_name（`wremail`）指定存储电子邮件附件的 R2 存储桶。注意：必须事先在您的 Cloudflare 账户中激活和配置 R2。
 
-#### How It Works
+#### 工作原理
 
-- Email Reception: An email sent to the configured address triggers the Worker.
-- Attachment Handling: If the email contains attachments, they are extracted and uploaded to the R2 bucket (wremail). The Worker generates accessible URLs for these attachments.
-- API Forwarding: The email data (e.g., sender, recipient, subject, body, and attachment URLs) is packaged into a JSON payload and sent to the `APP_API_URL` via an HTTP POST request.
-- Third-Party Processing: The third-party app receives the payload and processes it according to its own logic.
+- 电子邮件接收：发送到配置地址的电子邮件触发 Worker。
+- 附件处理：如果电子邮件包含附件，它们将被提取并上传到 R2 存储桶（wremail）。Worker 为这些附件生成可访问的 URL。
+- API 转发：电子邮件数据（例如发件人、收件人、主题、正文和附件 URL）被打包成 JSON 有效负载，并通过 HTTP POST 请求发送到 `APP_API_URL`。
+- 第三方处理：第三方应用接收有效负载并根据其自身逻辑进行处理。
 
-#### Example Usage
+#### 使用示例
 
-- A user sends an email to example@yourdomain.com.
-- The Worker uploads any attachments to the wremail R2 bucket.
-- The Worker sends a POST request to https://kedaya.xyz/api/v1/email-catcher with the email details and attachment URLs.
-- The third-party app logs the email, stores it in a database, or forwards it elsewhere.
-#### Prerequisites
-- A Cloudflare account with Email Routing enabled.
-- An R2 bucket created and bound to the Worker (e.g., wremail).
-- A third-party API endpoint ready to receive POST requests with email data.
+- 用户向 example@yourdomain.com 发送电子邮件。
+- Worker 将任何附件上传到 wremail R2 存储桶。
+- Worker 向 https://kedaya.xyz/api/v1/email-catcher 发送 POST 请求，包含电子邮件详细信息和附件 URL。
+- 第三方应用记录电子邮件，将其存储在数据库中，或转发到其他地方。
+#### 先决条件
+- 启用了电子邮件路由的 Cloudflare 账户。
+- 创建并绑定到 Worker 的 R2 存储桶（例如 wremail）。
+- 准备好接收带有电子邮件数据的 POST 请求的第三方 API 端点。
 
-### Deploy email worker to Cloudflare
+### 将电子邮件 Worker 部署到 Cloudflare
 
 ```bash
 git clone https://github.com/kiss-kedaya/cf-email-forwarding-worker.git
@@ -84,23 +84,23 @@ pnpm install
 wranler login 
 wranler deploy
 ```
-Remember to add your environment variables in `wrangler.jsonc` before deploy.
+记得在部署前在 `wrangler.jsonc` 中添加您的环境变量。
 
-### Config your domain email rule
+### 配置您的域名电子邮件规则
 
-Via:
+通过：
 ```bash
 https://dash.cloudflare.com/[account_id]/[zone_name]/email/routing/routes
 ```
 
-edit `Catch-all address`, select:
-- `Action` -> `Send to a worker` 
-- `Destination` -> `wrdo-email-worker`(The worker name you deploy).
+编辑 `Catch-all address`（捕获所有地址），选择：
+- `Action`（操作）-> `Send to a worker`（发送到 worker）
+- `Destination`（目标）-> `wrdo-email-worker`（您部署的 worker 名称）。
 
-Then save and active it.
+然后保存并激活它。
 
 <Callout type="warning" twClass="mb-3">
-Once you add a new domain, you need to perform the same action, the email worker can be the same.
+一旦您添加新域名，您需要执行相同的操作，电子邮件 worker 可以是相同的。
 </Callout>
 
 
