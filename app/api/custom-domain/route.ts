@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     // 检查用户权限和配额
     if (user.role !== "ADMIN") {
       const { data } = await getUserCustomDomains(user.id);
-      if (data && data.length >= TeamPlanQuota[user.team || "free"].customDomains) {
+      if (data && Array.isArray(data) && data.length >= TeamPlanQuota[user.team || "free"].customDomains) {
         return Response.json(
           { status: "error", message: "您已达到自定义域名的最大限制" },
           { status: 403 }
