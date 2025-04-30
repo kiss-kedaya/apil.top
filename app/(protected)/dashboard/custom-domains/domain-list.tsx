@@ -60,7 +60,10 @@ export interface CustomDomainListProps {
 
 function TableColumnSkeleton() {
   return (
-    <TableRow className="grid grid-cols-3 items-center sm:grid-cols-5">
+    <TableRow className="grid grid-cols-4 items-center sm:grid-cols-6">
+      <TableCell className="col-span-1">
+        <Skeleton className="h-5 w-24" />
+      </TableCell>
       <TableCell className="col-span-1">
         <Skeleton className="h-5 w-24" />
       </TableCell>
@@ -203,129 +206,125 @@ export default function CustomDomainsList({ user, action }: CustomDomainListProp
           )}
 
           {isLoading ? (
-            <div className="mb-4 rounded-md border dark:border-slate-700">
-              <Table className="table-fixed">
-                <TableHeader>
-                  <TableRow className="grid grid-cols-4 sm:grid-cols-6">
-                    <TableHead className="col-span-1">域名</TableHead>
-                    <TableHead className="col-span-1">验证密钥</TableHead>
-                    <TableHead className="col-span-1">验证方式</TableHead>
-                    <TableHead className="col-span-1 hidden sm:table-cell">
-                      创建时间
-                    </TableHead>
-                    <TableHead className="col-span-1 hidden text-center sm:table-cell">
-                      状态
-                    </TableHead>
-                    <TableHead className="col-span-1 text-center">操作</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <TableColumnSkeleton key={i} />
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+            <Table>
+              <TableHeader className="bg-gray-100/50 dark:bg-primary-foreground">
+                <TableRow className="grid grid-cols-4 items-center sm:grid-cols-6">
+                  <TableHead className="col-span-1 flex items-center font-bold">域名</TableHead>
+                  <TableHead className="col-span-1 flex items-center font-bold">验证密钥</TableHead>
+                  <TableHead className="col-span-1 flex items-center font-bold">验证方式</TableHead>
+                  <TableHead className="col-span-1 hidden items-center font-bold sm:flex">
+                    创建时间
+                  </TableHead>
+                  <TableHead className="col-span-1 hidden items-center justify-center font-bold sm:flex">
+                    状态
+                  </TableHead>
+                  <TableHead className="col-span-1 flex items-center justify-center font-bold">操作</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <TableColumnSkeleton key={i} />
+                ))}
+              </TableBody>
+            </Table>
           ) : data?.data?.length ? (
-            <div className="mb-4 rounded-md border dark:border-slate-700">
-              <Table className="table-fixed">
-                <TableHeader>
-                  <TableRow className="grid grid-cols-4 sm:grid-cols-6">
-                    <TableHead className="col-span-1">域名</TableHead>
-                    <TableHead className="col-span-1">验证密钥</TableHead>
-                    <TableHead className="col-span-1">验证方式</TableHead>
-                    <TableHead className="col-span-1 hidden sm:table-cell">
-                      创建时间
-                    </TableHead>
-                    <TableHead className="col-span-1 hidden text-center sm:table-cell">
-                      状态
-                    </TableHead>
-                    <TableHead className="col-span-1 text-center">操作</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {Array.isArray(data?.data) && data.data
-                    .filter(domain => domain && domain.id && domain.domainName && (domain.createdAt || domain.created_at))
-                    .map((domain) => {
-                      const createdAt = domain.createdAt || domain.created_at || "";
-                      return (
-                        <TableRow
-                          key={domain.id || Math.random()}
-                          className="grid grid-cols-4 items-center sm:grid-cols-6"
-                        >
-                          <TableCell className="col-span-1 font-medium">
-                            {domain.domainName || "未知域名"}
-                          </TableCell>
-                          <TableCell className="col-span-1 break-all">
-                            {domain.verificationKey || "无"}
-                          </TableCell>
-                          <TableCell className="col-span-1">
-                            <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950">
-                              DNS验证
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="col-span-1 hidden sm:table-cell">
-                            {createdAt ? timeAgo(new Date(createdAt)) : "未知时间"}
-                          </TableCell>
-                          <TableCell className="col-span-1 hidden text-center sm:table-cell">
-                            {domain.isVerified ? (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger>
-                                    <ShieldCheckIcon className="inline h-5 w-5 text-green-500" />
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>已验证</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ) : (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger>
-                                    <ShieldAlertIcon className="inline h-5 w-5 text-yellow-500" />
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>未验证</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            )}
-                          </TableCell>
-                          <TableCell className="col-span-1 flex justify-center gap-2">
+            <Table>
+              <TableHeader className="bg-gray-100/50 dark:bg-primary-foreground">
+                <TableRow className="grid grid-cols-4 items-center sm:grid-cols-6">
+                  <TableHead className="col-span-1 flex items-center font-bold">域名</TableHead>
+                  <TableHead className="col-span-1 flex items-center font-bold">验证密钥</TableHead>
+                  <TableHead className="col-span-1 flex items-center font-bold">验证方式</TableHead>
+                  <TableHead className="col-span-1 hidden items-center font-bold sm:flex">
+                    创建时间
+                  </TableHead>
+                  <TableHead className="col-span-1 hidden items-center justify-center font-bold sm:flex">
+                    状态
+                  </TableHead>
+                  <TableHead className="col-span-1 flex items-center justify-center font-bold">操作</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {Array.isArray(data?.data) && data.data
+                  .filter(domain => domain && domain.id && domain.domainName && (domain.createdAt || domain.created_at))
+                  .map((domain) => {
+                    const createdAt = domain.createdAt || domain.created_at || "";
+                    return (
+                      <TableRow
+                        key={domain.id || Math.random()}
+                        className="grid grid-cols-4 items-center hover:bg-muted sm:grid-cols-6"
+                      >
+                        <TableCell className="col-span-1 font-medium">
+                          {domain.domainName || "未知域名"}
+                        </TableCell>
+                        <TableCell className="col-span-1 break-all">
+                          {domain.verificationKey || "无"}
+                        </TableCell>
+                        <TableCell className="col-span-1">
+                          <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950">
+                            DNS验证
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="col-span-1 hidden sm:table-cell">
+                          {createdAt ? timeAgo(new Date(createdAt)) : "未知时间"}
+                        </TableCell>
+                        <TableCell className="col-span-1 hidden text-center sm:table-cell">
+                          {domain.isVerified ? (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <ShieldCheckIcon className="inline h-5 w-5 text-green-500" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>已验证</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          ) : (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <ShieldAlertIcon className="inline h-5 w-5 text-yellow-500" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>未验证</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </TableCell>
+                        <TableCell className="col-span-1 flex justify-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setCurrentEditDomain(domain);
+                              setShowForm(true);
+                            }}
+                          >
+                            编辑
+                          </Button>
+                          {!domain.isVerified && (
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="sm"
-                              onClick={() => {
-                                setCurrentEditDomain(domain);
-                                setShowForm(true);
-                              }}
+                              onClick={() => verifyDomain(domain)}
                             >
-                              编辑
+                              验证
                             </Button>
-                            {!domain.isVerified && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => verifyDomain(domain)}
-                              >
-                                验证
-                              </Button>
-                            )}
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => deleteDomain(domain)}
-                            >
-                              删除
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                </TableBody>
-              </Table>
-            </div>
+                          )}
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => deleteDomain(domain)}
+                          >
+                            删除
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+              </TableBody>
+            </Table>
           ) : (
             <EmptyPlaceholder>
               <EmptyPlaceholder.Icon name="globeLock" />
