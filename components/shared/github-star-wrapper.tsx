@@ -8,27 +8,37 @@ interface GitHubResponse {
 }
 
 async function getGitHubStars(owner: string, repo: string) {
-  const githubToken = process.env.GITHUB_TOKEN;
-
-  if (!githubToken) {
-    throw new Error("GitHub token is not configured");
-  }
-
-  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-    headers: {
+  try {
+    const githubToken = process.env.GITHUB_TOKEN;
+    
+    const headers: HeadersInit = {
       Accept: "application/vnd.github.v3+json",
-      Authorization: `token ${githubToken}`,
       "User-Agent": "NextJS-App",
-    },
-    next: { revalidate: 3600 },
-  });
+    };
+    
+    // 只有在token存在时才添加授权头
+    if (githubToken) {
+      headers.Authorization = `token ${githubToken}`;
+    }
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch GitHub stars");
+    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+      headers,
+      next: { revalidate: 3600 },
+    });
+
+    if (!res.ok) {
+      console.error(`GitHub API请求失败: ${res.status} ${res.statusText}`);
+      // 返回默认值而不是抛出错误
+      return 0;
+    }
+
+    const data: GitHubResponse = await res.json();
+    return data.stargazers_count;
+  } catch (error) {
+    console.error("获取GitHub星标时出错:", error);
+    // 出错时返回默认值
+    return 0;
   }
-
-  const data: GitHubResponse = await res.json();
-  return data.stargazers_count;
 }
 
 interface Props {

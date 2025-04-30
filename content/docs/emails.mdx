@@ -1,48 +1,48 @@
 ---
-title: Emails
-description: Create and manage your emails.
+title: 电子邮件
+description: 创建和管理您的电子邮件。
 ---
 
 <Callout type="warning" twClass="mt-0">
-  Please do not abuse the free email service. If any illegal or malicious activities are discovered, the account will be banned. If you need help, please contact us.
+  请不要滥用免费的电子邮件服务。如果发现任何非法或恶意活动，账户将被封禁。如果您需要帮助，请联系我们。
 </Callout>
 
-## Overview
+## 概述
 
-We provide a free email service for users to send and receive emails. Users can generate a unique email address and use it to send and receive emails. 
+我们为用户提供免费的电子邮件服务，用于发送和接收电子邮件。用户可以生成唯一的电子邮件地址并用它来发送和接收电子邮件。
 
-Start using the email service at https://kedaya.xyz/emails !
+在 https://kedaya.xyz/emails 开始使用电子邮件服务！
 
 
-## How it works
+## 工作原理
 
-We use [resend](https://resend.com/) to send emails. Resend is a free email service that allows users to send and receive emails. 
+我们使用 [resend](https://resend.com/) 来发送电子邮件。Resend 是一个免费的电子邮件服务，允许用户发送和接收电子邮件。
 
-For receive emails, we use the [cloudflare](https://workers.cloudflare.com/) email worker to receive emails and forword emails. 
+对于接收电子邮件，我们使用 [cloudflare](https://workers.cloudflare.com/) 电子邮件 worker 来接收和转发电子邮件。
 
-It's powerful and stable. And it's easy to use.
+它功能强大且稳定，而且使用简便。
 
-## Expiration
+## 有效期
 
-The email will never be deleted unless you delete it manually. 
+除非您手动删除，否则电子邮件永远不会被删除。
 
-once deleted, it cannot be recovered. All emails in inbox will be deleted at the same time.
+一旦删除，将无法恢复。收件箱中的所有电子邮件将同时被删除。
 
-## Limit
+## 限制
 
-The maximum number of email addresses is 1000. 
+电子邮件地址的最大数量为 1000。
 
-Each email address can receive unlimited emails
+每个电子邮件地址可以接收无限制的电子邮件。
 
-For send emails, the maximum number of emails is 10 per day.
+对于发送电子邮件，每天最多可发送 10 封电子邮件。
 
-## API Reference
+## API 参考
 
-The Email API allows you to create and manage email addresses and retrieve received emails in your inbox.
+电子邮件 API 允许您创建和管理电子邮件地址，并检索收件箱中收到的电子邮件。
 
-### Create Email Address
+### 创建电子邮件地址
 
-The `POST /api/v1/email` endpoint allows you to create a new email address.
+`POST /api/v1/email` 端点允许您创建新的电子邮件地址。
 
 ```bash
 curl -X POST \
@@ -54,23 +54,23 @@ curl -X POST \
   https://kedaya.xyz/api/v1/email
 ```
 
-#### Request Body (Params)
+#### 请求体 (参数)
 
 ```json
 {
-  "emailAddress": "your-suffix@kedaya.xyz" // required, suffix must be at least 5 characters
+  "emailAddress": "your-suffix@kedaya.xyz" // 必需，后缀必须至少有5个字符
 }
 ```
 
-#### Authorization Header
+#### 授权头
 
-- `wrdo-api-key`: You can use your API key to authenticate your requests. 
-You can find your API key in your [account settings](/dashboard/settings).
-Add the header `wrdo-api-key: YOUR_API_KEY` to your request.
+- `wrdo-api-key`：您可以使用 API 密钥验证请求。
+您可以在[账户设置](/dashboard/settings)中找到您的 API 密钥。
+向请求添加头部 `wrdo-api-key: YOUR_API_KEY`。
 
-#### Response
+#### 响应
 
-On success (Status 201):
+成功时 (状态 201)：
 ```json
 {
   id: string;
@@ -82,20 +82,20 @@ On success (Status 201):
 }
 ```
 
-#### Error Responses
+#### 错误响应
 
-- `401 Unauthorized`: Missing or invalid API key
-- `400 Bad Request`: Missing email address or invalid suffix (less than 5 characters)
-- `403 Forbidden`: Email address quota has been reached
-- `409 Conflict`: Email address already exists
-- `500 Internal Server Error`: Server error
+- `401 未授权`：缺少或无效的 API 密钥
+- `400 错误请求`：缺少电子邮件地址或无效的后缀（少于5个字符）
+- `403 禁止`：已达到电子邮件地址配额
+- `409 冲突`：电子邮件地址已存在
+- `500 内部服务器错误`：服务器错误
 
-### Get Email Inbox
+### 获取电子邮件收件箱
 
-The `GET /api/v1/email/inbox` endpoint allows you to retrieve all forwarded emails for a specific email address.
+`GET /api/v1/email/inbox` 端点允许您检索特定电子邮件地址的所有转发邮件。
 
 <Callout type="warning" twClass="mt-0">
-  You must create a email address before you can get the inbox.
+  在获取收件箱之前，您必须先创建电子邮件地址。
 </Callout>
 
 ```bash
@@ -104,21 +104,21 @@ curl -X GET \
   "https://kedaya.xyz/api/v1/email/inbox?emailAddress=your-suffix@kedaya.xyz&page=1&size=10"
 ```
 
-#### Query Parameters
+#### 查询参数
 
-- `emailAddress`: The email address to get the inbox for (required)
-- `page`: Page number for pagination (optional, default: 1)
-- `size`: Number of emails per page (optional, default: 10)
+- `emailAddress`：要获取收件箱的电子邮件地址（必需）
+- `page`：分页的页码（可选，默认：1）
+- `size`：每页的电子邮件数量（可选，默认：10）
 
-#### Authorization Header
+#### 授权头
 
-- `wrdo-api-key`: You can use your API key to authenticate your requests. 
-You can find your API key in your [account settings](/dashboard/settings).
-Add the header `wrdo-api-key: YOUR_API_KEY` to your request.
+- `wrdo-api-key`：您可以使用 API 密钥验证请求。
+您可以在[账户设置](/dashboard/settings)中找到您的 API 密钥。
+向请求添加头部 `wrdo-api-key: YOUR_API_KEY`。
 
-#### Response
+#### 响应
 
-On success (Status 200):
+成功时 (状态 200)：
 ```json
 {
   "list": [
@@ -145,16 +145,16 @@ On success (Status 200):
 }
 ```
 
-#### Error Responses
+#### 错误响应
 
-- `401 Unauthorized`: Missing or invalid API key
-- `400 Bad Request`: Missing emailAddress parameter
-- `404 Not Found`: Email address not found or has been deleted
-- `500 Internal Server Error`: Server error
+- `401 未授权`：缺少或无效的 API 密钥
+- `400 错误请求`：缺少 emailAddress 参数
+- `404 未找到`：电子邮件地址未找到或已被删除
+- `500 内部服务器错误`：服务器错误
 
-### Delete Email Address
+### 删除电子邮件地址
 
-The `DELETE /api/v1/email` endpoint allows you to delete a specific email address.
+`DELETE /api/v1/email` 端点允许您删除特定的电子邮件地址。
 
 ```bash
 curl -X DELETE \

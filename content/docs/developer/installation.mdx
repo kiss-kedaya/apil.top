@@ -1,74 +1,72 @@
 ---
-title: Installation
-description: How to install the project.
+title: 安装
+description: 如何安装项目。
 ---
 
 <Steps>
 
-### Create project
+### 创建项目
 
-Start by creating a new Next.js project using `create-next-app`:
+首先使用 `create-next-app` 创建一个新的 Next.js 项目：
 
 ```bash
-npx create-next-app wrdo --example "https://github.com/oiov/kedaya.xyz"
+npx create-next-app wrdo --example "https://github.com/kiss-kedaya/kedaya.xyz"
 ```
 
-Or deploy with Vercel :
+或者使用 Vercel 部署：
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Foiov%2Fkedaya.xyz)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fkiss-kedaya%2Fkedaya.xyz)
 
 <Callout type="warning" twClass="mt-4">
-  A good way to create your repository, but the deployment will fail because you
-  need to add your environment variables locally in your project. Follow the
-  documentation for that.
+  这是创建仓库的好方法，但部署会失败，因为您需要在项目中本地添加环境变量。请按照文档进行操作。
 </Callout>
 
-### Install dependencies
+### 安装依赖
 
-Enter in the folder and install dependencies for your project:
+进入文件夹并为您的项目安装依赖：
 
 ```bash
 cd wrdo
 pnpm install
 ```
 
-### Create a `.env` file
+### 创建 `.env` 文件
 
-Copy/paste the `.env.example` in the `.env` file:
+复制/粘贴 `.env.example` 到 `.env` 文件：
 
 {/* env表格 */}
 
-| Environment Variable | Value | Description |
+| 环境变量 | 值 | 描述 |
 |----------------------|-------|-------------|
-| NEXTAUTH_URL | `http://localhost:3000` | The URL of the Next.js application. |
-| AUTH_SECRET | `123465` | The secret used to encrypt tokens and email verification hashes. |
-| DATABASE_URL | `postgres://username:password@host:port/database` | The path to the postgres database. |
-| GOOGLE_CLIENT_ID | `123465` | The ID of the Google OAuth client. |
-| GOOGLE_CLIENT_SECRET | `123465` | The secret of the Google OAuth client. |
-| GITHUB_ID | `123465` | The ID of the GitHub OAuth client. |
-| GITHUB_SECRET | `123465` | The secret of the GitHub OAuth client. |
-| RESEND_API_KEY | `123465` | The API key for Resend. |
-| CLOUDFLARE_ZONE_ID | `123465` | The zone ID for Cloudflare. |
-| CLOUDFLARE_API_KEY | `123465` | The API key for Cloudflare. |
-| CLOUDFLARE_EMAIL | `123465` | The email for Cloudflare. |
-| NEXT_PUBLIC_OPEN_SIGNUP | `1` | Open signup. |
-| SCREENSHOTONE_BASE_URL | `https://api.example.com` | pending |
+| NEXTAUTH_URL | `http://localhost:3000` | Next.js 应用程序的 URL。 |
+| AUTH_SECRET | `123465` | 用于加密令牌和电子邮件验证哈希的密钥。 |
+| DATABASE_URL | `postgres://username:password@host:port/database` | postgres 数据库的路径。 |
+| GOOGLE_CLIENT_ID | `123465` | Google OAuth 客户端的 ID。 |
+| GOOGLE_CLIENT_SECRET | `123465` | Google OAuth 客户端的密钥。 |
+| GITHUB_ID | `123465` | GitHub OAuth 客户端的 ID。 |
+| GITHUB_SECRET | `123465` | GitHub OAuth 客户端的密钥。 |
+| RESEND_API_KEY | `123465` | Resend 的 API 密钥。 |
+| CLOUDFLARE_ZONE_ID | `123465` | Cloudflare 的区域 ID。 |
+| CLOUDFLARE_API_KEY | `123465` | Cloudflare 的 API 密钥。 |
+| CLOUDFLARE_EMAIL | `123465` | Cloudflare 的电子邮件。 |
+| NEXT_PUBLIC_OPEN_SIGNUP | `1` | 开放注册。 |
+| SCREENSHOTONE_BASE_URL | `https://api.example.com` | 待定 |
 | GITHUB_TOKEN | `ghp_sscsfarwetqet` | https://github.com/settings/tokens |
-| NEXT_PUBLIC_SHORT_DOMAINS | `kedaya.xyz,uv.do` | The list of short domains. Separated by `,` |
-| NEXT_PUBLIC_EMAIL_DOMAINS | `kedaya.xyz,uv.do` | The list of email domains. Separated by `,` |
+| NEXT_PUBLIC_SHORT_DOMAINS | `kedaya.xyz,uv.do` | 短域名列表。用 `,` 分隔 |
+| NEXT_PUBLIC_EMAIL_DOMAINS | `kedaya.xyz,uv.do` | 电子邮件域名列表。用 `,` 分隔 |
 
-> `NEXT_PUBLIC_SHORT_DOMAINS`、`NEXT_PUBLIC_EMAIL_DOMAINS` is used to limit the short domain name and email domain name.
+> `NEXT_PUBLIC_SHORT_DOMAINS`、`NEXT_PUBLIC_EMAIL_DOMAINS` 用于限制短域名和电子邮件域名。
 
-- How to get `GOOGLE_CLIENT_ID`、`GITHUB_ID`, see [Authentification](/docs/developer/authentification).
-- How to get `RESEND_API_KEY`, see [Email](/docs/developer/email).
-- How to get `CLOUDFLARE_ZONE_ID`、`CLOUDFLARE_API_KEY`、`CLOUDFLARE_EMAIL`, see [Cloudflare Configs](/docs/developer/cloudflare).
-- How to get `DATABASE_URL`, see [Database](/docs/developer/database).
-- How to active email worker, see [Email Worker](/docs/developer/cloudflare-email-worker).
+- 如何获取 `GOOGLE_CLIENT_ID`、`GITHUB_ID`，参见 [认证](/docs/developer/authentification)。
+- 如何获取 `RESEND_API_KEY`，参见 [电子邮件](/docs/developer/email)。
+- 如何获取 `CLOUDFLARE_ZONE_ID`、`CLOUDFLARE_API_KEY`、`CLOUDFLARE_EMAIL`，参见 [Cloudflare 配置](/docs/developer/cloudflare)。
+- 如何获取 `DATABASE_URL`，参见 [数据库](/docs/developer/database)。
+- 如何激活电子邮件 worker，参见 [电子邮件 Worker](/docs/developer/cloudflare-email-worker)。
 
-For step by step installation, see [Quick Start](/docs/developer/quick-start).
+有关逐步安装，请参见 [快速入门](/docs/developer/quick-start)。
 
-### Configuration part
+### 配置部分
 
-Let's check the configuration part for update all environment variables before use `pnpm run dev`.
+在使用 `pnpm run dev` 之前，让我们检查配置部分以更新所有环境变量。
 
 </Steps>

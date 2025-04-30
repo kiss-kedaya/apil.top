@@ -14,8 +14,8 @@ export const siteConfig: SiteConfig = {
   ogImage: `${site_url}/_static/og.jpg`,
   links: {
     twitter: "https://twitter.com/yesmoree",
-    github: "https://github.com/oiov/kedaya.xyz",
-    feedback: "https://github.com/oiov/kedaya.xyz/issues",
+    github: "https://github.com/kiss-kedaya/kedaya.xyz",
+    feedback: "https://github.com/kiss-kedaya/kedaya.xyz/issues",
     discord: "https://discord.gg/AHPQYuZu3m",
     oichat: "https://oi.kedaya.xyz",
   },
@@ -33,7 +33,7 @@ export const footerLinks: SidebarNavItem[] = [
       { title: "关于", href: "/docs" },
       { title: "条款", href: "/terms" },
       { title: "隐私", href: "/privacy" },
-      { title: "博客", href: "https://www.oiov.dev" },
+      { title: "博客", href: "https://www.kiss-kedaya.dev" },
       { title: "反馈", href: siteConfig.links.feedback },
     ],
   },
@@ -41,7 +41,7 @@ export const footerLinks: SidebarNavItem[] = [
     title: "产品",
     items: [
       { title: "Vmail", href: "https://vmail.dev" },
-      { title: "Moise", href: "https://moise.oiov.dev" },
+      { title: "Moise", href: "https://moise.kiss-kedaya.dev" },
       // { title: "Inke", href: "https://inke.kedaya.xyz" },
       { title: "Iconce", href: "https://iconce.com" },
       { title: "OiChat", href: siteConfig.links.oichat },

@@ -171,7 +171,7 @@ export function DashboardSidebar({ links }: DashboardSidebarProps) {
                     rel="noreferrer"
                     className="font-medium text-primary underline underline-offset-2"
                   >
-                    oiov
+                    kiss-kedaya
                   </Link>
                   .{/* <br /> Built with{" "} */}
                   {/* <Link

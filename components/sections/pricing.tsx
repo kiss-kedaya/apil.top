@@ -93,7 +93,7 @@ export const PricingSection = () => {
           />
           <PriceCard
             tier="高级版"
-            price="¥35/月"
+            price="¥10/月"
             bestFor="适合5-50人的团队"
             CTA={
               <Link href={"/pricing"}>
@@ -126,7 +126,7 @@ export const PricingSection = () => {
 const PriceCard = ({ tier, price, bestFor, CTA, benefits }: PriceCardProps) => {
   return (
     <Card>
-      <div className="flex flex-col items-center border-b border-zinc-200 pb-6 dark:border-zinc-700">
+      <div className="flex h-[150px] flex-col items-center border-b border-zinc-200 pb-6 dark:border-zinc-700">
         <span className="mb-6 inline-block text-zinc-800 dark:text-zinc-50">
           {tier}
         </span>
@@ -138,13 +138,16 @@ const PriceCard = ({ tier, price, bestFor, CTA, benefits }: PriceCardProps) => {
         </span>
       </div>
 
-      <div className="space-y-3 py-9">
-        {benefits.map((b, i) => (
-          <Benefit {...b} key={i} />
-        ))}
+      <div className="flex flex-col justify-between">
+        <div className="space-y-3 py-9">
+          {benefits.map((b, i) => (
+            <Benefit {...b} key={i} />
+          ))}
+        </div>
+        <div className="mt-auto">
+          {CTA}
+        </div>
       </div>
-
-      {CTA}
     </Card>
   );
 };

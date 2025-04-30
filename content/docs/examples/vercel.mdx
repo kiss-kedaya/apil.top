@@ -1,30 +1,30 @@
 ---
-title: Vercel Custom Domain
-description: Free parsing of Vercel custom domain names.
+title: Vercel 自定义域名
+description: 免费解析 Vercel 自定义域名。
 ---
 
-After deploy your any project with vercel, you can use your custom domain name.
+在 Vercel 部署任何项目后，您可以使用自定义域名。
 
-First follow https://vercel.com/[account]/[project]/settings/domains.
+首先访问 https://vercel.com/[account]/[project]/settings/domains。
 
-And add your custom domain name like `beta.kedaya.xyz`:
+添加您的自定义域名，如 `beta.kedaya.xyz`：
 
 ![](/_static/examples/vercel_01.png)
 
-Then config the CNAME content on kedaya.xyz: 
+然后在 kedaya.xyz 上配置 CNAME 内容：
 
 ![](/_static/examples/vercel_02.png)
 
-Waiting for DNS records to take effect on vercel:
+等待 DNS 记录在 Vercel 上生效：
 
 ![](/_static/examples/vercel_03.png)
 
-Done!
+完成！
 
-### Domain verification
+### 域名验证
 
-You need add a `TXT` record to verify the domain ownership on `dashboard/records` when you first apply a custom domain.
+当您首次申请自定义域名时，需要在 `dashboard/records` 添加一条 `TXT` 记录以验证域名所有权。
 
-The `TXT` record's `name` is `_vercel` and `value` is `vs-domain-verify=xxxxxx`, you can find them in `https://vercel.com/[account]/[project]/settings/domains`.
+`TXT` 记录的 `name` 是 `_vercel`，`value` 是 `vs-domain-verify=xxxxxx`，您可以在 `https://vercel.com/[account]/[project]/settings/domains` 找到它们。
 
 

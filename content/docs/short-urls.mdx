@@ -1,43 +1,43 @@
 ---
-title: Short URLs
-description: Create and manage your short URLs.
+title: 短链接
+description: 创建和管理您的短链接。
 ---
 
 <Callout type="warning" twClass="mt-0">
-  Please do not abuse the free short link service. If any illegal or malicious activities are discovered, the account will be banned. If you need help, please contact us.
+  请不要滥用免费的短链接服务。如果发现任何非法或恶意活动，账户将被封禁。如果您需要帮助，请联系我们。
 </Callout>
 
-## Generating Short Links
+## 生成短链接
 
-1. **Navigate to Short Links Page**: Select the [Short Links](https://kedaya.xyz/dashboard/urls) option in the navigation bar.
-2. **Input Long URL**: Paste or type the URL you want to shorten into the provided input box.
-3. **Generate Short Link**: Click the "Generate" button, and the system will automatically create a short link for you.
-4. **Copy and Use**: Click the "Copy" button to copy the short link to your clipboard, and you can use it wherever needed.
+1. **导航到短链接页面**：在导航栏中选择[短链接](https://kedaya.xyz/dashboard/urls)选项。
+2. **输入长 URL**：将您想要缩短的 URL 粘贴或输入到提供的输入框中。
+3. **生成短链接**：点击"生成"按钮，系统将自动为您创建一个短链接。
+4. **复制并使用**：点击"复制"按钮将短链接复制到剪贴板，然后可以在需要的地方使用它。
 
-## URL Stats
+## URL 统计
 
-- **Clicks**: The number of times the short link has been clicked.
-- **Visitors**: The number of unique visitors who have visited the short link.
+- **点击量**：短链接被点击的次数。
+- **访问者**：访问短链接的唯一访问者数量。
 
-kedaya.xyz provides a simple access statistics feature that can be used to track the click count and visitor count of the short link.
+kedaya.xyz 提供简单的访问统计功能，可用于跟踪短链接的点击次数和访问者数量。
 
-## Expiration
+## 有效期
 
-- **No Expiration**: The short link will never expire.
-- **Expiration**: The short link will expire after the specified time.
+- **无有效期**：短链接永不过期。
+- **有效期**：短链接在指定时间后过期。
 
-Once the generated short chain becomes invalid, it will not be deleted. When accessing the short chain again, it will be redirected to this page. Users can reset the short chain validity period to activate.
+一旦生成的短链接失效，它不会被删除。再次访问短链接时，将被重定向到此页面。用户可以重置短链接有效期以激活。
 
-## Password
+## 密码
 
-- **No Password**: The short link will not require a password.
-- **Password**: The short link will require a password to access.
+- **无密码**：短链接不需要密码。
+- **有密码**：访问短链接需要密码。
 
-Users can set a password for the short link to protect it from unauthorized access.
+用户可以为短链接设置密码，以防止未经授权的访问。
 
-## API Reference
+## API 参考
 
-The `POST /api/v1/short` endpoint allows you to create a new short link for a given long URL.
+`POST /api/v1/short` 端点允许您为给定的长 URL 创建新的短链接。
 
 
 ```bash
@@ -45,7 +45,7 @@ curl -X POST \
   -H "Content-Type: application/json" \
   -H "wrdo-api-key: YOUR_API_KEY" \
   -d '{
-    "target": "https://www.oiov.dev",
+    "target": "https://www.kiss-kedaya.dev",
     "url": "abc123",
     "expiration": "-1",
     "prefix": "kedaya.xyz",
@@ -56,27 +56,27 @@ curl -X POST \
   https://kedaya.xyz/api/v1/short
 ```
 
-### Request Body (Params)
+### 请求体 (参数)
 
 ```json
 {
-  "target": "https://www.oiov.dev", // required
-  "url": "abc123", // required, slug
-  "expiration": "-1", // optional, seconds, default: "-1", "-1" means no expiration; "60" means 60 seconds
-  "prefix": "kedaya.xyz", // optional, default: kedaya.xyz
-  "visible": 1, // optional, default: 1, 1: visible, 0: invisible
-  "active": 1, // optional, default: 1, 1: active, 0: inactive
-  "password": "" // optional, max length: 6
+  "target": "https://www.kiss-kedaya.dev", // 必需
+  "url": "abc123", // 必需，短链接标识
+  "expiration": "-1", // 可选，秒数，默认："-1"，"-1"表示永不过期；"60"表示60秒
+  "prefix": "kedaya.xyz", // 可选，默认：kedaya.xyz
+  "visible": 1, // 可选，默认：1，1：可见，0：不可见
+  "active": 1, // 可选，默认：1，1：激活，0：未激活
+  "password": "" // 可选，最大长度：6
 }
 ```
 
-### Authorization Header
+### 授权头
 
-- `wrdo-api-key`: You can use your API key to authenticate your requests. 
-You can find your API key in your [account settings](/dashboard/settings).
-Add the header `wrdo-api-key: YOUR_API_KEY` to your request.
+- `wrdo-api-key`：您可以使用API密钥验证请求。
+您可以在[账户设置](/dashboard/settings)中找到您的API密钥。
+向请求添加头部 `wrdo-api-key: YOUR_API_KEY`。
 
-### Response
+### 响应
 
 ```json
 {
@@ -95,23 +95,23 @@ Add the header `wrdo-api-key: YOUR_API_KEY` to your request.
 }
 ```
 
-## Problems
+## 问题
 
-### Expired Links
+### 过期链接
 
-If you see this, it means that this short link has expired. 
-Please contact the creator of this short link to reactivate, or create a new short link.
+如果您看到这个，表示此短链接已过期。
+请联系此短链接的创建者重新激活，或创建一个新的短链接。
 
-### Missing links
+### 丢失链接
 
-If you see this, it means that this short link does not exist.
-Please contact the creator of this short link to reactivate, or create a new short link.
+如果您看到这个，表示此短链接不存在。
+请联系此短链接的创建者重新激活，或创建一个新的短链接。
 
-### Disabled links
+### 禁用链接
 
-If you see this, it means that this short link has been disabled.
-Please contact the creator of this short link to reactivate, or create a new short link.
+如果您看到这个，表示此短链接已被禁用。
+请联系此短链接的创建者重新激活，或创建一个新的短链接。
 
-### Error links
+### 错误链接
 
-If you see this, it means that this short link has an error. Please contact administrator.
+如果您看到这个，表示此短链接出现错误。请联系管理员。

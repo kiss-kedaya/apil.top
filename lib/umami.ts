@@ -1,6 +1,6 @@
 const UMAMI_CONFIG = {
   websiteId: "56549e9d-61df-470d-a1b1-cbf12cfafe9d",
-  endpoint: "https://umami.oiov.dev/api/send",
+  endpoint: "https://umami.kiss-kedaya.dev/api/send",
 };
 
 export async function trackUmamiEvent(

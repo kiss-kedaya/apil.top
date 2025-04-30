@@ -59,7 +59,7 @@ export function NewsletterForm() {
                 <Input
                   type="email"
                   className="rounded-lg px-4"
-                  placeholder="oiov@example.com"
+                  placeholder="kiss-kedaya@example.com"
                   {...field}
                 />
               </FormControl>

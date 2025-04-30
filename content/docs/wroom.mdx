@@ -1,104 +1,7 @@
 ---
-title: WRoom
-description: A temporary, peer-to-peer, and secure chat room
+title: 聊天室
+description: 一个临时、点对点且安全的聊天室
 ---
-
-## Introduction
-
-The **WRoom** is a decentralized, browser-based application built using **PeerJS**, enabling real-time communication between users without relying on a central server. Leveraging WebRTC technology, this chat room supports both text and image messaging, making it a versatile tool for peer-to-peer interaction. The application features a modern, responsive UI built with **React** and **Next.js**, offering a seamless experience across desktop and mobile devices.
-
-### Key Features
-- **Decentralized Communication**: Uses PeerJS for direct peer-to-peer connections, eliminating the need for a central server.
-- **Text Messaging**: Send and receive real-time text messages with timestamps and usernames.
-- **Image Messaging**: Share images (up to 5MB) with other users in the chat room, displayed inline with messages.
-- **User Management**: Displays a list of connected users with unique avatars and usernames.
-- **Room Creation and Sharing**: Create new rooms or join existing ones using a unique peer ID, with easy sharing via a generated URL.
-- **Responsive Design**: Adapts to various screen sizes, with a collapsible sidebar for mobile users.
-- **Connection Status**: Real-time indicators for online users and connection state.
-- **Dark Mode**: Toggle between light and dark themes for user preference.
-
-### Technical Highlights
-- Built with **Next.js** for server-side rendering and client-side interactivity.
-- Utilizes **PeerJS** with STUN servers for reliable WebRTC connections.
-- Messages are transmitted as structured objects to ensure data integrity, especially for Base64-encoded images.
-- Random usernames are generated using the `@scaleway/random-name` library.
-- Styled with **Tailwind CSS** and custom gradient-based avatars.
-
-## Usage Guide
-
-This section provides step-by-step instructions on how to use the WRoom effectively.
-
-### Prerequisites
-- A modern web browser (e.g., Chrome, Firefox, Edge) with WebRTC support.
-- An internet connection (required for initial peer connection via STUN servers).
-- No additional software installation is needed—just open the application in your browser.
-
-### Getting Started
-
-1. **Access the Chat Room**
-   - Open [https://kedaya.xyz/chat](https://kedaya.xyz/chat) in your browser.
-   - The chat room will automatically initialize and assign you a unique **Peer ID**.
-
-2. **Create a New Room**
-   - Upon loading, you are the "owner" of a new chat room by default.
-   - Your **Peer ID** (e.g., `abc123-xyz789`) is displayed under "Your ID."
-   - Share this ID with others to invite them to your room.
-
-3. **Join an Existing Room**
-   - If you have a room ID from another user, enter it in the "Room ID" field.
-   - Click the **Connect** button to join the room.
-   - Once connected, the button will turn green and display "Connected."
-
-4. **Share Your Room**
-   - Click the **Share Room** button next to "Your ID" to copy a URL (e.g., `https://kedaya.xyz/chat?room=abc123-xyz789`).
-   - Send this URL to others via email, messaging apps, or any preferred method.
-   - Recipients can open the URL to join your room directly.
-
-### Sending Messages
-
-1. **Text Messages**
-   - Type your message in the text area at the bottom of the chat window.
-   - Press **Enter** (without Shift) or click the **Send** button (paper plane icon) to send.
-   - Your message will appear on the right side with your username and timestamp, while others' messages appear on the left.
-
-2. **Image Messages**
-   - Click the **Image** icon (next to the Send button) to open a file picker.
-   - Select an image file from your device (max size: 5MB, supported formats: PNG, JPG, etc.).
-   - The image will be sent automatically and displayed in the chat with your username and timestamp.
-   - *Note*: If the image exceeds 5MB, an error toast will appear.
-
-### Managing the Chat Room
-
-- **View Users**
-  - Toggle the sidebar (via the menu icon) to see a list of connected users.
-  - The room owner is marked with an "Owner" badge.
-  - Each user has a unique gradient avatar based on their username.
-
-- **Create a New Room**
-  - If you’re the owner, click **New Room** in the sidebar to reset the current room and generate a new Peer ID.
-  - This disconnects all users and starts a fresh session.
-
-- **Disconnect**
-  - Simply close the browser tab to leave the room. If you’re the owner, the room persists as long as other peers remain connected.
-
-### UI Customization
-- **Dark Mode**: Use the toggle in the top-right corner to switch between light and dark themes.
-- **Sidebar**: On mobile devices, the sidebar is hidden by default; tap the menu icon to show it.
-
-### Troubleshooting
-- **Connection Issues**: If "Disconnected" appears, check your internet connection or try refreshing the page.
-- **Image Not Displaying**: Ensure the image is under 5MB and in a supported format. If the issue persists, verify the recipient’s browser console for errors.
-- **Peer ID Not Working**: Confirm the ID is correct and the room owner is still online.
-
-## Notes
-- **Limitations**: The chat room relies on WebRTC, so firewall or network restrictions may affect connectivity. Images larger than 5MB are blocked to prevent performance issues.
-- **Privacy**: No messages are stored server-side; all communication is peer-to-peer. However, use caution when sharing sensitive information.
-- **Future Enhancements**: Potential features include file compression, multi-file support, or end-to-end encryption.
-
-This WRoom offers a lightweight, user-friendly solution for real-time communication. Enjoy chatting and sharing with your peers at [https://kedaya.xyz/chat](https://kedaya.xyz/chat)!
-
-
-Chinese (Simplified):
 
 ## 介绍
 
@@ -137,17 +40,17 @@ Chinese (Simplified):
    - 聊天室将自动初始化并为您分配一个唯一的 **Peer ID**。
 
 2. **创建新房间**
-   - 加载应用后，您默认成为新聊天室的“拥有者”。
-   - 您的 **Peer ID**（例如 `abc123-xyz789`）会显示在“Your ID”字段中。
+   - 加载应用后，您默认成为新聊天室的"拥有者"。
+   - 您的 **Peer ID**（例如 `abc123-xyz789`）会显示在"Your ID"字段中。
    - 将此 ID 分享给他人，邀请他们加入您的房间。
 
 3. **加入现有房间**
-   - 如果您有其他用户的房间 ID，请在“Room ID”字段中输入。
+   - 如果您有其他用户的房间 ID，请在"Room ID"字段中输入。
    - 点击 **Connect（连接）** 按钮加入房间。
-   - 连接成功后，按钮将变为绿色并显示“Connected（已连接）”。
+   - 连接成功后，按钮将变为绿色并显示"Connected（已连接）"。
 
 4. **分享您的房间**
-   - 点击“Your ID”旁边的 **Share Room（分享房间）** 按钮，复制包含您 Peer ID 的 URL（例如 `https://kedaya.xyz/chat?room=abc123-xyz789`）。
+   - 点击"Your ID"旁边的 **Share Room（分享房间）** 按钮，复制包含您 Peer ID 的 URL（例如 `https://kedaya.xyz/chat?room=abc123-xyz789`）。
    - 通过电子邮件、消息应用或其他方式将此 URL 发送给他人。
    - 接收者可直接打开 URL 加入您的房间。
 
@@ -168,7 +71,7 @@ Chinese (Simplified):
 
 - **查看用户**
   - 通过菜单图标切换侧边栏，查看连接用户列表。
-  - 房间拥有者标有“Owner（拥有者）”徽章。
+  - 房间拥有者标有"Owner（拥有者）"徽章。
   - 每个用户拥有基于用户名的独特梯度头像。
 
 - **创建新房间**
@@ -183,7 +86,7 @@ Chinese (Simplified):
 - **侧边栏**：在移动设备上，侧边栏默认隐藏，点击菜单图标可显示。
 
 ### 故障排除
-- **连接问题**：如果显示“Disconnected（已断开）”，请检查网络连接或刷新页面。
+- **连接问题**：如果显示"Disconnected（已断开）"，请检查网络连接或刷新页面。
 - **图片未显示**：确保图片小于 5MB 且格式支持。如问题持续，请检查接收方浏览器控制台是否有错误。
 - **Peer ID 无效**：确认 ID 正确且房间拥有者仍在线。
 

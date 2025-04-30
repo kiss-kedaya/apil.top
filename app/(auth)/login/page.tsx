@@ -38,26 +38,26 @@ export default function LoginPage() {
             </span>
           </div>
           <p className="text-sm text-muted-foreground">
-            Choose your login method to continue
+          选择您的登录方式以继续
           </p>
         </div>
         <Suspense>
           <UserAuthForm />
         </Suspense>
         <p className="px-8 text-center text-sm text-muted-foreground">
-          By clicking continue, you agree to our{" "}
+        点击继续，即表示您同意我们的{" "}
           <Link
             href="/terms"
             className="hover:text-brand underline underline-offset-4"
           >
-            Terms of Service
+            服务条款
           </Link>{" "}
-          and{" "}
+          和{" "}
           <Link
             href="/privacy"
             className="hover:text-brand underline underline-offset-4"
           >
-            Privacy Policy
+            隐私政策
           </Link>
           .
         </p>

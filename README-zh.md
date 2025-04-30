@@ -48,7 +48,7 @@
 将 `.env.example` 复制为 `.env` 并填写必要的环境变量。
 
 ```bash
-git clone https://github.com/oiov/kedaya.xyz
+git clone https://github.com/kiss-kedaya/kedaya.xyz
 cd kedaya.xyz
 pnpm install
 
@@ -66,10 +66,10 @@ pnpm dev
 
 ## Star History
 
-<a href="https://star-history.com/#oiov/kedaya.xyz&Date">
+<a href="https://star-history.com/#kiss-kedaya/kedaya.xyz&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=oiov/kedaya.xyz&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=oiov/kedaya.xyz&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=oiov/kedaya.xyz&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=kiss-kedaya/kedaya.xyz&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=kiss-kedaya/kedaya.xyz&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=kiss-kedaya/kedaya.xyz&type=Date" />
  </picture>
 </a>

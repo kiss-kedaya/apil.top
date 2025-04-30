@@ -25,7 +25,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <head>
           <script
             defer
-            src="https://umami.oiov.dev/script.js"
+            src="https://umami.kiss-kedaya.dev/script.js"
             data-website-id="56549e9d-61df-470d-a1b1-cbf12cfafe9d"
           ></script>
         </head>

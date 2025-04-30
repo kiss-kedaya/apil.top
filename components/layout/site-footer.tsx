@@ -30,7 +30,7 @@ export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
             强大的截图和元数据抓取API。<br /> 
             开源项目。
           </div>
-          <GitHubStarsWithSuspense className="mt-4" owner="oiov" repo="kedaya.xyz" />
+          <GitHubStarsWithSuspense className="mt-4" owner="kiss-kedaya" repo="kedaya.xyz" />
         </div>
         {footerLinks.map((section) => (
           <div key={section.title}>
@@ -63,7 +63,7 @@ export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
               rel="noreferrer"
               className="font-medium text-primary underline underline-offset-2"
             >
-              oiov
+              kiss-kedaya
             </Link>
             。 <br className="block sm:hidden" /> 基于{" "}
             <Link
