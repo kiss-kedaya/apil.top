@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     rangeType: "month",
   });
   if (limit)
-    return NextResponse.json(limit.statusText, { status: limit.status });
+    return NextResponse.json({ message: limit.statusText }, { status: limit.status });
 
   const { emailAddress } = await req.json();
 

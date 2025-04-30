@@ -29,10 +29,10 @@ export async function GET(
     return NextResponse.json(userEmail, { status: 200 });
   } catch (error) {
     console.error("Error fetching user email:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
+    if (error.message === "Email not found") {
+      return NextResponse.json({ message: error.message }, { status: 404 });
+    }
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -62,7 +62,10 @@ export async function PUT(
     if (error.code === "P2002") {
       return NextResponse.json({ message: "Email address already exists" }, { status: 409 });
     }
-    return NextResponse.json("Internal Server Error", { status: 500 });
+    if (error.message === "Email address not found") {
+      return NextResponse.json({ message: error.message }, { status: 404 });
+    }
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -84,6 +87,9 @@ export async function DELETE(
     if (error.message === "User email not found or already deleted") {
       return NextResponse.json(error.message, { status: 404 });
     }
-    return NextResponse.json("Internal Server Error", { status: 500 });
+    if (error.message === "Email not found") {
+      return NextResponse.json({ message: error.message }, { status: 404 });
+    }
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }

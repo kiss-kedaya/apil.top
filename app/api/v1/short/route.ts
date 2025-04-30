@@ -29,7 +29,7 @@ export async function POST(req: Request) {
       limit: TeamPlanQuota[user.team!].SL_NewLinks,
       rangeType: "month",
     });
-    if (limit) return Response.json(limit.statusText, { status: limit.status });
+    if (limit) return Response.json({ message: limit.statusText }, { status: limit.status });
 
     const data = await req.json();
 

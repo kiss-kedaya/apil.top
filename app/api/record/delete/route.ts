@@ -38,9 +38,15 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error(error);
-    return Response.json(error?.statusText || error, {
-      status: error.status || 500,
-      statusText: error.statusText || "Server error",
+    const errorMessage = typeof error === 'string' 
+      ? { message: error } 
+      : (error && typeof error === 'object' 
+          ? { message: error.statusText || '服务器错误', ...error } 
+          : { message: '服务器错误' });
+    
+    return Response.json(errorMessage, {
+      status: error && typeof error === 'object' && 'status' in error ? error.status : 500,
+      statusText: error && typeof error === 'object' && 'statusText' in error ? error.statusText : '服务器错误',
     });
   }
 }

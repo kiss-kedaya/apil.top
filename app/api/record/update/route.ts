@@ -78,8 +78,14 @@ export async function POST(req: Request) {
     }
   } catch (error) {
     console.log(error);
-    return Response.json(error?.statusText || error, {
-      status: error?.status || 500,
+    const errorMessage = typeof error === 'string' 
+      ? { message: error } 
+      : (error && typeof error === 'object' 
+          ? { message: error.statusText || '服务器错误', ...error } 
+          : { message: '服务器错误' });
+    
+    return Response.json(errorMessage, {
+      status: error && typeof error === 'object' && 'status' in error ? error.status : 500
     });
   }
 }
@@ -123,6 +129,14 @@ export async function PUT(req: Request) {
     );
   } catch (error) {
     console.error(error);
-    return Response.json(`An error occurred. ${error}`, { status: 500 });
+    const errorMessage = typeof error === 'string' 
+      ? { message: error } 
+      : (error && typeof error === 'object' 
+          ? { message: error.statusText || '发生错误', ...error } 
+          : { message: '发生错误' });
+    
+    return Response.json(errorMessage, {
+      status: error && typeof error === 'object' && 'status' in error ? error.status : 500
+    });
   }
 }

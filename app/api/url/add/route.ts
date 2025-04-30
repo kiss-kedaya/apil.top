@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       limit: TeamPlanQuota[user.team].SL_NewLinks,
       rangeType: "month",
     });
-    if (limit) return Response.json(limit.statusText, { status: limit.status });
+    if (limit) return Response.json({ message: limit.statusText }, { status: limit.status });
 
     const { data } = await req.json();
 
@@ -41,8 +41,16 @@ export async function POST(req: Request) {
     }
     return Response.json(res.data);
   } catch (error) {
-    return Response.json(error?.statusText || error, {
-      status: error.status || 500,
+    console.error(`[url/add] ${error}`);
+    
+    const errorMessage = typeof error === 'string' 
+      ? { message: error } 
+      : (error && typeof error === 'object' 
+          ? { message: error.statusText || '服务器错误', ...error } 
+          : { message: '服务器错误' });
+    
+    return Response.json(errorMessage, {
+      status: error && typeof error === 'object' && 'status' in error ? error.status : 500
     });
   }
 }

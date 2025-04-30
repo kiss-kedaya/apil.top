@@ -115,8 +115,14 @@ export async function POST(req: Request) {
     }
   } catch (error) {
     console.error("[错误]", error);
-    return Response.json(error, {
-      status: error?.status || 500,
+    const errorMessage = typeof error === 'string' 
+      ? { message: error } 
+      : (error && typeof error === 'object' 
+          ? { message: error.statusText || JSON.stringify(error), ...error } 
+          : { message: '服务器错误' });
+    
+    return Response.json(errorMessage, {
+      status: error && typeof error === 'object' && 'status' in error ? error.status : 500
     });
   }
 }
