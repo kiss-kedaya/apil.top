@@ -9,7 +9,7 @@ export async function GET(req: Request) {
     const user = checkUserStatus(await getCurrentUser());
     if (user instanceof Response) return user;
     if (user.role !== "ADMIN") {
-      return Response.json("未授权", {
+      return Response.json({ message: "未授权" }, {
         status: 401,
         statusText: "未授权",
       });

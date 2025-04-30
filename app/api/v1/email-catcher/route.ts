@@ -5,7 +5,7 @@ export async function POST(req: Request) {
     const data = (await req.json()) as OriginalEmail;
     // console.log("Received email:", data);
     if (!data) {
-      return Response.json("未收到邮件数据", { status: 400 });
+      return Response.json({ message: "未收到邮件数据" }, { status: 400 });
     }
     await saveForwardEmail(data);
 

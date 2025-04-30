@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
     const { data } = await req.json();
     if (!data?.id) {
-      return Response.json(`链接ID为必填项`, {
+      return Response.json({ message: `链接ID为必填项` }, {
         status: 400,
       });
     }
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       password,
     });
     if (res.status !== "success") {
-      return Response.json(res.status, {
+      return Response.json({ message: res.status }, {
         status: 400,
       });
     }

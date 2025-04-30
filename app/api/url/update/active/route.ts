@@ -18,6 +18,7 @@ export async function POST(req: Request) {
       return Response.json(
         {
           statusText: "ID为必填项",
+          message: "ID为必填项"
         },
         { status: 400 },
       );
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
 
     const res = await updateUserShortUrlActive(user.id, id, active, user.role);
     if (res.status !== "success") {
-      return Response.json("更新失败", {
+      return Response.json({ message: "更新失败" }, {
         status: 400,
       });
     }
