@@ -34,7 +34,7 @@ interface DomainVerificationResult {
 interface ApiResponseError {
   status: "error";
   message: string;
-  details?: DomainVerificationResult['details'];
+  details?: DomainVerificationResult["details"];
 }
 
 interface ApiResponseSuccess<T> {
@@ -173,10 +173,13 @@ export async function updateUserCustomDomain(userId: string, data: any) {
 }
 
 // 验证自定义域名
-export async function verifyUserCustomDomain(userId: string, id: string): Promise<ApiResponse<any>> {
+export async function verifyUserCustomDomain(
+  userId: string,
+  id: string,
+): Promise<ApiResponse<any>> {
   try {
     console.log(`开始验证用户域名: userId=${userId}, domainId=${id}`);
-    
+
     const domainResult = await getUserCustomDomainById(userId, id);
     if (domainResult.status === "error" || !domainResult.data) {
       console.error(`域名不存在: userId=${userId}, domainId=${id}`);
@@ -184,17 +187,19 @@ export async function verifyUserCustomDomain(userId: string, id: string): Promis
     }
 
     const domain = domainResult.data;
-    console.log(`获取到域名信息: ${domain.domainName}, verificationKey=${domain.verificationKey}`);
+    console.log(
+      `获取到域名信息: ${domain.domainName}, verificationKey=${domain.verificationKey}`,
+    );
 
     // 验证域名TXT记录
     const verificationResult = await verifyDomainDNS(domain);
     console.log(`验证结果:`, verificationResult);
-    
+
     if (!verificationResult.success) {
       return {
         status: "error",
         message: `域名验证失败: ${verificationResult.message}`,
-        details: verificationResult.details
+        details: verificationResult.details,
       };
     }
 
@@ -241,7 +246,7 @@ async function verifyDomainDNS(domain: any): Promise<DomainVerificationResult> {
       return {
         success: false,
         message: `DNS查询失败，请稍后重试 (状态码: ${dnsResponse.status})`,
-        details: { errorCode: dnsResponse.status }
+        details: { errorCode: dnsResponse.status },
       };
     }
 
@@ -253,13 +258,15 @@ async function verifyDomainDNS(domain: any): Promise<DomainVerificationResult> {
       console.error(`未找到TXT记录: ${txtRecordName}`);
       return {
         success: false,
-        message: `未找到验证TXT记录，请确保您已添加TXT记录：【主机记录: _kedaya，记录值: ${domain.verificationKey}】`,
+        message: `未找到验证TXT记录，请确保您已添加TXT记录：【主机记录: _kedaya，记录值: ${domain.verificationKey}】${
+          dnsData
+        }`,
         details: {
           recordType: "TXT",
           host: "_kedaya",
           expectedValue: domain.verificationKey,
-          lookupName: txtRecordName
-        }
+          lookupName: txtRecordName,
+        },
       };
     }
 
@@ -267,13 +274,15 @@ async function verifyDomainDNS(domain: any): Promise<DomainVerificationResult> {
     console.log(`检查TXT记录值是否匹配验证密钥: ${domain.verificationKey}`);
     let foundValidKey = false;
     const recordValues: string[] = [];
-    
+
     for (const answer of dnsData.Answer) {
       // TXT记录返回值通常包含引号，需要去除
       const txtValue = answer.data.replace(/"/g, "");
       recordValues.push(txtValue);
-      
-      console.log(`- 比较 DNS值="${txtValue}" 与 验证密钥="${domain.verificationKey}"`);
+
+      console.log(
+        `- 比较 DNS值="${txtValue}" 与 验证密钥="${domain.verificationKey}"`,
+      );
       if (txtValue === domain.verificationKey) {
         foundValidKey = true;
         console.log(`找到匹配的验证密钥!`);
@@ -289,8 +298,8 @@ async function verifyDomainDNS(domain: any): Promise<DomainVerificationResult> {
         details: {
           expectedValue: domain.verificationKey,
           actualValues: recordValues,
-          lookupName: txtRecordName
-        }
+          lookupName: txtRecordName,
+        },
       };
     }
 
@@ -298,10 +307,10 @@ async function verifyDomainDNS(domain: any): Promise<DomainVerificationResult> {
     return { success: true };
   } catch (error) {
     console.error("域名DNS验证错误:", error);
-    return { 
-      success: false, 
+    return {
+      success: false,
       message: "验证过程中发生错误，请稍后重试",
-      details: { error: String(error) }
+      details: { error: String(error) },
     };
   }
 }
