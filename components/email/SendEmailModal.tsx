@@ -81,12 +81,13 @@ export function SendEmailModal({
         <div onClick={() => setIsOpen(true)}>{triggerButton}</div>
       ) : (
         <Button
-          className={className}
-          variant="ghost"
+          className={`flex items-center gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 ${className}`}
+          variant="default"
           size="sm"
           onClick={() => setIsOpen(true)}
         >
-          <Icons.send size={17} />
+          <Icons.send size={14} />
+          <span className="text-xs">发送</span>
         </Button>
       )}
 
