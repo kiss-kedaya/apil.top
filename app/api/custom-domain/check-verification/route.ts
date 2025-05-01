@@ -200,7 +200,7 @@ export async function POST(req: Request) {
       txtRecordExists: verificationStatus.txtRecord?.exists,
       txtRecordValid: verificationStatus.txtRecord?.isValid
     });
-    
+
     return Response.json({
       status: "success",
       data: {

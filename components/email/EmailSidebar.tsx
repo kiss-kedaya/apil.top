@@ -560,7 +560,7 @@ export default function EmailSidebar({
                     )}
                     onClick={() => {
                       if (!email.deletedAt) {
-                        setEmailToDelete(email.id);
+                        setEmailToDelete(email.emailAddress);
                         setShowDeleteModal(true);
                       }
                     }}
@@ -579,13 +579,13 @@ export default function EmailSidebar({
             {!isCollapsed && (
               <div className="mt-2 flex items-center justify-between gap-2 text-xs text-gray-500">
                 <div className="flex items-center gap-1">
-                  {'unreadCount' in email && email.unreadCount > 0 && (
+                  {email.unreadCount > 0 && (
                     <Badge variant="default">{email.unreadCount}</Badge>
                   )}
-                  {'count' in email ? email.count : 0} recived
+                  {email.count || 0} recived
                 </div>
                 <span>
-                  {isAdminModel && 'user' in email && 'email' in email
+                  {isAdminModel && email.user && email.email
                     ? `Created by ${email.user || (email.email && email.email.slice(0, 5))} at`
                     : ""}{" "}
                   {timeAgo(email.createdAt)}
@@ -633,7 +633,7 @@ export default function EmailSidebar({
                 </h3>
                 <div className="mt-4 flex flex-col space-y-4">
                   <div className="relative mt-4 flex items-center rounded-md border focus-within:ring-1 focus-within:ring-ring">
-                    <Input
+                  <Input
                       placeholder={
                         isEdit
                           ? selectedEmailAddress?.split("@")[0]
@@ -662,7 +662,7 @@ export default function EmailSidebar({
                         type="email"
                         value={domainSuffix || undefined}
                         onChange={(value) => setDomainSuffix(value)}
-                        disabled={isEdit}
+                    disabled={isEdit}
                         triggerClassName="min-w-[120px] border-0 focus:ring-0"
                       />
                     </div>
@@ -691,37 +691,37 @@ export default function EmailSidebar({
                     >
                       取消
                     </Button>
-                    <Button
+                  <Button
                       disabled={isPending || !domainSuffix}
-                      onClick={() => {
+                    onClick={() => {
                         const input = document.getElementById(
                           "email-input",
                         ) as HTMLInputElement;
                         if (input) {
                           handleSubmitEmail(input.value);
                         }
-                      }}
-                    >
+                    }}
+                  >
                       {isPending ? (
                         <Icons.spinner className="size-4 animate-spin" />
                       ) : (
                         <p>{isEdit ? "更新" : "创建"}</p>
                       )}
-                    </Button>
+                  </Button>
                   </div>
                 </div>
               </div>
-            </div>
+              </div>
           </div>
-        </div>
-      </Modal>
+          </div>
+        </Modal>
 
       {/* 删除邮箱的模态框 */}
       <Modal
         showModal={showDeleteModal}
         setShowModal={setShowDeleteModal}
       >
-        <div className="p-6">
+          <div className="p-6">
           <h2 className="mb-4 text-lg font-semibold text-center">
             确认删除邮箱
           </h2>
@@ -745,42 +745,33 @@ export default function EmailSidebar({
               onChange={(e) => setDeleteInput(e.target.value)}
             />
           </div>
-          <div className="flex justify-end gap-2">
-            <Button
+            <div className="flex justify-end gap-2">
+              <Button
               type="button"
-              variant="outline"
-              onClick={() => {
-                setShowDeleteModal(false);
-                setDeleteInput("");
-                setEmailToDelete(null);
-              }}
-            >
+                variant="outline"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteInput("");
+                  setEmailToDelete(null);
+                }}
+              >
               取消
-            </Button>
-            <Button
+              </Button>
+              <Button
               type="button"
-              variant="destructive"
+                variant="destructive"
               disabled={deleteInput !== emailToDelete || isPending}
-              onClick={() => {
-                if (deleteInput === emailToDelete) {
-                  const emailId = userEmails.find(
-                    (email) => email.emailAddress === emailToDelete,
-                  )?.id;
-                  if (emailId) {
-                    handleDeleteEmail(emailId);
-                  }
-                }
-              }}
+              onClick={confirmDelete}
             >
               {isPending ? (
                 <Icons.spinner className="size-4 animate-spin" />
               ) : (
                 <p>删除</p>
               )}
-            </Button>
+              </Button>
+            </div>
           </div>
-        </div>
-      </Modal>
+        </Modal>
     </div>
   );
 }
