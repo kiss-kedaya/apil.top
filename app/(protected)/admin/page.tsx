@@ -205,6 +205,48 @@ async function LogsSection({ userId }: { userId: string }) {
   );
 }
 
+// 开发日志卡片组件
+function DevLogsCardSection() {
+  return (
+    <div className="col-span-3 lg:col-span-1">
+      <div className="flex h-full flex-col rounded-xl border bg-card p-5 text-card-foreground shadow">
+        <div className="flex items-center justify-between space-y-0 pb-2">
+          <h3 className="text-sm font-medium">开发日志</h3>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4 text-muted-foreground"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <path d="M14 2v6h6"></path>
+            <path d="M16 13H8"></path>
+            <path d="M16 17H8"></path>
+            <path d="M10 9H8"></path>
+          </svg>
+        </div>
+        <div className="flex flex-1 flex-col justify-between">
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">查看和管理系统日志，包括错误、警告和信息</p>
+          </div>
+          <div className="pt-4">
+            <a
+              className="inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+              href="/admin/dev-logs"
+            >
+              查看日志
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // 主组件
 export default async function AdminPage() {
   const user = await getCurrentUser();
@@ -333,6 +375,9 @@ export default async function AdminPage() {
             <LogsSection userId={user.id} />
           </Suspense>
         </ErrorBoundary>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <DevLogsCardSection />
+        </div>
       </div>
     </>
   );
