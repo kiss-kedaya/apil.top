@@ -211,124 +211,110 @@ export default function DevLogsPage() {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-8 flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">开发日志</h1>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => fetchLogs()}
-              disabled={refreshing}
-            >
-              <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-              刷新
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => clearLogs(false)}
-              disabled={loading}
-            >
-              清理过期
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => clearLogs(true)}
-              disabled={loading}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              清空所有
-            </Button>
-          </div>
-        </div>
-
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <Input
-            placeholder="搜索日志内容..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-lg"
-          />
-          <Select value={level} onValueChange={setLevel}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="所有级别" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">所有级别</SelectItem>
-              <SelectItem value="info">信息</SelectItem>
-              <SelectItem value="warn">警告</SelectItem>
-              <SelectItem value="error">错误</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button type="submit" disabled={loading}>
-            <Search className="mr-2 h-4 w-4" />
-            搜索
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
+        <h1 className="text-xl font-bold">开发日志查看器</h1>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => clearLogs(false)}
+            disabled={loading || logs.length === 0}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            清理过期日志
           </Button>
-        </form>
-
-        {error && <div className="text-red-500">{error}</div>}
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => clearLogs(true)}
+            disabled={loading || logs.length === 0}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            清空所有日志
+          </Button>
+        </div>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-24">级别</TableHead>
-              <TableHead className="w-32">时间</TableHead>
-              <TableHead>消息</TableHead>
-              <TableHead className="w-24 text-right">操作</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading && (
-              <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
-                  加载中...
-                </TableCell>
-              </TableRow>
-            )}
-            {!loading && logs.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
-                  暂无日志
-                </TableCell>
-              </TableRow>
-            )}
-            {logs.map((log) => (
-              <TableRow key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-900">
-                <TableCell>{getLevelBadge(log.level)}</TableCell>
-                <TableCell className="font-mono text-xs">
-                  {formatDate(log.createdAt)}
-                </TableCell>
-                <TableCell className="max-w-md truncate">{log.message}</TableCell>
-                <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedLog(log)}
-                  >
-                    详情
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <form onSubmit={handleSearch} className="flex gap-2 items-center">
+        <Input
+          type="text"
+          placeholder="搜索日志..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-xs"
+        />
+        <Select value={level} onValueChange={setLevel}>
+          <SelectTrigger className="w-32">
+            <SelectValue placeholder="日志级别" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">所有级别</SelectItem>
+            <SelectItem value="info">信息</SelectItem>
+            <SelectItem value="warn">警告</SelectItem>
+            <SelectItem value="error">错误</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button type="submit" size="sm" disabled={loading}>
+          <Search className="h-4 w-4 mr-2" />
+          搜索
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={() => fetchLogs()}
+          disabled={refreshing}
+        >
+          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+        </Button>
+      </form>
 
-      <div className="mt-4 flex items-center justify-between">
+      {error && <div className="text-red-500 p-4 border border-red-200 rounded-md">{error}</div>}
+
+      {loading ? (
+        <div className="text-center py-8">加载中...</div>
+      ) : logs.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">没有找到日志</div>
+      ) : (
+        <div className="border rounded-md">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">级别</TableHead>
+                <TableHead>消息</TableHead>
+                <TableHead className="w-[200px]">时间</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {logs.map((log) => (
+                <TableRow
+                  key={log.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => setSelectedLog(log)}
+                >
+                  <TableCell>{getLevelBadge(log.level)}</TableCell>
+                  <TableCell className="font-mono text-xs truncate max-w-[400px]">
+                    {log.message}
+                  </TableCell>
+                  <TableCell>{formatDate(log.createdAt)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      <div className="flex justify-between items-center">
         <div className="text-sm text-gray-500">
-          共 {totalPages} 页
+          第 {page} 页，共 {totalPages} 页
         </div>
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPage((p) => Math.max(p - 1, 1))}
-            disabled={page === 1 || loading}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1 || loading}
           >
             <ChevronLeft className="h-4 w-4" />
             上一页
@@ -336,8 +322,8 @@ export default function DevLogsPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-            disabled={page === totalPages || loading}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages || loading}
           >
             下一页
             <ChevronRight className="h-4 w-4" />
@@ -345,92 +331,85 @@ export default function DevLogsPage() {
         </div>
       </div>
 
-      {/* 日志详情对话框 */}
-      <Dialog
-        open={!!selectedLog}
-        onOpenChange={(open) => {
-          if (!open) setSelectedLog(null);
-        }}
-      >
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              {selectedLog && getLevelBadge(selectedLog.level)}
-              <span>日志详情</span>
-            </DialogTitle>
-            <DialogDescription>
-              {selectedLog && formatDate(selectedLog.createdAt)}
-            </DialogDescription>
-          </DialogHeader>
+      <Dialog open={selectedLog !== null} onOpenChange={(open) => !open && setSelectedLog(null)}>
+        {selectedLog && (
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                {getLevelBadge(selectedLog.level)}
+                <span>日志详情</span>
+              </DialogTitle>
+              <DialogDescription>
+                {formatDate(selectedLog.createdAt)}
+              </DialogDescription>
+            </DialogHeader>
 
-          {selectedLog && (
             <Tabs defaultValue="details" className="mt-4">
               <TabsList>
-                <TabsTrigger value="details">详情</TabsTrigger>
-                <TabsTrigger value="caller">调用堆栈</TabsTrigger>
-                <TabsTrigger value="json">JSON</TabsTrigger>
+                <TabsTrigger value="details">详细信息</TabsTrigger>
+                <TabsTrigger value="caller">调用者</TabsTrigger>
+                <TabsTrigger value="json">JSON格式</TabsTrigger>
               </TabsList>
+
               <TabsContent value="details" className="mt-4">
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="mb-1 text-sm font-semibold">消息</h4>
-                    <div className="rounded-md border bg-gray-50 p-2 dark:bg-gray-900">
-                      {selectedLog.message}
-                    </div>
-                  </div>
-                  {selectedLog.details && (
-                    <div>
-                      <h4 className="mb-1 text-sm font-semibold">详细信息</h4>
-                      <div className="relative">
-                        <button
-                          onClick={() => copyToClipboard(selectedLog.details || '', 'details')}
-                          className="absolute right-2 top-2 rounded-md p-1 text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-                          title="复制"
-                        >
-                          {copiedDetails ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                        </button>
-                        <pre className="max-h-96 overflow-auto rounded-md border bg-gray-50 p-2 text-xs dark:bg-gray-900 whitespace-pre-wrap">
-                          {formatJSON(selectedLog.details)}
-                        </pre>
-                      </div>
-                    </div>
-                  )}
+                <div className="flex justify-between mb-2">
+                  <h3 className="text-lg font-semibold">消息</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => copyToClipboard(selectedLog.message, 'details')}
+                  >
+                    {copiedDetails ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  </Button>
                 </div>
+                <div className="bg-muted p-4 rounded-md overflow-auto max-h-60 font-mono text-xs">
+                  {selectedLog.message}
+                </div>
+
+                {selectedLog.details && (
+                  <>
+                    <h3 className="text-lg font-semibold mt-4">附加详情</h3>
+                    <div className="bg-muted p-4 rounded-md overflow-auto max-h-60 font-mono text-xs whitespace-pre-wrap">
+                      {formatJSON(selectedLog.details)}
+                    </div>
+                  </>
+                )}
               </TabsContent>
+
               <TabsContent value="caller" className="mt-4">
-                <div>
-                  <h4 className="mb-1 text-sm font-semibold">调用堆栈</h4>
-                  <div className="relative">
-                    <button
-                      onClick={() => copyToClipboard(selectedLog.caller || '无堆栈信息', 'caller')}
-                      className="absolute right-2 top-2 rounded-md p-1 text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-                      title="复制"
-                    >
-                      {copiedCaller ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    </button>
-                    <pre className="max-h-96 overflow-auto rounded-md border bg-gray-50 p-2 text-xs font-mono dark:bg-gray-900 whitespace-pre-wrap">
-                      {selectedLog.caller || "无堆栈信息"}
-                    </pre>
-                  </div>
+                <div className="flex justify-between mb-2">
+                  <h3 className="text-lg font-semibold">调用栈信息</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => copyToClipboard(selectedLog.caller || '', 'caller')}
+                  >
+                    {copiedCaller ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  </Button>
+                </div>
+                <div className="bg-muted p-4 rounded-md overflow-auto max-h-[300px] font-mono text-xs whitespace-pre-wrap">
+                  {selectedLog.caller || '无调用栈信息'}
                 </div>
               </TabsContent>
+
               <TabsContent value="json" className="mt-4">
-                <div className="relative">
-                  <button
+                <div className="flex justify-between mb-2">
+                  <h3 className="text-lg font-semibold">原始JSON</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => copyToClipboard(JSON.stringify(selectedLog, null, 2), 'json')}
-                    className="absolute right-2 top-2 rounded-md p-1 text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-                    title="复制"
                   >
                     {copiedJson ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  </button>
-                  <pre className="max-h-96 overflow-auto rounded-md border bg-gray-50 p-2 text-xs dark:bg-gray-900 whitespace-pre-wrap">
-                    {JSON.stringify(selectedLog, null, 2)}
-                  </pre>
+                  </Button>
+                </div>
+                <div className="bg-muted p-4 rounded-md overflow-auto max-h-[300px] font-mono text-xs whitespace-pre-wrap">
+                  {JSON.stringify(selectedLog, null, 2)}
                 </div>
               </TabsContent>
             </Tabs>
-          )}
-        </DialogContent>
+          </DialogContent>
+        )}
       </Dialog>
     </div>
   );

@@ -7,8 +7,8 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import UsersList from "./user-list";
 
 export const metadata = constructMetadata({
-  title: "User Management – apil.top",
-  description: "List and manage all users.",
+  title: "用户管理 – apil.top",
+  description: "列出并管理所有用户。",
 });
 
 export default async function UsersPage() {
@@ -19,8 +19,8 @@ export default async function UsersPage() {
   return (
     <>
       <DashboardHeader
-        heading="User Management"
-        text="List and manage all users."
+        heading="用户管理"
+        text="列出并管理所有用户。"
       />
       <UsersList user={{ id: user.id, name: user.name || "" }} />
     </>

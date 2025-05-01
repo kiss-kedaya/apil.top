@@ -5,8 +5,8 @@ export default function OrdersLoading() {
   return (
     <>
       <DashboardHeader
-        heading="User Management"
-        text="List and manage all users."
+        heading="用户管理"
+        text="列出并管理所有用户。"
       />
       <Skeleton className="h-full w-full rounded-lg" />
     </>

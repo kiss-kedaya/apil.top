@@ -32,30 +32,30 @@ import { Skeleton } from "../ui/skeleton";
 
 const chartConfig = {
   views: {
-    label: "Create",
+    label: "创建",
   },
   records: {
-    label: "Records",
+    label: "记录",
     color: "hsl(var(--chart-2))",
   },
   urls: {
-    label: "URLs",
+    label: "短链接",
     color: "hsl(var(--chart-1))",
   },
   users: {
-    label: "Users",
+    label: "用户",
     color: "hsl(var(--chart-1))",
   },
   emails: {
-    label: "Emails",
+    label: "邮件",
     color: "hsl(var(--chart-2))",
   },
   inbox: {
-    label: "Inbox",
+    label: "收件箱",
     color: "hsl(var(--chart-1))",
   },
   sends: {
-    label: "Sends",
+    label: "发送",
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
@@ -106,9 +106,9 @@ export function InteractiveBarChart() {
     <Card>
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-          <CardTitle>Data Increase</CardTitle>
+          <CardTitle>数据增长</CardTitle>
           <CardDescription>
-            Showing data increase in:
+            显示以下时间段内的数据增长:
             <Select
               onValueChange={(value: string) => {
                 setTimeRange(value);
@@ -117,7 +117,7 @@ export function InteractiveBarChart() {
               defaultValue={timeRange}
             >
               <SelectTrigger className="mt-1 w-40 shadow-inner">
-                <SelectValue placeholder="Select a time" />
+                <SelectValue placeholder="选择时间范围" />
               </SelectTrigger>
               <SelectContent>
                 {DATE_DIMENSION_ENUMS.map((e) => (
@@ -190,7 +190,7 @@ export function InteractiveBarChart() {
               minTickGap={32}
               tickFormatter={(value) => {
                 const date = new Date(value);
-                return date.toLocaleDateString("en-US", {
+                return date.toLocaleDateString("zh-CN", {
                   month: "short",
                   day: "numeric",
                 });
@@ -202,7 +202,7 @@ export function InteractiveBarChart() {
                   className="w-[150px]"
                   nameKey="views"
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
+                    return new Date(value).toLocaleDateString("zh-CN", {
                       month: "short",
                       day: "numeric",
                       year: "numeric",

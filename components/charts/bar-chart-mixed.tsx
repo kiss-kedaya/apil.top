@@ -28,7 +28,7 @@ const chartData = [
 
 const chartConfig = {
   visitors: {
-    label: "Visitors",
+    label: "访问者",
   },
   chrome: {
     label: "Chrome",
@@ -47,7 +47,7 @@ const chartConfig = {
     color: "hsl(var(--chart-4))",
   },
   other: {
-    label: "Other",
+    label: "其他",
     color: "hsl(var(--chart-5))",
   },
 } satisfies ChartConfig;
@@ -56,8 +56,8 @@ export function BarChartMixed() {
   return (
     <Card className="flex flex-col">
       <CardHeader>
-        {/* <CardTitle>Bar Chart - Mixed</CardTitle>
-        <CardDescription>January - June 2024</CardDescription> */}
+        {/* <CardTitle>条形图 - 混合</CardTitle>
+        <CardDescription>2024年1月 - 6月</CardDescription> */}
       </CardHeader>
       <CardContent className="flex-1">
         <ChartContainer config={chartConfig}>
@@ -90,10 +90,10 @@ export function BarChartMixed() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-pretty text-center text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="size-4" />
+          本月上升趋势为5.2% <TrendingUp className="size-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Results for the top 5 browsers
+          排名前5的浏览器结果
         </div>
       </CardFooter>
     </Card>

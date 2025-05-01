@@ -18,15 +18,15 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-const chartData = [{ month: "january", desktop: 1260, mobile: 570 }];
+const chartData = [{ month: "一月", desktop: 1260, mobile: 570 }];
 
 const chartConfig = {
   desktop: {
-    label: "Desktop",
+    label: "桌面端",
     color: "hsl(var(--chart-1))",
   },
   mobile: {
-    label: "Mobile",
+    label: "移动端",
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
@@ -37,8 +37,8 @@ export function RadialStackedChart() {
   return (
     <Card className="flex flex-col">
       {/* <CardHeader className="items-center pb-0">
-        <CardTitle>Radial Chart - Stacked</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>径向图 - 堆叠</CardTitle>
+        <CardDescription>2024年1月 - 6月</CardDescription>
       </CardHeader> */}
       <CardContent className="flex flex-1 items-center pb-0">
         <ChartContainer
@@ -73,7 +73,7 @@ export function RadialStackedChart() {
                           y={(viewBox.cy || 0) + 4}
                           className="fill-muted-foreground"
                         >
-                          Visitors
+                          访问者
                         </tspan>
                       </text>
                     );
@@ -102,10 +102,10 @@ export function RadialStackedChart() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-pretty text-center text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="size-4" />
+          本月上升趋势为5.2% <TrendingUp className="size-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          显示过去6个月的访问者总数
         </div>
       </CardFooter>
     </Card>

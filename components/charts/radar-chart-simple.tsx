@@ -12,17 +12,17 @@ import {
 } from "@/components/ui/chart";
 
 const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 273 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
+  { month: "一月", desktop: 186 },
+  { month: "二月", desktop: 305 },
+  { month: "三月", desktop: 237 },
+  { month: "四月", desktop: 273 },
+  { month: "五月", desktop: 209 },
+  { month: "六月", desktop: 214 },
 ];
 
 const chartConfig = {
   desktop: {
-    label: "Desktop",
+    label: "桌面端",
     color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig;
@@ -31,9 +31,9 @@ export function RadarChartSimple() {
   return (
     <Card>
       {/* <CardHeader className="items-center pb-4">
-        <CardTitle>Radar Chart</CardTitle>
+        <CardTitle>雷达图</CardTitle>
         <CardDescription>
-          Showing total visitors for the last 6 months
+          显示过去6个月的访问者总数
         </CardDescription>
       </CardHeader> */}
       <CardContent className="pb-0">
@@ -56,10 +56,10 @@ export function RadarChartSimple() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-pretty text-center text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="size-4" />
+          本月上升趋势为5.2% <TrendingUp className="size-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          January - June 2024
+          2024年1月 - 6月
         </div>
       </CardFooter>
     </Card>

@@ -8,8 +8,8 @@ import LiveLog from "../../dashboard/urls/live-logs";
 import UserUrlsList from "../../dashboard/urls/url-list";
 
 export const metadata = constructMetadata({
-  title: "Short URLs - apil.top",
-  description: "List and manage records.",
+  title: "短链接 - apil.top",
+  description: "列出并管理记录。",
 });
 
 export default async function DashboardPage() {
@@ -20,10 +20,10 @@ export default async function DashboardPage() {
   return (
     <>
       <DashboardHeader
-        heading="Manage&nbsp;Short&nbsp;URLs"
-        text="List and manage short urls."
+        heading="管理&nbsp;短链接"
+        text="列出并管理短链接。"
         link="/docs/short-urls"
-        linkText="Short urls."
+        linkText="短链接。"
       />
       <UserUrlsList
         user={{

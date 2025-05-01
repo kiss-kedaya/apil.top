@@ -173,17 +173,17 @@ export default function ChatRoom() {
 
       peer.on("error", (err) => {
         console.error("Peer error:", err);
-        toast.error("Connection error, please try again");
+        toast.error("连接错误，请重试");
         setIsConnected(false);
       });
 
       peer.on("disconnected", () => {
         setIsConnected(false);
-        toast.warning("Disconnected from peer network");
+        toast.warning("已断开与对等网络的连接");
       });
     } catch (err) {
       console.error("Failed to initialize peer:", err);
-      toast.error("Failed to initialize peer connection");
+      toast.error("初始化对等连接失败");
     }
   }, [username, isInvited]);
 
@@ -215,10 +215,10 @@ export default function ChatRoom() {
             data.data;
           const joinMessage = {
             id: crypto.randomUUID(),
-            text: `[${joiningUsername}] entered the room`,
+            text: `[${joiningUsername}] 进入了房间`,
             isSelf: false,
             timestamp: formatTime(new Date()),
-            username: "System",
+            username: "系统",
             isSystem: true,
           };
           setMessages((prev) => [...prev, joinMessage]);
@@ -260,10 +260,10 @@ export default function ChatRoom() {
             data.data;
           const leaveMessage = {
             id: crypto.randomUUID(),
-            text: `[${leavingUsername}] left the room`,
+            text: `[${leavingUsername}] 离开了房间`,
             isSelf: false,
             timestamp: formatTime(new Date()),
-            username: "System",
+            username: "系统",
             isSystem: true,
           };
           setMessages((prev) => [...prev, leaveMessage]);
@@ -300,10 +300,10 @@ export default function ChatRoom() {
       if (disconnectedUser) {
         const leaveMessage = {
           id: crypto.randomUUID(),
-          text: `[${disconnectedUser.username}] left the room`,
+          text: `[${disconnectedUser.username}] 离开了房间`,
           isSelf: false,
           timestamp: formatTime(new Date()),
-          username: "System",
+          username: "系统",
           isSystem: true,
         };
         setMessages((prev) => [...prev, leaveMessage]);
@@ -393,10 +393,10 @@ export default function ChatRoom() {
               data.data;
             const joinMessage = {
               id: crypto.randomUUID(),
-              text: `[${joiningUsername}] entered the room`,
+              text: `[${joiningUsername}] 进入了房间`,
               isSelf: false,
               timestamp: formatTime(new Date()),
-              username: "System",
+              username: "系统",
               isSystem: true,
             };
             setMessages((prev) => [...prev, joinMessage]);
@@ -432,10 +432,10 @@ export default function ChatRoom() {
               data.data;
             const leaveMessage = {
               id: crypto.randomUUID(),
-              text: `[${leavingUsername}] left the room`,
+              text: `[${leavingUsername}] 离开了房间`,
               isSelf: false,
               timestamp: formatTime(new Date()),
-              username: "System",
+              username: "系统",
               isSystem: true,
             };
             setMessages((prev) => [...prev, leaveMessage]);
@@ -472,10 +472,10 @@ export default function ChatRoom() {
         if (disconnectedUser) {
           const leaveMessage = {
             id: crypto.randomUUID(),
-            text: `[${disconnectedUser.username}] left the room`,
+            text: `[${disconnectedUser.username}] 离开了房间`,
             isSelf: false,
             timestamp: formatTime(new Date()),
-            username: "System",
+            username: "系统",
             isSystem: true,
           };
           setMessages((prev) => [...prev, leaveMessage]);
@@ -491,15 +491,15 @@ export default function ChatRoom() {
 
       conn.on("error", (err) => {
         console.error("Connection error:", err);
-        toast.error("Connection error. Please try again.");
+        toast.error("连接错误。请重试。");
         if (connRef.current === conn) {
           connRef.current = null;
           setIsConnected(false);
         }
       });
     } catch (err) {
-      console.error("Error connecting to peer:", err);
-      toast.error("Failed to connect to peer");
+      console.error("Failed to connect to peer:", err);
+      toast.error("连接对等方失败");
     }
   }, [remotePeerId, username, peerId, users]);
 
@@ -507,7 +507,7 @@ export default function ChatRoom() {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("Image size should not exceed 5MB");
+        toast.error("图片大小不应超过5MB");
         return;
       }
       const reader = new FileReader();
@@ -549,8 +549,9 @@ export default function ChatRoom() {
         });
       }
     } catch (err) {
-      console.error("Error sending image:", err);
-      toast.error("Failed to send image");
+      console.error("Failed to send image:", err);
+      toast.error("发送图片失败");
+      setIsSending(false);
     }
 
     setSelectedImage(null);
@@ -587,8 +588,9 @@ export default function ChatRoom() {
         });
       }
     } catch (err) {
-      console.error("Error sending message:", err);
-      toast.error("Failed to send message");
+      console.error("Failed to send message:", err);
+      toast.error("发送消息失败");
+      setIsSending(false);
     }
 
     setMessage("");
@@ -596,36 +598,29 @@ export default function ChatRoom() {
   }, [message, username, isSending, isInvited]);
 
   const copyPeerId = () => {
-    navigator.clipboard
-      .writeText(peerId)
-      .then(() => {
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
-      })
-      .catch((err) => {
-        console.error("Failed to copy:", err);
-        toast.error("Failed to copy ID");
-      });
+    try {
+      navigator.clipboard.writeText(peerId);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 3000);
+    } catch (err) {
+      toast.error("复制ID失败");
+    }
   };
 
   const shareRoom = () => {
-    const roomId = remotePeerId || peerId;
-    if (!roomId) {
-      toast.error("No room to share");
-      return;
+    try {
+      if (!peerId) {
+        toast.error("没有可分享的房间");
+        return;
+      }
+      const url = `${window.location.origin}/chat?room=${peerId}`;
+      navigator.clipboard.writeText(url);
+      setIsShareCopied(true);
+      setTimeout(() => setIsShareCopied(false), 3000);
+      toast.success("房间链接已复制到剪贴板");
+    } catch (err) {
+      toast.error("复制房间链接失败");
     }
-    const url = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
-    navigator.clipboard
-      .writeText(url)
-      .then(() => {
-        setIsShareCopied(true);
-        setTimeout(() => setIsShareCopied(false), 2000);
-        toast.success("Room link copied to clipboard");
-      })
-      .catch((err) => {
-        console.error("Failed to copy:", err);
-        toast.error("Failed to copy room link");
-      });
   };
 
   const createNewRoom = () => {
@@ -678,7 +673,7 @@ export default function ChatRoom() {
         >
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-lg font-bold text-neutral-800 dark:text-neutral-100">
-              Users ({users.length})
+              用户 ({users.length})
             </h2>
             <Button
               variant={"ghost"}
@@ -696,7 +691,7 @@ export default function ChatRoom() {
           <div className="max-h-[calc(100vh-12rem)] flex-1 space-y-2 overflow-y-auto">
             {users.length === 0 ? (
               <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                No users yet
+                暂无用户
               </p>
             ) : (
               users.map((user, index) => (
@@ -710,7 +705,7 @@ export default function ChatRoom() {
                     {user.username.slice(0, 1).toUpperCase()}
                   </div>
                   <span className="truncate">{user.username}</span>
-                  {index === 0 && <Badge>Owner</Badge>}
+                  {index === 0 && <Badge>房主</Badge>}
                 </div>
               ))
             )}
@@ -721,7 +716,7 @@ export default function ChatRoom() {
             className="mt-auto flex items-center justify-center gap-1"
           >
             <Plus size={20} />
-            New Room
+            新建房间
           </Button>
         </div>
       ) : null}
@@ -757,20 +752,20 @@ export default function ChatRoom() {
                 href={"/docs/wroom"}
                 target="_blank"
               >
-                About
+                关于
               </Link>
               <Link
                 className="text-sm hover:underline"
                 href={"/dashboard"}
                 target="_blank"
               >
-                Dashboard
+                控制台
               </Link>
             </>
           )}
           <div className="flex items-center gap-2">
             <Badge className="flex items-center gap-1 text-xs text-green-300 dark:text-green-700">
-              <Icons.users className="size-3" /> Online: {connectedCount}
+              <Icons.users className="size-3" /> 在线: {connectedCount}
             </Badge>
           </div>
           <ModeToggle />
@@ -779,7 +774,7 @@ export default function ChatRoom() {
         <div className="mb-4 space-y-3">
           <div className="flex items-center gap-2">
             <span className="text-sm text-neutral-600 dark:text-neutral-400">
-              Your&nbsp;&nbsp;&nbsp;ID:
+              您的ID:
             </span>
             <Input
               type="text"
@@ -791,16 +786,16 @@ export default function ChatRoom() {
               variant={"default"}
               onClick={shareRoom}
               className="flex items-center gap-2"
-              title="Share Room"
+              title="分享房间"
               size={"sm"}
               disabled={!peerId}
             >
               {!peerId ? (
-                "Creating Room"
+                "创建房间中"
               ) : (
                 <>
                   {isShareCopied ? <Check size={16} /> : <Share2 size={16} />}
-                  {!isMobile && "Share Room"}
+                  {!isMobile && "分享房间"}
                 </>
               )}
             </Button>
@@ -808,12 +803,12 @@ export default function ChatRoom() {
 
           <div className="flex items-center gap-2">
             <span className="text-sm text-neutral-600 dark:text-neutral-400">
-              Room ID:
+              房间ID:
             </span>
             {!isInvited && isConnected ? (
               <Input
                 type="text"
-                placeholder="You are the room owner"
+                placeholder="您是房间主人"
                 readOnly
                 disabled
                 className="flex-1 rounded border bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-600 dark:bg-neutral-700 dark:text-neutral-200 dark:placeholder:text-neutral-400"
@@ -823,7 +818,7 @@ export default function ChatRoom() {
                 type="text"
                 value={remotePeerId}
                 onChange={(e) => setRemotePeerId(e.target.value)}
-                placeholder="Enter a room id"
+                placeholder="输入房间ID"
                 readOnly={isConnected}
                 disabled={isConnected}
                 className="flex-1 rounded border bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-neutral-600 dark:bg-neutral-700 dark:text-neutral-200 dark:placeholder:text-neutral-400"
@@ -841,7 +836,7 @@ export default function ChatRoom() {
               )}
             >
               <Icons.unplug size={16} />
-              {isConnected ? "Connected" : "Connect"}
+              {isConnected ? "已连接" : "连接"}
             </Button>
           </div>
         </div>
@@ -888,7 +883,7 @@ export default function ChatRoom() {
                       {msg.image && (
                         <img
                           src={msg.image}
-                          alt="Sent image"
+                          alt="发送的图片"
                           className="max-w-full rounded-md"
                           style={{ maxHeight: "200px" }}
                         />
@@ -925,7 +920,7 @@ export default function ChatRoom() {
           <Textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder={`Hi ${username || "Loading..."}, send a message to start...`}
+            placeholder={`你好 ${username || "加载中..."}，发送消息开始聊天...`}
             className="min-h-20 flex-1 rounded-md rounded-t-none border border-t-0 bg-neutral-50 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-600 dark:text-neutral-200 dark:placeholder:text-neutral-400"
             onKeyPress={(e) =>
               e.key === "Enter" && !e.shiftKey && sendMessage()
@@ -938,7 +933,7 @@ export default function ChatRoom() {
               size="sm"
               onClick={() => fileInputRef.current?.click()}
               disabled={!isConnected || isSending}
-              title="Send Image"
+              title="发送图片"
             >
               <ImageIcon size={16} />
             </Button>
@@ -966,7 +961,7 @@ export default function ChatRoom() {
         </div>
 
         <footer className="mt-2 py-2 text-center text-sm font-semibold text-neutral-600 dark:text-neutral-300">
-          Powered by{" "}
+          由{" "}
           <Link
             className="hover:underline"
             href={"https://apil.top"}
@@ -975,6 +970,7 @@ export default function ChatRoom() {
           >
             {siteConfig.name}
           </Link>
+          {" "}提供支持
         </footer>
       </div>
     </div>

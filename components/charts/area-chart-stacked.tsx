@@ -19,21 +19,21 @@ import {
 } from "@/components/ui/chart";
 
 const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
+  { month: "一月", desktop: 186, mobile: 80 },
+  { month: "二月", desktop: 305, mobile: 200 },
+  { month: "三月", desktop: 237, mobile: 120 },
+  { month: "四月", desktop: 73, mobile: 190 },
+  { month: "五月", desktop: 209, mobile: 130 },
+  { month: "六月", desktop: 214, mobile: 140 },
 ];
 
 const chartConfig = {
   desktop: {
-    label: "Desktop",
+    label: "桌面端",
     color: "hsl(var(--chart-1))",
   },
   mobile: {
-    label: "Mobile",
+    label: "移动端",
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
@@ -42,9 +42,9 @@ export function AreaChartStacked() {
   return (
     <Card className="flex flex-col">
       <CardHeader>
-        {/* <CardTitle>Area Chart - Stacked</CardTitle>
+        {/* <CardTitle>面积图 - 堆叠</CardTitle>
         <CardDescription>
-          Showing total visitors for the last 6 months
+          显示过去6个月的访问者总数
         </CardDescription> */}
       </CardHeader>
       <CardContent className="flex-1">
@@ -63,7 +63,7 @@ export function AreaChartStacked() {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => value.slice(0, 2)}
             />
             <ChartTooltip
               cursor={false}
@@ -90,10 +90,10 @@ export function AreaChartStacked() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-pretty text-center text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="size-4" />
+          本月上升趋势为5.2% <TrendingUp className="size-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          January - June 2024
+          2024年1月 - 6月
         </div>
       </CardFooter>
     </Card>

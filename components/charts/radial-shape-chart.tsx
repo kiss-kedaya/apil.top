@@ -25,7 +25,7 @@ const chartData = [
 
 const chartConfig = {
   visitors: {
-    label: "Visitors",
+    label: "访问者",
   },
   safari: {
     label: "Safari",
@@ -37,8 +37,8 @@ export function RadialShapeChart() {
   return (
     <Card className="flex flex-col">
       {/* <CardHeader className="items-center pb-0">
-        <CardTitle>Radial Chart - Shape</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>径向图 - 形状</CardTitle>
+        <CardDescription>2024年1月 - 6月</CardDescription>
       </CardHeader> */}
       <CardContent className="flex-1 pb-0">
         <ChartContainer
@@ -82,7 +82,7 @@ export function RadialShapeChart() {
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Visitors
+                          访问者
                         </tspan>
                       </text>
                     );
@@ -95,10 +95,10 @@ export function RadialShapeChart() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-pretty text-center text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="size-4" />
+          本月上升趋势为5.2% <TrendingUp className="size-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          显示过去6个月的访问者总数
         </div>
       </CardFooter>
     </Card>
