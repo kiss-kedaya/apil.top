@@ -1,9 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, RefreshCw, Search, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  RefreshCw,
+  Search,
+  Trash2,
+} from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -20,14 +34,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Log {
@@ -65,23 +71,35 @@ export default function DevLogsPage() {
   const [devToken, setDevToken] = useState<string>("");
   const [showDevOptions, setShowDevOptions] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>("");
+  const [userInfo, setUserInfo] = useState<{id: string; isAdmin: boolean} | null>(null);
 
-  // 检测是否为开发环境并获取当前用户ID
+  // 检测是否为开发环境并获取当前用户信息
   useEffect(() => {
+    // 获取当前用户信息
+    fetch("/api/user/info")
+      .then((res) => {
+        if(!res.ok && res.status === 401) {
+          return null; // 用户未登录
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data && data.status === "success") {
+          const info = data.data;
+          setUserInfo({
+            id: info.id,
+            isAdmin: info.isAdmin
+          });
+          setCurrentUserId(info.id);
+        }
+      })
+      .catch((err) => {
+        console.error("获取用户信息失败:", err);
+      });
+
+    // 设置开发选项
     if (process.env.NODE_ENV === "development") {
       setShowDevOptions(true);
-      
-      // 获取当前用户ID
-      fetch("/api/auth/session")
-        .then(res => res.json())
-        .then(data => {
-          if (data.user?.id) {
-            setCurrentUserId(data.user.id);
-          }
-        })
-        .catch(err => {
-          console.error("获取用户信息失败:", err);
-        });
     }
   }, []);
 
@@ -112,11 +130,19 @@ export default function DevLogsPage() {
       }
 
       const response = await fetch(url.toString(), { headers });
+      
       if (response.status === 403) {
-        throw new Error("无权限访问开发日志，请确认您拥有管理员权限");
+        if (userInfo?.isAdmin) {
+          throw new Error("权限验证失败，但您的账号应该有管理员权限。请联系系统管理员检查数据库");
+        } else {
+          throw new Error("无权限访问开发日志，您需要管理员权限");
+        }
       }
+      
       if (!response.ok) {
-        throw new Error(`获取日志失败: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `获取日志失败: ${response.status} ${response.statusText}`,
+        );
       }
 
       const data: LogResponse = await response.json();
@@ -143,16 +169,16 @@ export default function DevLogsPage() {
 
     try {
       setLoading(true);
-      
+
       const headers: HeadersInit = {
         "Content-Type": "application/json",
       };
-      
+
       // 如果有开发者令牌，添加到请求头
       if (devToken) {
         headers["x-dev-token"] = devToken;
       }
-      
+
       const response = await fetch("/api/dev-logs", {
         method: "DELETE",
         headers,
@@ -195,7 +221,11 @@ export default function DevLogsPage() {
       case "error":
         return <Badge variant="destructive">错误</Badge>;
       case "warn":
-        return <Badge variant="default" className="bg-yellow-500">警告</Badge>;
+        return (
+          <Badge variant="default" className="bg-yellow-500">
+            警告
+          </Badge>
+        );
       case "info":
         return <Badge variant="outline">信息</Badge>;
       default:
@@ -238,7 +268,9 @@ export default function DevLogsPage() {
               onClick={() => fetchLogs()}
               disabled={refreshing}
             >
-              <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+              />
               刷新
             </Button>
             <Button
@@ -261,6 +293,26 @@ export default function DevLogsPage() {
           </div>
         </div>
 
+        {userInfo && !userInfo.isAdmin && (
+          <div className="mb-4 rounded-md border border-amber-300 bg-amber-50 p-3 dark:bg-amber-900/20">
+            <h3 className="mb-2 font-medium">您不是管理员</h3>
+            <p className="text-sm">
+              您的用户ID: <code className="rounded bg-gray-100 px-1 py-0.5 dark:bg-gray-800">{userInfo.id}</code>
+            </p>
+            <p className="mt-2 text-sm">
+              请前往管理员设置页面，将您的用户ID设置为管理员，或联系已有管理员进行设置。
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="mt-2"
+              onClick={() => (window.location.href = "/dashboard/admin")}
+            >
+              前往管理员设置
+            </Button>
+          </div>
+        )}
+
         {showDevOptions && (
           <div className="mb-4 rounded-md border border-yellow-300 bg-yellow-50 p-3 dark:bg-yellow-900/20">
             <h3 className="mb-2 font-medium">开发模式</h3>
@@ -271,8 +323,8 @@ export default function DevLogsPage() {
                 onChange={(e) => setDevToken(e.target.value)}
                 className="max-w-xs"
               />
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => {
                   setDevToken("dev-admin-access");
@@ -285,13 +337,16 @@ export default function DevLogsPage() {
             {currentUserId && (
               <div className="mt-2">
                 <p className="text-xs text-gray-500">
-                  当前用户ID: <code className="rounded bg-gray-100 px-1 py-0.5 dark:bg-gray-800">{currentUserId}</code>
+                  当前用户ID:{" "}
+                  <code className="rounded bg-gray-100 px-1 py-0.5 dark:bg-gray-800">
+                    {currentUserId}
+                  </code>
                 </p>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="sm"
                   className="mt-1"
-                  onClick={() => window.location.href = "/dashboard/admin"}
+                  onClick={() => (window.location.href = "/dashboard/admin")}
                 >
                   前往管理员设置
                 </Button>
@@ -356,12 +411,17 @@ export default function DevLogsPage() {
               </TableRow>
             )}
             {logs.map((log) => (
-              <TableRow key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-900">
+              <TableRow
+                key={log.id}
+                className="hover:bg-gray-50 dark:hover:bg-gray-900"
+              >
                 <TableCell>{getLevelBadge(log.level)}</TableCell>
                 <TableCell className="font-mono text-xs">
                   {formatDate(log.createdAt)}
                 </TableCell>
-                <TableCell className="max-w-md truncate">{log.message}</TableCell>
+                <TableCell className="max-w-md truncate">
+                  {log.message}
+                </TableCell>
                 <TableCell className="text-right">
                   <Button
                     variant="ghost"
@@ -378,9 +438,7 @@ export default function DevLogsPage() {
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        <div className="text-sm text-gray-500">
-          共 {totalPages} 页
-        </div>
+        <div className="text-sm text-gray-500">共 {totalPages} 页</div>
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -449,7 +507,7 @@ export default function DevLogsPage() {
               <TabsContent value="caller" className="mt-4">
                 <div>
                   <h4 className="mb-1 text-sm font-semibold">调用堆栈</h4>
-                  <pre className="max-h-96 overflow-auto rounded-md border bg-gray-50 p-2 text-xs font-mono dark:bg-gray-900">
+                  <pre className="max-h-96 overflow-auto rounded-md border bg-gray-50 p-2 font-mono text-xs dark:bg-gray-900">
                     {selectedLog.caller || "无堆栈信息"}
                   </pre>
                 </div>
@@ -465,4 +523,4 @@ export default function DevLogsPage() {
       </Dialog>
     </div>
   );
-} 
+}
