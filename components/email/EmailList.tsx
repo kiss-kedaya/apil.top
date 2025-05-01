@@ -250,12 +250,12 @@ export default function EmailList({
             <>
               {!data || data.list.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center">
-                  <Icons.mailPlus size={50} className="text-neutral-300" />
-                  <h3 className="mt-2 text-xl text-neutral-400">
-                    没有邮件
-                  </h3>
-                  <p className="text-sm text-neutral-400">
-                    您的收件箱中暂无邮件
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800">
+                    <Icons.mailPlus size={40} className="text-primary" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-medium">邮箱空空如也</h3>
+                  <p className="mt-2 max-w-md text-center text-sm text-muted-foreground">
+                    当您收到新邮件后，它们将显示在这里。您也可以点击右上角的<strong>"发送"</strong>按钮创建一封新邮件。
                   </p>
                 </div>
               ) : (
@@ -365,18 +365,26 @@ const getRandomImageUrl = (email: string | null) => {
 export function EmptyInboxSection() {
   return (
     <div className="flex h-full flex-col items-center justify-center space-y-3">
-      <Icons.inbox className="size-12 text-neutral-300" />
-      <div className="space-y-0.5 text-center">
-        <h1 className="text-lg font-semibold">无可用的邮箱</h1>
-        <p className="text-sm text-muted-foreground">请先从左侧选择一个邮箱</p>
-      </div>
-      <div className="py-2">
-        <Button variant="outline" size="sm">
-          <Link href="/dashboard/email/add" className="flex items-center">
-            <Icons.add className="size-3.5" />
-            <span className="ml-1 text-xs">创建邮箱</span>
-          </Link>
-        </Button>
+      <div className="flex flex-col items-center justify-center space-y-4">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800">
+          <Icons.inbox className="size-10 text-primary" />
+        </div>
+        <div className="space-y-2 text-center">
+          <h1 className="text-xl font-semibold">无可用的邮箱</h1>
+          <p className="max-w-md text-muted-foreground">
+            请先在左侧创建或选择一个邮箱地址，然后您就可以开始接收和发送邮件了。
+          </p>
+        </div>
+        <div className="pt-4">
+          <Button 
+            variant="default" 
+            size="lg"
+            className="flex items-center gap-2"
+          >
+            <Icons.arrowLeft className="size-4" />
+            <span>请先创建一个邮箱</span>
+          </Button>
+        </div>
       </div>
     </div>
   );

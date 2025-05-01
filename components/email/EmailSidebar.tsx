@@ -473,10 +473,21 @@ export default function EmailSidebar({
               <div className="flex h-full items-center justify-center">
                 <EmptyPlaceholder>
                   <EmptyPlaceholder.Icon name="mailPlus" />
-                  <EmptyPlaceholder.Title>No emails</EmptyPlaceholder.Title>
+                  <EmptyPlaceholder.Title>无可用的邮箱</EmptyPlaceholder.Title>
                   <EmptyPlaceholder.Description>
-                    You don&apos;t have any email yet. Start creating email.
+                    请先创建一个邮箱地址，以便接收和发送邮件。
                   </EmptyPlaceholder.Description>
+                  <Button 
+                    variant="default" 
+                    onClick={() => {
+                      setIsEdit(false);
+                      setShowEmailModal(true);
+                    }}
+                    className="mt-2 flex items-center gap-2"
+                  >
+                    <SquarePlus className="size-4" />
+                    <span>创建新邮箱</span>
+                  </Button>
                 </EmptyPlaceholder>
               </div>
             ) : (
