@@ -9,12 +9,12 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/wrdo.png",
+      "src": "/_static/wrdo.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/wrdo.png",
+      "src": "/_static/wrdo.png",
       "sizes": "512x512",
       "type": "image/png"
     }

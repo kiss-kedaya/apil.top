@@ -121,10 +121,10 @@ export default function DomainSelector({
         onValueChange={onChange}
         disabled={disabled || isLoading}
       >
-        <SelectTrigger className={cn("bg-transparent hover:bg-background/80 transition-colors", triggerClassName)}>
+        <SelectTrigger className={cn("bg-transparent border-0 shadow-none hover:bg-background/5 transition-colors focus:ring-0", triggerClassName)}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="border rounded-md">
           {isLoading ? (
             <div className="flex items-center space-x-2 p-2">
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
