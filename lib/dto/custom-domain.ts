@@ -77,7 +77,7 @@ export async function createUserCustomDomain(userId: string, data: any) {
     } catch (error) {
       // 如果表不存在，需要执行迁移
       console.error("自定义域名表可能不存在，请确保已运行迁移:", error);
-      return { status: "error", message: "系统配置错误，请联系管理员" };
+      return { status: "error", message: "系统配置错误，请联系管理员", details: error?.message || String(error) };
     }
 
     // 创建新的自定义域名记录
@@ -122,7 +122,7 @@ export async function createUserCustomDomain(userId: string, data: any) {
     return { status: "success", data: Array.isArray(res) ? res[0] : res };
   } catch (error) {
     console.error("创建自定义域名错误:", error);
-    return { status: "error", message: "创建自定义域名失败" };
+    return { status: "error", message: "创建自定义域名失败", details: error?.message || String(error), error };
   }
 }
 
