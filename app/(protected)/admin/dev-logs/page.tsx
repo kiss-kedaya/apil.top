@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, RefreshCw, Search, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, RefreshCw, Search, Trash2, Copy, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,6 +62,9 @@ export default function DevLogsPage() {
   const [level, setLevel] = useState<string>("all");
   const [selectedLog, setSelectedLog] = useState<Log | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [copiedDetails, setCopiedDetails] = useState(false);
+  const [copiedCaller, setCopiedCaller] = useState(false);
+  const [copiedJson, setCopiedJson] = useState(false);
 
   // 获取日志
   const fetchLogs = async () => {
@@ -185,6 +188,26 @@ export default function DevLogsPage() {
     } catch (e) {
       return jsonStr;
     }
+  };
+
+  // 复制文本到剪贴板
+  const copyToClipboard = (text: string, type: string) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        if (type === 'details') {
+          setCopiedDetails(true);
+          setTimeout(() => setCopiedDetails(false), 2000);
+        } else if (type === 'caller') {
+          setCopiedCaller(true);
+          setTimeout(() => setCopiedCaller(false), 2000);
+        } else if (type === 'json') {
+          setCopiedJson(true);
+          setTimeout(() => setCopiedJson(false), 2000);
+        }
+      })
+      .catch(err => {
+        console.error('复制失败:', err);
+      });
   };
 
   return (
@@ -358,9 +381,18 @@ export default function DevLogsPage() {
                   {selectedLog.details && (
                     <div>
                       <h4 className="mb-1 text-sm font-semibold">详细信息</h4>
-                      <pre className="max-h-96 overflow-auto rounded-md border bg-gray-50 p-2 text-xs dark:bg-gray-900">
-                        {formatJSON(selectedLog.details)}
-                      </pre>
+                      <div className="relative">
+                        <button
+                          onClick={() => copyToClipboard(selectedLog.details || '', 'details')}
+                          className="absolute right-2 top-2 rounded-md p-1 text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                          title="复制"
+                        >
+                          {copiedDetails ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                        </button>
+                        <pre className="max-h-96 overflow-auto rounded-md border bg-gray-50 p-2 text-xs dark:bg-gray-900 whitespace-pre-wrap">
+                          {formatJSON(selectedLog.details)}
+                        </pre>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -368,15 +400,33 @@ export default function DevLogsPage() {
               <TabsContent value="caller" className="mt-4">
                 <div>
                   <h4 className="mb-1 text-sm font-semibold">调用堆栈</h4>
-                  <pre className="max-h-96 overflow-auto rounded-md border bg-gray-50 p-2 text-xs font-mono dark:bg-gray-900">
-                    {selectedLog.caller || "无堆栈信息"}
-                  </pre>
+                  <div className="relative">
+                    <button
+                      onClick={() => copyToClipboard(selectedLog.caller || '无堆栈信息', 'caller')}
+                      className="absolute right-2 top-2 rounded-md p-1 text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                      title="复制"
+                    >
+                      {copiedCaller ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    </button>
+                    <pre className="max-h-96 overflow-auto rounded-md border bg-gray-50 p-2 text-xs font-mono dark:bg-gray-900 whitespace-pre-wrap">
+                      {selectedLog.caller || "无堆栈信息"}
+                    </pre>
+                  </div>
                 </div>
               </TabsContent>
               <TabsContent value="json" className="mt-4">
-                <pre className="max-h-96 overflow-auto rounded-md border bg-gray-50 p-2 text-xs dark:bg-gray-900">
-                  {JSON.stringify(selectedLog, null, 2)}
-                </pre>
+                <div className="relative">
+                  <button
+                    onClick={() => copyToClipboard(JSON.stringify(selectedLog, null, 2), 'json')}
+                    className="absolute right-2 top-2 rounded-md p-1 text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                    title="复制"
+                  >
+                    {copiedJson ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  </button>
+                  <pre className="max-h-96 overflow-auto rounded-md border bg-gray-50 p-2 text-xs dark:bg-gray-900 whitespace-pre-wrap">
+                    {JSON.stringify(selectedLog, null, 2)}
+                  </pre>
+                </div>
               </TabsContent>
             </Tabs>
           )}
