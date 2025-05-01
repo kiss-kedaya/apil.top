@@ -59,7 +59,7 @@ export default function DevLogsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [level, setLevel] = useState<string>("");
+  const [level, setLevel] = useState<string>("all");
   const [selectedLog, setSelectedLog] = useState<Log | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -76,13 +76,16 @@ export default function DevLogsPage() {
       if (searchTerm) {
         url.searchParams.append("search", searchTerm);
       }
-      if (level) {
+      if (level && level !== "all") {
         url.searchParams.append("level", level);
       }
 
       const response = await fetch(url.toString());
+      if (response.status === 403) {
+        throw new Error("无权限访问开发日志，请确认您拥有管理员权限");
+      }
       if (!response.ok) {
-        throw new Error("获取日志失败");
+        throw new Error(`获取日志失败: ${response.status} ${response.statusText}`);
       }
 
       const data: LogResponse = await response.json();
@@ -231,7 +234,7 @@ export default function DevLogsPage() {
               <SelectValue placeholder="所有级别" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">所有级别</SelectItem>
+              <SelectItem value="all">所有级别</SelectItem>
               <SelectItem value="info">信息</SelectItem>
               <SelectItem value="warn">警告</SelectItem>
               <SelectItem value="error">错误</SelectItem>

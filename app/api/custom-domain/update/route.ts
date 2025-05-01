@@ -48,7 +48,7 @@ export async function PUT(request: NextRequest) {
 
     const result = await verifyUserCustomDomain(user.id, id);
     if (result.status === "error") {
-      return errorResponse(result.message || "验证域名失败", 400, result.details);
+      return errorResponse(result.message || "验证域名失败", 400);
     }
 
     return successResponse(result.data, "域名验证成功");
