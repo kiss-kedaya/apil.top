@@ -121,11 +121,12 @@ export function DomainForm({
           "Content-Type": "application/json",
         },
         body: JSON.stringify(
-          initData ? { ...values, id: initData.id } : { domain: values.domainName }
+          initData ? { ...values, id: initData.id } : { domainName: values.domainName }
         ),
       });
 
       const data = await response.json();
+      console.log("域名添加响应:", data); // 调试用，获取完整响应
 
       if (data.status === "success") {
         toast.success(

@@ -83,3 +83,25 @@ pnpm dev
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=kiss-kedaya/apil.top&type=Date" />
  </picture>
 </a>
+
+## 自定义域名配置
+
+本项目支持用户添加自定义域名并自动绑定到Vercel项目。要启用此功能，请在您的`.env.local`文件中添加以下配置：
+
+```
+VERCEL_TOKEN=您的Vercel个人访问令牌
+VERCEL_PROJECT_NAME=您的Vercel项目名称
+```
+
+### 获取Vercel访问令牌
+
+1. 登录到您的Vercel账户
+2. 访问 https://vercel.com/account/tokens
+3. 点击"Create"创建新令牌
+4. 设置一个描述性名称，如"自定义域名集成"
+5. 选择"Full Account"权限
+6. 点击"Create Token"并复制生成的令牌
+
+### 获取项目名称
+
+项目名称是Vercel部署URL中的名称部分。例如，如果您的部署URL是`https://my-project-123.vercel.app`，则项目名称为`my-project-123`。

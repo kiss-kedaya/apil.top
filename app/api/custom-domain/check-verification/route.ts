@@ -1,6 +1,21 @@
 import { getUserCustomDomainById } from "@/lib/dto/custom-domain";
 import { checkUserStatus } from "@/lib/dto/user";
 import { getCurrentUser } from "@/lib/session";
+import { Vercel } from '@vercel/sdk';
+
+// 条件性创建Vercel实例，避免无token时报错
+const vercel = process.env.VERCEL_TOKEN 
+  ? new Vercel({ bearerToken: process.env.VERCEL_TOKEN })
+  : null;
+const projectName = process.env.VERCEL_PROJECT_NAME || '';
+
+// 定义Vercel状态接口
+interface VercelStatus {
+  misconfigured?: boolean;
+  verified?: boolean;
+  config?: any;
+  error?: string;
+}
 
 // 定义验证状态接口
 interface VerificationStatus {
@@ -43,6 +58,29 @@ export async function POST(req: Request) {
 
     const domain = result.data;
 
+    // 检查Vercel验证状态
+    let vercelStatus: VercelStatus | null = null;
+    if (vercel && domain.domainName) {
+      try {
+        console.log("检查Vercel域名状态:", domain.domainName);
+        
+        const checkVercel = await vercel.domains.getDomainConfig({
+          domain: domain.domainName,
+        });
+        
+        vercelStatus = {
+          misconfigured: checkVercel.misconfigured,
+          verified: !checkVercel.misconfigured,
+          config: checkVercel,
+        };
+        
+        console.log("Vercel域名状态:", vercelStatus);
+      } catch (vercelError) {
+        console.error("检查Vercel域名状态出错:", vercelError);
+        vercelStatus = { error: String(vercelError) };
+      }
+    }
+
     // 初始化验证状态
     let verificationStatus: VerificationStatus = {
       isVerified: domain.isVerified,
@@ -54,7 +92,10 @@ export async function POST(req: Request) {
     if (domain.isVerified) {
       return Response.json({
         status: "success",
-        data: verificationStatus,
+        data: {
+          ...verificationStatus,
+          vercel: vercelStatus,
+        },
       });
     }
 
@@ -119,7 +160,10 @@ export async function POST(req: Request) {
 
     return Response.json({
       status: "success",
-      data: verificationStatus,
+      data: {
+        ...verificationStatus,
+        vercel: vercelStatus,
+      },
       tips: {
         title: "验证问题常见原因",
         items: [

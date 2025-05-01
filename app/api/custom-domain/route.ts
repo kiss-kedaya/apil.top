@@ -85,8 +85,18 @@ export async function POST(req: Request) {
       }
     }
 
-    const data = await req.json();
-    const result = await createUserCustomDomain(user.id, data);
+    const requestData = await req.json();
+    console.log("接收到的域名数据:", requestData); // 调试用，记录请求数据
+
+    // 确保使用domainName字段
+    if (!requestData.domainName) {
+      return Response.json(
+        { status: "error", message: "缺少域名参数" },
+        { status: 400 },
+      );
+    }
+
+    const result = await createUserCustomDomain(user.id, requestData);
 
     if (result.status === "error") {
       return Response.json(result, { status: 400 });
@@ -100,17 +110,21 @@ export async function POST(req: Request) {
     }
 
     try {
+      const domainName = result.data?.domainName || requestData.domainName;
+
       // 域名添加到Vercel项目
+      console.log("开始Vercel域名绑定:", { domainName, projectName });
+
       const addDomainResponse = await vercel.projects.addProjectDomain({
         idOrName: projectName,
         requestBody: {
-          name: data.domain, // 假设data.domain为用户输入的域名
+          name: domainName,
         },
       });
 
       // 检查域名配置
       const checkConfiguration = await vercel.domains.getDomainConfig({
-        domain: data.domain,
+        domain: domainName,
       });
 
       console.log("Vercel域名绑定成功:", {
@@ -131,14 +145,33 @@ export async function POST(req: Request) {
       // 记录详细错误
       console.error("Vercel绑定域名错误:", vercelError);
 
+      // 更详细的错误信息
+      let errorMessage =
+        vercelError instanceof Error
+          ? vercelError.message
+          : String(vercelError);
+      let errorDetails = null;
+
+      // 尝试解析错误对象中的更多信息
+      if (vercelError.response) {
+        try {
+          const errorBody = vercelError.response.body;
+          if (typeof errorBody === "object") {
+            errorDetails = errorBody;
+          } else if (typeof errorBody === "string") {
+            errorDetails = JSON.parse(errorBody);
+          }
+        } catch (e) {
+          console.error("解析Vercel错误详情失败:", e);
+        }
+      }
+
       // Vercel绑定失败也返回业务成功，但带上错误信息
       return Response.json({
         ...result,
         vercel: {
-          error:
-            vercelError instanceof Error
-              ? vercelError.message
-              : String(vercelError),
+          error: errorMessage,
+          details: errorDetails,
         },
       });
     }
