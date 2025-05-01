@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Vercel } from "@vercel/sdk";
 import { auth } from "auth";
 import { z } from "zod";
@@ -16,6 +16,7 @@ import {
 } from "@/lib/dto/custom-domain";
 import { checkUserStatus } from "@/lib/dto/user";
 import { getCurrentUser } from "@/lib/session";
+import { errorResponse, handleApiError, successResponse } from "@/lib/api-response";
 
 // 条件性创建Vercel实例，避免无token时报错
 const vercel = process.env.VERCEL_TOKEN
@@ -23,21 +24,28 @@ const vercel = process.env.VERCEL_TOKEN
   : null;
 const projectName = process.env.VERCEL_PROJECT_NAME || "";
 
-// 获取用户自定义域名列表
-export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const verified = url.searchParams.get("verified");
-  const id = url.searchParams.get("id");
+// CORS预检请求处理
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    }
+  });
+}
 
+// 获取用户自定义域名列表
+export async function GET(request: NextRequest) {
   try {
+    const searchParams = request.nextUrl.searchParams;
+    const verified = searchParams.get("verified");
+    const id = searchParams.get("id");
+
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        {
-          status: 401,
-        },
-      );
+      return errorResponse("未授权访问", 401);
     }
 
     const userId = session.user.id;
@@ -45,27 +53,29 @@ export async function GET(req: Request) {
     if (id) {
       // 获取单个自定义域名详情
       const result = await getUserCustomDomainById(userId, id);
-      return NextResponse.json(result);
+      return result.status === "success"
+        ? successResponse(result.data)
+        : errorResponse(result.message || "获取域名详情失败");
     } else if (verified === "true") {
       // 获取所有已验证的自定义域名
       const result = await getVerifiedUserCustomDomains(userId);
-      return NextResponse.json(result);
+      return result.status === "success"
+        ? successResponse(result.data)
+        : errorResponse(result.message || "获取已验证域名失败");
     } else {
       // 获取所有自定义域名
       const result = await getUserCustomDomains(userId);
-      return NextResponse.json(result);
+      return result.status === "success"
+        ? successResponse(result.data)
+        : errorResponse(result.message || "获取域名列表失败");
     }
   } catch (error) {
-    console.error("Error getting custom domains:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return handleApiError(error, "获取自定义域名失败");
   }
 }
 
 // 创建新的自定义域名
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   console.log('📝 收到自定义域名创建请求');
   
   try {
@@ -95,23 +105,17 @@ export async function POST(req: Request) {
         userDomainsCount >= userQuota
       ) {
         console.log('❌ 用户超出域名配额限制');
-        return Response.json(
-          { status: "error", message: "您已达到自定义域名的最大限制" },
-          { status: 403 },
-        );
+        return errorResponse("您已达到自定义域名的最大限制", 403);
       }
     }
 
-    const requestData = await req.json();
+    const requestData = await request.json();
     console.log("📥 接收到的域名数据:", requestData);
     
     // 确保使用domainName字段
     if (!requestData.domainName) {
       console.log('❌ 缺少domainName参数');
-      return Response.json(
-        { status: "error", message: "缺少域名参数" },
-        { status: 400 },
-      );
+      return errorResponse("缺少域名参数", 400);
     }
 
     console.log('📝 准备创建域名记录:', {
@@ -124,7 +128,7 @@ export async function POST(req: Request) {
 
     if (result.status === "error") {
       console.log('❌ 域名创建失败:', result.message);
-      return Response.json(result, { status: 400 });
+      return errorResponse(result.message || "域名创建失败", 400);
     }
 
     // === Vercel自动绑定域名 ===
@@ -134,7 +138,7 @@ export async function POST(req: Request) {
         hasToken: !!process.env.VERCEL_TOKEN,
         projectName: process.env.VERCEL_PROJECT_NAME
       });
-      return Response.json(result);
+      return successResponse(result.data, "域名创建成功");
     }
 
     try {
@@ -163,7 +167,7 @@ export async function POST(req: Request) {
       });
 
       const responseData = {
-        ...result,
+        ...result.data,
         vercel: {
           domain: addDomainResponse.name,
           verified: addDomainResponse.verified,
@@ -178,7 +182,7 @@ export async function POST(req: Request) {
         hasVercelData: true
       });
       
-      return Response.json(responseData);
+      return successResponse(responseData, "域名创建并绑定Vercel成功");
     } catch (vercelError: any) {
       // 记录详细错误
       console.error("❌ Vercel绑定域名错误:", vercelError);
@@ -213,31 +217,19 @@ export async function POST(req: Request) {
         hasVercelError: true
       });
       
-      return Response.json({
-        ...result,
-        vercel: {
-          error: errorMessage,
-          details: errorDetails,
-        },
-      });
+      // 域名创建成功，但Vercel绑定失败
+      return successResponse(
+        {
+          ...result.data,
+          vercel: {
+            error: errorMessage,
+            details: errorDetails,
+          },
+        }, 
+        "域名创建成功，但Vercel绑定失败"
+      );
     }
   } catch (error) {
-    // 记录详细错误
-    console.error("❌ 创建自定义域名错误:", error);
-    const errorDetails = error instanceof Error ? error.message : String(error);
-    console.error("❌ 错误详情:", errorDetails);
-    
-    if (error instanceof Error && error.stack) {
-      console.error("❌ 错误堆栈:", error.stack);
-    }
-
-    return Response.json(
-      {
-        status: "error",
-        message: "创建自定义域名失败",
-        details: errorDetails,
-      },
-      { status: 500 },
-    );
+    return handleApiError(error, "创建自定义域名失败");
   }
 }

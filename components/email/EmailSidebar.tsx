@@ -49,6 +49,7 @@ import {
 } from "../ui/tooltip";
 import { SendEmailModal } from "./SendEmailModal";
 import SendsEmailList from "./SendsEmailList";
+import DomainSelector from "@/components/shared/DomainSelector";
 
 interface EmailSidebarProps {
   user: User;
@@ -88,8 +89,9 @@ export default function EmailSidebar({
   const [showSendsModal, setShowSendsModal] = useState(false);
   const [userEmails, setUserEmails] = useState<UserEmailList[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [availableDomains, setAvailableDomains] = useState<string[]>([]);
-  const [isLoadingDomains, setIsLoadingDomains] = useState(true);
+  const [availableDomains, setAvailableDomains] = useState<string[]>(siteConfig.emailDomains);
+  const [isLoadingDomains, setIsLoadingDomains] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
   const [emailListPages, setEmailListPages] = useState(1);
 
   const pageSize = 10;
@@ -125,44 +127,63 @@ export default function EmailSidebar({
           const result = await response.json();
           if (result.list && Array.isArray(result.list)) {
             setUserEmails(result.list);
-            setAvailableDomains(result.availableDomains || siteConfig.emailDomains);
-            setEmailListPages(Math.ceil((result.total || 0) / size));
+            
+            // 设置总页数
+            if (result.total) {
+              setEmailListPages(Math.ceil(result.total / size));
+              setTotalPages(Math.ceil(result.total / pageSize));
+            }
           }
         }
       } catch (error) {
-        console.error("Error fetching emails:", error);
-      } finally {
-        setIsLoadingDomains(false);
+        console.error("获取邮箱列表出错:", error);
       }
     },
-    [isAdminModel]
+    [isAdminModel, pageSize]
   );
 
   useEffect(() => {
     fetchEmails();
-  }, [fetchEmails]);
+    
+    // 设置默认域名
+    if (!domainSuffix && siteConfig.emailDomains.length > 0) {
+      setDomainSuffix(siteConfig.emailDomains[0]);
+    }
+  }, [fetchEmails, domainSuffix]);
 
-  if (!selectedEmailAddress && data && data.list.length > 0) {
-    onSelectEmail(data.list[0].emailAddress);
-  }
-
-  const totalPages = data ? Math.ceil(data.total / pageSize) : 0;
+  useEffect(() => {
+    // 从API响应中更新数据
+    if (data) {
+      if (data.list && Array.isArray(data.list)) {
+        setUserEmails(data.list);
+      }
+      
+      if (data.total) {
+        setTotalPages(Math.ceil(data.total / pageSize));
+      }
+      
+      // 如果没有选择邮箱且有数据，选择第一个
+      if (!selectedEmailAddress && data.list && data.list.length > 0) {
+        onSelectEmail(data.list[0].emailAddress);
+      }
+    }
+  }, [data, selectedEmailAddress, onSelectEmail, pageSize]);
 
   const handleSubmitEmail = async (emailSuffix: string) => {
     if (!emailSuffix || emailSuffix.length < 5) {
-      toast.error("Email address characters must be at least 5");
+      toast.error("邮箱地址字符至少需要5个");
       return;
     }
     if (/[^a-zA-Z0-9_\-\.]/.test(emailSuffix)) {
-      toast.error("Invalid email address");
+      toast.error("邮箱地址格式无效");
       return;
     }
     if (!domainSuffix) {
-      toast.error("Domain suffix cannot be empty");
+      toast.error("域名后缀不能为空");
       return;
     }
     if (reservedAddressSuffix.includes(emailSuffix)) {
-      toast.error("Email address is reserved, please choose another one");
+      toast.error("此邮箱地址已被保留，请选择其他地址");
       return;
     }
 
@@ -181,9 +202,9 @@ export default function EmailSidebar({
           mutate();
           fetchEmails();
           setShowEmailModal(false);
-          toast.success("Email updated successfully");
+          toast.success("邮箱更新成功");
         } else {
-          toast.error("Failed to update email", {
+          toast.error("更新邮箱失败", {
             description: await res.text(),
           });
         }
@@ -200,15 +221,15 @@ export default function EmailSidebar({
             mutate();
             fetchEmails();
             setShowEmailModal(false);
-            toast.success("Email created successfully");
+            toast.success("邮箱创建成功");
           } else {
-            toast.error("Failed to create email", {
+            toast.error("创建邮箱失败", {
               description: await res.text(),
             });
           }
         } catch (error) {
-          console.log("Error creating email:", error);
-          toast.error("Error creating email");
+          console.log("创建邮箱时出错:", error);
+          toast.error("创建邮箱失败");
         }
       }
     });
@@ -235,12 +256,12 @@ export default function EmailSidebar({
           setShowDeleteModal(false);
           setDeleteInput("");
           setEmailToDelete(null);
-          toast.success("Email deleted successfully");
+          toast.success("邮箱删除成功");
         } else {
-          toast.error("Failed to delete email");
+          toast.error("删除邮箱失败");
         }
       } catch (error) {
-        console.log("Error deleting email:", error);
+        console.log("删除邮箱时出错:", error);
       }
     });
   };
@@ -248,16 +269,15 @@ export default function EmailSidebar({
   const confirmDelete = () => {
     if (!emailToDelete) return;
 
-    const selectedEmail = userEmails.find(
-      (email) => email.id === emailToDelete,
-    );
-    if (!selectedEmail) return;
-
-    const expectedInput = `delete ${selectedEmail.emailAddress}`;
-    if (deleteInput === expectedInput) {
-      handleDeleteEmail(emailToDelete);
+    if (deleteInput === emailToDelete) {
+      const emailId = userEmails.find(
+        (email) => email.emailAddress === emailToDelete,
+      )?.id;
+      if (emailId) {
+        handleDeleteEmail(emailId);
+      }
     } else {
-      toast.error("Input does not match. Please type correctly.");
+      toast.error("输入不匹配，请正确输入完整邮箱地址");
     }
   };
 
@@ -296,7 +316,7 @@ export default function EmailSidebar({
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search emails..."
+                  placeholder="搜索邮件..."
                   className="h-[30px] w-full border p-1 pl-8 text-xs placeholder:text-xs"
                 />
                 <Search className="absolute left-2 top-2 size-4 text-gray-500" />
@@ -331,7 +351,7 @@ export default function EmailSidebar({
           }}
         >
           <SquarePlus className="size-4" />
-          {!isCollapsed && <span className="text-xs">Create New Email</span>}
+          {!isCollapsed && <span className="text-xs">创建新邮箱</span>}
         </Button>
 
         {!isCollapsed && (
@@ -341,7 +361,7 @@ export default function EmailSidebar({
               <div className="flex items-center gap-1">
                 <Icons.mail className="size-3" />
                 <p className="line-clamp-1 text-start font-medium">
-                  Email Address
+                  邮箱地址
                 </p>
               </div>
               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -354,7 +374,7 @@ export default function EmailSidebar({
               <div className="flex items-center gap-1">
                 <Icons.inbox className="size-3" />
                 <p className="line-clamp-1 text-start font-medium">
-                  Inbox Emails
+                  收件箱邮件
                 </p>
               </div>
               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -377,7 +397,7 @@ export default function EmailSidebar({
               <div className="flex items-center gap-1">
                 <Icons.mailOpen className="size-3" />
                 <p className="line-clamp-1 text-start font-medium">
-                  Unread Emails
+                  未读邮件
                 </p>
               </div>
               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -388,7 +408,7 @@ export default function EmailSidebar({
                   <TooltipTrigger>
                     <Icons.listFilter className="absolute bottom-1 right-1 size-3" />
                   </TooltipTrigger>
-                  <TooltipContent>Filter unread emails</TooltipContent>
+                  <TooltipContent>筛选未读邮件</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
@@ -407,7 +427,7 @@ export default function EmailSidebar({
               <div className="flex items-center gap-1">
                 <Icons.send className="size-3" />
                 <p className="line-clamp-1 text-start font-medium">
-                  Sent Emails
+                  已发送邮件
                 </p>
               </div>
               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -419,7 +439,7 @@ export default function EmailSidebar({
 
         {!isCollapsed && user.role === "ADMIN" && (
           <div className="mt-2 flex items-center gap-2 text-sm">
-            Admin Mode:{" "}
+            管理员模式:{" "}
             <Switch
               defaultChecked={isAdminModel}
               onCheckedChange={(v) => setAdminModel(v)}
@@ -596,153 +616,171 @@ export default function EmailSidebar({
         </Modal>
       )}
 
-      {/* 创建\编辑邮箱的 Modal */}
-      {showEmailModal && (
-        <Modal showModal={showEmailModal} setShowModal={setShowEmailModal}>
-          <div className="p-6">
-            <h2 className="mb-4 text-lg font-semibold">
-              {isEdit ? "Edit" : "Create new"} email
-            </h2>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const emailAddress = (e.target as any).emailAddress.value;
-                handleSubmitEmail(emailAddress);
-              }}
-            >
-              <div className="mb-4">
-                <label
-                  htmlFor="emailAddress"
-                  className="mb-1 block text-sm font-medium text-gray-700"
-                >
-                  Email Address
-                </label>
-                <div className="flex items-center justify-center">
-                  <Input
-                    id="emailAddress"
-                    name="emailAddress"
-                    type="text"
-                    placeholder="Enter email suffix"
-                    className="w-full rounded-r-none"
-                    required
-                    defaultValue={
-                      isEdit ? selectedEmailAddress?.split("@")[0] || "" : ""
-                    }
-                  />
-                  <Select
-                    onValueChange={(value: string) => {
-                      setDomainSuffix(value);
-                    }}
-                    name="suffix"
-                    defaultValue={domainSuffix || availableDomains[0] || siteConfig.emailDomains[0]}
-                    disabled={isEdit}
-                  >
-                    <SelectTrigger className="w-1/3 rounded-none border-x-0 shadow-inner">
-                      <SelectValue placeholder="Select a domain" />
-                    </SelectTrigger>
-                    <SelectContent>
+      {/* 邮箱创建/编辑模态框 */}
+      <Modal
+        showModal={showEmailModal}
+        setShowModal={setShowEmailModal}
+        onClose={() => {
+          setIsEdit(false);
+        }}
+      >
+        <div className="rounded-none border-0 p-0 sm:rounded-lg sm:border sm:p-6">
+          <div className="flex flex-col gap-6">
+            <div className="rounded-lg border-0 p-0">
+              <div className="p-0">
+                <h3 className="text-lg font-medium text-center">
+                  {isEdit ? "编辑邮箱地址" : "创建新邮箱地址"}
+                </h3>
+                <div className="mt-4 flex flex-col space-y-4">
+                  <div className="relative mt-4 flex items-center rounded-md border focus-within:ring-1 focus-within:ring-ring">
+                    <Input
+                      placeholder={
+                        isEdit
+                          ? selectedEmailAddress?.split("@")[0]
+                          : randomName("", ".")
+                      }
+                      className="flex-1 border-0 focus-visible:ring-0"
+                      id="email-input"
+                      autoComplete="off"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          const input = document.getElementById(
+                            "email-input",
+                          ) as HTMLInputElement;
+                          if (input) {
+                            handleSubmitEmail(input.value);
+                          }
+                        }
+                      }}
+                    />
+
+                    <div className="flex items-center">
+                      <span className="pointer-events-none text-sm text-muted-foreground">
+                        @
+                      </span>
+                      <DomainSelector
+                        type="email"
+                        value={domainSuffix || undefined}
+                        onChange={(value) => setDomainSuffix(value)}
+                        disabled={isEdit}
+                        triggerClassName="min-w-[120px] border-0 focus:ring-0"
+                      />
+                    </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    <p>提示：</p>
+                    <ul className="list-disc pl-4 space-y-1">
+                      <li>邮箱用户名长度至少5个字符</li>
+                      <li>只能包含字母、数字、下划线、连字符和点</li>
                       {isLoadingDomains ? (
-                        <SelectItem value={siteConfig.emailDomains[0]}>
-                          <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                          Loading...
-                        </SelectItem>
+                        <li>加载可用域名中...</li>
+                      ) : availableDomains.length > 1 ? (
+                        <li>可以使用系统域名或已验证的自定义域名</li>
                       ) : (
-                        availableDomains.map((v) => (
-                          <SelectItem key={v} value={v}>
-                            @{v}
-                          </SelectItem>
-                        ))
+                        <li>您可以在"自定义域名"页面添加并验证自己的域名</li>
                       )}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    className="rounded-l-none"
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    disabled={isEdit}
-                    onClick={() => {
-                      (
-                        document.getElementById(
-                          "emailAddress",
-                        ) as HTMLInputElement
-                      ).value = randomName("", ".");
-                    }}
-                  >
-                    <Sparkles className="h-4 w-4 text-slate-500" />
-                  </Button>
+                    </ul>
+                  </div>
+                  <div className="flex justify-end space-x-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowEmailModal(false);
+                        setIsEdit(false);
+                      }}
+                    >
+                      取消
+                    </Button>
+                    <Button
+                      disabled={isPending || !domainSuffix}
+                      onClick={() => {
+                        const input = document.getElementById(
+                          "email-input",
+                        ) as HTMLInputElement;
+                        if (input) {
+                          handleSubmitEmail(input.value);
+                        }
+                      }}
+                    >
+                      {isPending ? (
+                        <Icons.spinner className="size-4 animate-spin" />
+                      ) : (
+                        <p>{isEdit ? "更新" : "创建"}</p>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowEmailModal(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" variant="default" disabled={isPending}>
-                  {isEdit ? "Update" : "Create"}
-                </Button>
-              </div>
-            </form>
-          </div>
-        </Modal>
-      )}
-
-      {/* 删除邮箱的 Modal */}
-      {showDeleteModal && (
-        <Modal showModal={showDeleteModal} setShowModal={setShowDeleteModal}>
-          <div className="p-6">
-            <h2 className="mb-4 text-lg font-semibold">Delete email</h2>
-            <p className="mb-4 text-sm text-neutral-600">
-              You are about to delete the following email, once deleted, it
-              cannot be recovered. All emails in inbox will be deleted at the
-              same time. Are you sure you want to continue?
-            </p>
-            <p className="mb-4 text-sm text-neutral-600">
-              To confirm, please type{" "}
-              <strong>
-                delete{" "}
-                {userEmails.find((e) => e.id === emailToDelete)?.emailAddress}
-              </strong>{" "}
-              below:
-            </p>
-            <Input
-              value={deleteInput}
-              onChange={(e) => setDeleteInput(e.target.value)}
-              placeholder={`please input`}
-              className="mb-4"
-            />
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setDeleteInput("");
-                  setEmailToDelete(null);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={confirmDelete}
-                disabled={
-                  isPending ||
-                  deleteInput !==
-                    `delete ${
-                      userEmails.find((e) => e.id === emailToDelete)
-                        ?.emailAddress
-                    }`
-                }
-              >
-                Delete
-              </Button>
             </div>
           </div>
-        </Modal>
-      )}
+        </div>
+      </Modal>
+
+      {/* 删除邮箱的模态框 */}
+      <Modal
+        showModal={showDeleteModal}
+        setShowModal={setShowDeleteModal}
+      >
+        <div className="p-6">
+          <h2 className="mb-4 text-lg font-semibold text-center">
+            确认删除邮箱
+          </h2>
+          <p className="mb-4 text-sm text-gray-500">
+            此操作不可撤销，删除后将无法恢复此邮箱及其所有邮件。
+          </p>
+          <div className="mb-4">
+            <label
+              htmlFor="deleteConfirm"
+              className="mb-1 block text-sm font-medium text-gray-700"
+            >
+              请输入邮箱地址 <span className="font-semibold text-red-500">{emailToDelete}</span> 确认删除
+            </label>
+            <Input
+              id="deleteConfirm"
+              name="deleteConfirm"
+              type="text"
+              className="w-full"
+              placeholder="请输入完整邮箱地址确认"
+              value={deleteInput}
+              onChange={(e) => setDeleteInput(e.target.value)}
+            />
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowDeleteModal(false);
+                setDeleteInput("");
+                setEmailToDelete(null);
+              }}
+            >
+              取消
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={deleteInput !== emailToDelete || isPending}
+              onClick={() => {
+                if (deleteInput === emailToDelete) {
+                  const emailId = userEmails.find(
+                    (email) => email.emailAddress === emailToDelete,
+                  )?.id;
+                  if (emailId) {
+                    handleDeleteEmail(emailId);
+                  }
+                }
+              }}
+            >
+              {isPending ? (
+                <Icons.spinner className="size-4 animate-spin" />
+              ) : (
+                <p>删除</p>
+              )}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

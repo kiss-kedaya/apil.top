@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useTransition, useState, useEffect, useMemo } from "react";
+import { Dispatch, SetStateAction, useTransition, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "@prisma/client";
 import { Sparkles } from "lucide-react";
@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/shared/icons";
+import DomainSelector from "@/components/shared/DomainSelector";
 
 import { FormSectionColumns } from "../dashboard/form-section-columns";
 import {
@@ -25,7 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Switch } from "../ui/switch";
 
 export type FormData = ShortUrlFormData;
 
@@ -50,38 +50,6 @@ export function UrlForm({
 }: RecordFormProps) {
   const [isPending, startTransition] = useTransition();
   const [isDeleting, setIsDeleting] = useState(false);
-  const [customDomains, setCustomDomains] = useState<string[]>([]);
-  const [isLoadingDomains, setIsLoadingDomains] = useState(true);
-
-  useEffect(() => {
-    // 获取用户已验证的自定义域名
-    const fetchCustomDomains = async () => {
-      try {
-        setIsLoadingDomains(true);
-        const response = await fetch('/api/custom-domain?verified=true');
-        if (!response.ok) {
-          throw new Error('Failed to fetch verified domains');
-        }
-        const data = await response.json();
-        if (data.status === 'success' && data.data && Array.isArray(data.data)) {
-          // 提取域名列表
-          const domains = data.data.map((domain: any) => domain.domainName);
-          setCustomDomains(domains);
-        }
-      } catch (error) {
-        console.error('Error fetching verified domains:', error);
-      } finally {
-        setIsLoadingDomains(false);
-      }
-    };
-
-    fetchCustomDomains();
-  }, []);
-
-  // 组合默认域名和自定义域名
-  const availableDomains = useMemo(() => {
-    return [...siteConfig.shortDomains, ...customDomains];
-  }, [customDomains]);
 
   const {
     handleSubmit,
@@ -113,7 +81,7 @@ export function UrlForm({
 
   const handleCreateUrl = async (data: ShortUrlFormData) => {
     if (data.password !== "" && data.password.length !== 6) {
-      toast.error("Password must be 6 characters!");
+      toast.error("密码必须是6位字符!");
       return;
     }
     startTransition(async () => {
@@ -124,12 +92,11 @@ export function UrlForm({
         }),
       });
       if (!response.ok || response.status !== 200) {
-        toast.error("Created Failed!", {
+        toast.error("创建失败!", {
           description: await response.text(),
         });
       } else {
-        // const res = await response.json();
-        toast.success(`Created successfully!`);
+        toast.success(`创建成功!`);
         setShowForm(false);
         onRefresh();
       }
@@ -138,7 +105,7 @@ export function UrlForm({
 
   const handleUpdateUrl = async (data: ShortUrlFormData) => {
     if (data.password !== "" && data.password.length !== 6) {
-      toast.error("Password must be 6 characters!");
+      toast.error("密码必须是6位字符!");
       return;
     }
     startTransition(async () => {
@@ -148,12 +115,12 @@ export function UrlForm({
           body: JSON.stringify({ data, userId: initData?.userId }),
         });
         if (!response.ok || response.status !== 200) {
-          toast.error("Update Failed", {
+          toast.error("更新失败", {
             description: await response.text(),
           });
         } else {
           const res = await response.json();
-          toast.success(`Update successfully!`);
+          toast.success(`更新成功!`);
           setShowForm(false);
           onRefresh();
         }
@@ -172,12 +139,12 @@ export function UrlForm({
           }),
         });
         if (!response.ok || response.status !== 200) {
-          toast.error("Delete Failed", {
+          toast.error("删除失败", {
             description: await response.text(),
           });
         } else {
           await response.json();
-          toast.success(`Success`);
+          toast.success(`删除成功`);
           setShowForm(false);
           onRefresh();
         }
@@ -188,14 +155,14 @@ export function UrlForm({
   return (
     <div className="mb-4 rounded-lg border border-dashed shadow-sm animate-in fade-in-50">
       <div className="rounded-t-lg bg-muted px-4 py-2 text-lg font-semibold">
-        {type === "add" ? "Create" : "Edit"} short link
+        {type === "add" ? "创建" : "编辑"} 短链接
       </div>
       <form className="p-4" onSubmit={onSubmit}>
         <div className="items-center justify-start gap-4 md:flex">
-          <FormSectionColumns title="Target URL">
+          <FormSectionColumns title="目标URL">
             <div className="flex w-full items-center gap-2">
               <Label className="sr-only" htmlFor="target">
-                Target
+                目标
               </Label>
               <Input
                 id="target"
@@ -211,71 +178,49 @@ export function UrlForm({
                 </p>
               ) : (
                 <p className="pb-0.5 text-[13px] text-muted-foreground">
-                  Required. https://your-origin-url
+                  必填项。格式：https://your-origin-url
                 </p>
               )}
             </div>
           </FormSectionColumns>
-          <FormSectionColumns title="Short Link">
+          <FormSectionColumns title="短链接">
             <div className="flex w-full items-center gap-2">
               <Label className="sr-only" htmlFor="url">
-                Url
+                链接
               </Label>
 
               <div className="relative flex items-center">
-                <Select
-                  onValueChange={(value: string) => {
-                    setValue("prefix", value);
-                  }}
-                  name="prefix"
+                <DomainSelector
+                  type="shortlink"
                   defaultValue={initData?.prefix || siteConfig.shortDomains[0]}
+                  onChange={(value) => setValue("prefix", value)}
                   disabled={type === "edit"}
-                >
-                  <SelectTrigger className="w-1/3 rounded-r-none border-r-0 shadow-inner">
-                    <SelectValue placeholder="Select a domain" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {isLoadingDomains ? (
-                      <div className="flex flex-col space-y-1 px-1 py-2">
-                        <div className="flex items-center space-x-2">
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-                          <div className="h-4 w-20 animate-pulse rounded-md bg-muted"></div>
-                        </div>
-                        <div className="flex items-center px-2">
-                          <div className="h-5 w-full animate-pulse rounded-md bg-muted"></div>
-                        </div>
-                        <div className="flex items-center px-2">
-                          <div className="h-5 w-full animate-pulse rounded-md bg-muted"></div>
-                        </div>
-                      </div>
-                    ) : (
-                      availableDomains.map((domain) => (
-                        <SelectItem key={domain} value={domain}>
-                          {domain}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
+                  triggerClassName="w-1/3 rounded-r-none border-r-0 shadow-inner"
+                />
+                
+                <span className="pointer-events-none absolute left-[calc(33%-8px)] text-sm text-muted-foreground">/</span>
+                
                 <Input
                   id="url"
-                  className="w-3/5 flex-1 rounded-none pl-[8px] shadow-inner"
-                  size={20}
+                  className="flex-1 rounded-l-none shadow-inner"
+                  autoComplete="off"
+                  disabled={type === "edit"}
                   {...register("url")}
-                  disabled={type === "edit"}
                 />
-                <Button
-                  className="rounded-l-none border-l-0"
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  disabled={type === "edit"}
-                  onClick={() => {
-                    setValue("url", generateUrlSuffix(6));
-                  }}
-                >
-                  <Sparkles className="h-4 w-4 text-slate-500" />
-                </Button>
+                
+                {type === "add" && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="absolute right-1 h-7 w-7 rounded-full p-0"
+                    onClick={() => {
+                      setValue("url", generateUrlSuffix());
+                    }}
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    <span className="sr-only">生成随机短码</span>
+                  </Button>
+                )}
               </div>
             </div>
             <div className="flex flex-col justify-between p-1">
@@ -285,7 +230,7 @@ export function UrlForm({
                 </p>
               ) : (
                 <p className="pb-0.5 text-[13px] text-muted-foreground">
-                  A random url suffix. Final url like「apil.top/s/suffix」
+                  必填项。只能包含字母、数字和连字符。
                 </p>
               )}
             </div>
@@ -293,10 +238,10 @@ export function UrlForm({
         </div>
 
         <div className="items-center justify-start gap-4 md:flex">
-          <FormSectionColumns title="Password (Optional)">
+          <FormSectionColumns title="密码 (可选)">
             <div className="flex w-full items-center gap-2">
               <Label className="sr-only" htmlFor="password">
-                Password
+                密码
               </Label>
               <Input
                 id="password"
@@ -304,7 +249,7 @@ export function UrlForm({
                 size={32}
                 maxLength={6}
                 type="password"
-                placeholder="Enter 6 character password"
+                placeholder="输入6位字符密码"
                 {...register("password")}
               />
             </div>
@@ -315,12 +260,12 @@ export function UrlForm({
                 </p>
               ) : (
                 <p className="pb-0.5 text-[13px] text-muted-foreground">
-                  Optional. If you want to protect your link.
+                  可选。如果你想要保护你的链接。
                 </p>
               )}
             </div>
           </FormSectionColumns>
-          <FormSectionColumns title="Expiration">
+          <FormSectionColumns title="过期时间">
             <Select
               onValueChange={(value: string) => {
                 setValue("expiration", value);
@@ -329,7 +274,7 @@ export function UrlForm({
               defaultValue={initData?.expiration || "-1"}
             >
               <SelectTrigger className="w-full shadow-inner">
-                <SelectValue placeholder="Select a time" />
+                <SelectValue placeholder="选择时间" />
               </SelectTrigger>
               <SelectContent>
                 {EXPIRATION_ENUMS.map((e) => (
@@ -340,51 +285,9 @@ export function UrlForm({
               </SelectContent>
             </Select>
             <p className="p-1 text-[13px] text-muted-foreground">
-              Expiration time, default for never.
+              过期时间，默认永不。
             </p>
           </FormSectionColumns>
-
-          {/* <div>
-          <p className="text-sm text-gray-700 dark:text-white">
-            Your Final URL:
-          </p>
-          <p className="text-sm text-gray-700 dark:text-white">
-            {getValues("prefix")}/s/{getValues("url")}
-          </p>
-        </div> */}
-          {/* <FormSectionColumns title="Visible">
-          <div className="flex w-full items-center gap-2">
-            <Label className="sr-only" htmlFor="visible">
-              Visible
-            </Label>
-            <Switch
-              id="visible"
-              {...register("visible")}
-              disabled
-              defaultChecked={initData?.visible === 1 || false}
-              onCheckedChange={(value) => setValue("visible", value ? 1 : 0)}
-            />
-          </div>
-          <p className="p-1 text-[13px] text-muted-foreground">
-            Public or private short url.
-          </p>
-        </FormSectionColumns> */}
-          {/* <FormSectionColumns title="Active">
-          <div className="flex w-full items-center gap-2">
-            <Label className="sr-only" htmlFor="active">
-              Active
-            </Label>
-            <Switch
-              id="active"
-              {...register("active")}
-              defaultChecked={initData?.active === 1 || true}
-              onCheckedChange={(value) => setValue("active", value ? 1 : 0)}
-            />
-          </div>
-          <p className="p-1 text-[13px] text-muted-foreground">
-            Enable or disable short url.
-          </p>
-        </FormSectionColumns> */}
         </div>
 
         {/* Action buttons */}
@@ -400,7 +303,7 @@ export function UrlForm({
               {isDeleting ? (
                 <Icons.spinner className="size-4 animate-spin" />
               ) : (
-                <p>Delete</p>
+                <p>删除</p>
               )}
             </Button>
           )}
@@ -410,7 +313,7 @@ export function UrlForm({
             className="w-[80px] px-0"
             onClick={() => setShowForm(false)}
           >
-            Cancle
+            取消
           </Button>
           <Button
             type="submit"
@@ -421,7 +324,7 @@ export function UrlForm({
             {isPending ? (
               <Icons.spinner className="size-4 animate-spin" />
             ) : (
-              <p>{type === "edit" ? "Update" : "Save"}</p>
+              <p>{type === "edit" ? "更新" : "保存"}</p>
             )}
           </Button>
         </div>
