@@ -364,7 +364,7 @@ const getRandomImageUrl = (email: string | null) => {
 
 export function EmptyInboxSection() {
   return (
-    <div className="flex h-full flex-col items-center justify-center space-y-3">
+    <div className="flex h-full flex-col items-center justify-center space-y-3 pl-16">
       <div className="flex flex-col items-center justify-center space-y-4">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800">
           <Icons.inbox className="size-10 text-primary" />
