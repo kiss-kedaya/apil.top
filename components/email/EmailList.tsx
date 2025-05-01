@@ -371,7 +371,7 @@ export function EmptyInboxSection() {
         </div>
         <div className="space-y-2 text-center">
           <h1 className="text-xl font-semibold">无可用的邮箱</h1>
-          <p className="max-w-md text-muted-foreground">
+          <p className="max-w-md text-center text-muted-foreground">
             请先在左侧创建或选择一个邮箱地址，然后您就可以开始接收和发送邮件了。
           </p>
         </div>
