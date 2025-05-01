@@ -71,8 +71,7 @@ export function LineChartMultiple({
     <Card>
       <CardHeader>
         <CardDescription>
-          Total requests of {type1}
-          {type2 && ` and ${type2}`}.
+          {type1}{type2 && ` 和 ${type2}`}的请求总数。
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -122,7 +121,7 @@ export function LineChartMultiple({
                 if (!value) return "";
                 try {
                   const date = new Date(value);
-                  return date.toLocaleDateString("en-US", {
+                  return date.toLocaleDateString("zh-CN", {
                     month: "short",
                     day: "numeric",
                   });

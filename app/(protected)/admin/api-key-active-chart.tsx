@@ -14,7 +14,7 @@ import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 
 const chartConfig = {
   actived: {
-    label: "Actived",
+    label: "已激活",
   },
   safari: {
     label: "Safari",
@@ -77,7 +77,7 @@ export function RadialShapeChart({
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Users
+                          用户
                         </tspan>
                       </text>
                     );
@@ -94,7 +94,7 @@ export function RadialShapeChart({
           <TrendingUp className="size-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Cumulative proportion of activated <strong>Api Key</strong> users
+          已激活<strong>API密钥</strong>用户的累计占比
         </div>
       </CardFooter>
     </Card>

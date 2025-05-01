@@ -21,7 +21,7 @@ import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 
 const chartConfig = {
   visitors: {
-    label: "Visitors",
+    label: "访问者",
   },
   safari: {
     label: "Safari",
@@ -78,7 +78,7 @@ export function RadialTextChart({ total }: { total: number }) {
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Requests
+                          请求
                         </tspan>
                       </text>
                     );
@@ -94,7 +94,7 @@ export function RadialTextChart({ total }: { total: number }) {
           <TrendingUp className="size-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Total number of requests for Scraping API
+          抓取API的请求总数
         </div>
       </CardFooter>
     </Card>
