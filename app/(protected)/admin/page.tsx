@@ -46,7 +46,7 @@ async function UserInfoCardSection({ userId }: { userId: string }) {
 
 // 短链接卡片组件
 async function ShortUrlsCardSection({ userId }: { userId: string }) {
-  const url_count = await getUserShortUrlCount(userId, 1, "USER");
+  const url_count = await getUserShortUrlCount(userId, 1, "ADMIN");
 
   return (
     <DashboardInfoCard
@@ -63,7 +63,7 @@ async function ShortUrlsCardSection({ userId }: { userId: string }) {
 
 // DNS 记录卡片组件
 async function DnsRecordsCardSection({ userId }: { userId: string }) {
-  const record_count = await getUserRecordCount(userId, 1, "USER");
+  const record_count = await getUserRecordCount(userId, 1, "ADMIN");
 
   return (
     <DashboardInfoCard
@@ -80,7 +80,7 @@ async function DnsRecordsCardSection({ userId }: { userId: string }) {
 
 // 邮件卡片组件
 async function EmailsCardSection({ userId }: { userId: string }) {
-  const email_count = await getAllUserEmailsCount(userId, "USER");
+  const email_count = await getAllUserEmailsCount(userId, "ADMIN");
 
   return (
     <DashboardInfoCard
@@ -208,13 +208,13 @@ async function LogsSection({ userId }: { userId: string }) {
 // 主组件
 export default async function AdminPage() {
   const user = await getCurrentUser();
-  if (!user || !user.id) redirect("/login");
+  if (!user || !user.id || user.role !== "ADMIN") redirect("/login");
 
   return (
     <>
       <DashboardHeader
-        heading="系统统计"
-        text="查看系统相关数据和统计信息"
+        heading="Admin Panel"
+        text="Access only for users with ADMIN role."
       />
       <div className="flex flex-col gap-5">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 xl:grid-cols-3">

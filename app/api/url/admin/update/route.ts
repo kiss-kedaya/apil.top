@@ -9,7 +9,12 @@ export async function POST(req: Request) {
   try {
     const user = checkUserStatus(await getCurrentUser());
     if (user instanceof Response) return user;
-    // 所有用户都可以访问，不再检查管理员权限
+    if (user.role !== "ADMIN") {
+      return Response.json({ message: "未授权" }, {
+        status: 401,
+        statusText: "未授权",
+      });
+    }
 
     const { data, userId } = await req.json();
     if (!data?.id || !userId) {

@@ -7,19 +7,20 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import UsersList from "./user-list";
 
 export const metadata = constructMetadata({
-  title: "用户管理 – apil.top",
-  description: "查看所有用户列表和信息",
+  title: "User Management – apil.top",
+  description: "List and manage all users.",
 });
 
 export default async function UsersPage() {
   const user = await getCurrentUser();
   if (!user || !user?.id) redirect("/login");
+  if (user.role !== "ADMIN") redirect("/dashboard");
 
   return (
     <>
       <DashboardHeader
-        heading="用户管理"
-        text="查看所有用户列表和信息"
+        heading="User Management"
+        text="List and manage all users."
       />
       <UsersList user={{ id: user.id, name: user.name || "" }} />
     </>

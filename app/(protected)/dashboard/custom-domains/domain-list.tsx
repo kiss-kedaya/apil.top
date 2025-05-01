@@ -158,7 +158,7 @@ export default function CustomDomainsList({ user, action }: CustomDomainListProp
 
   // 检查用户是否已达到域名限制
   const hasReachedLimit = () => {
-    // 所有用户都有相同的限制
+    if (user.role === "ADMIN") return false;
     const limit = TeamPlanQuota[user.team].customDomains;
     const count = data?.data?.length || 0;
     return count >= limit;
@@ -356,17 +356,23 @@ export default function CustomDomainsList({ user, action }: CustomDomainListProp
           <div className="mt-4 rounded-md border p-4 dark:border-slate-700">
             <h3 className="mb-2 text-sm font-semibold">您的域名配额</h3>
             <p className="text-sm text-muted-foreground">
-              您当前的计划 ({user.team}) 允许添加最多{" "}
-              <span className="font-semibold">
-                {TeamPlanQuota[user.team].customDomains}
-              </span>{" "}
-              个自定义域名。
-              {data?.data && (
+              {user.role === "ADMIN" ? (
+                "作为管理员，您可以添加无限数量的自定义域名。"
+              ) : (
                 <>
-                  {" "}
-                  已使用{" "}
-                  <span className="font-semibold">{data.data.length}</span>/
-                  {TeamPlanQuota[user.team].customDomains}。
+                  您当前的计划 ({user.team}) 允许添加最多{" "}
+                  <span className="font-semibold">
+                    {TeamPlanQuota[user.team].customDomains}
+                  </span>{" "}
+                  个自定义域名。
+                  {data?.data && (
+                    <>
+                      {" "}
+                      已使用{" "}
+                      <span className="font-semibold">{data.data.length}</span>/
+                      {TeamPlanQuota[user.team].customDomains}。
+                    </>
+                  )}
                 </>
               )}
             </p>

@@ -81,8 +81,8 @@ export default function DevLogsPage() {
       }
 
       const response = await fetch(url.toString());
-      if (response.status === 401) {
-        throw new Error("请先登录");
+      if (response.status === 403) {
+        throw new Error("无权限访问开发日志，请确认您拥有管理员权限");
       }
       if (!response.ok) {
         throw new Error(`获取日志失败: ${response.status} ${response.statusText}`);

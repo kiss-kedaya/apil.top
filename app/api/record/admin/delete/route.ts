@@ -8,7 +8,15 @@ export async function POST(req: Request) {
   try {
     const user = checkUserStatus(await getCurrentUser());
     if (user instanceof Response) return user;
-    // 所有用户都可以访问，不再检查管理员权限
+    if (user.role !== "ADMIN") {
+      return Response.json(
+        { message: "Unauthorized" },
+        {
+          status: 401,
+          statusText: "Unauthorized",
+        },
+      );
+    }
 
     const { record_id, zone_id, userId, active } = await req.json();
     if (!record_id || !userId) {

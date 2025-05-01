@@ -17,9 +17,10 @@ export async function updateUserRole(userId: string, data: FormData) {
 
     if (
       !session?.user ||
-      session?.user.id !== userId
+      session?.user.id !== userId ||
+      session.user.role !== "ADMIN"
     ) {
-      throw new Error("需要登录");
+      throw new Error("Unauthorized");
     }
 
     const { role } = userRoleSchema.parse(data);

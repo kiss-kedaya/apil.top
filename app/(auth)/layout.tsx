@@ -9,8 +9,8 @@ interface AuthLayoutProps {
 export default async function AuthLayout({ children }: AuthLayoutProps) {
   const user = await getCurrentUser();
 
-  // 用户已登录，直接重定向到仪表盘
   if (user) {
+    if (user.role === "ADMIN") redirect("/admin");
     redirect("/dashboard");
   }
 

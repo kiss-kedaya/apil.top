@@ -26,7 +26,9 @@ export default async function SettingsPage() {
       />
       <div className="divide-y divide-muted pb-10">
         <UserNameForm user={{ id: user.id, name: user.name || "" }} />
-        <UserRoleForm user={{ id: user.id, role: user.role }} />
+        {user.role === "ADMIN" && (
+          <UserRoleForm user={{ id: user.id, role: user.role }} />
+        )}
         <UserApiKeyForm
           user={{
             id: user.id,

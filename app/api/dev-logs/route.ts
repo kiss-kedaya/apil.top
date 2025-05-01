@@ -5,10 +5,25 @@ import { Sql } from '@prisma/client/runtime/library';
 import { prisma } from "@/lib/db";
 import { errorResponse, successResponse } from "@/lib/api-response";
 
-// 检查用户是否已登录
-async function checkIsLoggedIn() {
+// 检查用户是否是管理员
+async function checkIsAdmin() {
   const session = await auth();
-  return !!session?.user?.id;
+  if (!session?.user?.id) return false;
+  
+  try {
+    // 尝试使用原始SQL查询替代Prisma ORM，避免可能的类型问题
+    const result: any[] = await prisma.$queryRaw`
+      SELECT role FROM users WHERE id = ${session.user.id} LIMIT 1
+    `;
+    
+    if (result && result.length > 0) {
+      return result[0]?.role === "ADMIN";
+    }
+    return false;
+  } catch (error) {
+    console.error("权限检查失败:", error);
+    return false;
+  }
 }
 
 // 清理过期的日志（保留最近7天的）
@@ -25,10 +40,11 @@ async function cleanupOldLogs() {
 
 export async function GET(request: NextRequest) {
   try {
-    // 只检查用户是否登录，不再检查管理员权限
-    const isLoggedIn = await checkIsLoggedIn();
-    if (!isLoggedIn) {
-      return errorResponse("请先登录", 401);
+    // 检查是否是管理员
+    const isAdmin = await checkIsAdmin();
+    if (!isAdmin) {
+      console.error("访问日志API权限被拒绝");
+      return errorResponse("无权限访问开发日志，需要管理员权限", 403);
     }
 
     // 获取分页参数
@@ -127,13 +143,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// 清空日志 - 保留功能但简化权限要求
+// 清空日志
 export async function DELETE(request: NextRequest) {
   try {
-    // 只检查用户是否登录，不再检查管理员权限
-    const isLoggedIn = await checkIsLoggedIn();
-    if (!isLoggedIn) {
-      return errorResponse("请先登录", 401);
+    // 检查是否是管理员
+    const isAdmin = await checkIsAdmin();
+    if (!isAdmin) {
+      console.error("清理日志API权限被拒绝");
+      return errorResponse("无权限操作开发日志，需要管理员权限", 403);
     }
     
     // 获取请求体

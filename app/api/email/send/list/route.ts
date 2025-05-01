@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
     const data = await getUserSendEmailList(
       user.id,
-      all === "true",
+      user.role === "ADMIN" && all === "true",
       page,
       size,
       search,

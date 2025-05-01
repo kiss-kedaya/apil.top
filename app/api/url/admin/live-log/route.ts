@@ -5,13 +5,23 @@ import { getCurrentUser } from "@/lib/session";
 export async function GET(req: Request) {
   try {
     const user = checkUserStatus(await getCurrentUser());
-    if (user instanceof Response) return user;
 
     const url = new URL(req.url);
     const isAdmin = url.searchParams.get("admin");
 
-    // 允许所有用户访问管理员模式的日志
-    // 如果isAdmin为true，则查看所有日志，否则只看自己的
+    if (isAdmin === "true") {
+      if (user instanceof Response) return user;
+      if (user.role !== "ADMIN") {
+        return new Response(JSON.stringify({ message: "未授权" }), {
+          status: 401,
+          statusText: "Unauthorized",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8"
+          }
+        });
+      }
+    }
+
     const logs = await getUrlMetaLiveLog(
       isAdmin === "true" ? undefined : user.id,
     );
