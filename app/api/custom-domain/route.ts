@@ -86,27 +86,25 @@ export async function POST(request: NextRequest) {
     }
     console.log('✅ 用户已认证:', user.id);
 
-    // 检查用户权限和配额
-    if (user.role !== "ADMIN") {
-      const { data } = await getUserCustomDomains(user.id);
-      const userDomainsCount = data && Array.isArray(data) ? data.length : 0;
-      const userQuota = TeamPlanQuota[user.team || "free"].customDomains;
-      
-      console.log('📊 用户域名配额检查:', {
-        userId: user.id,
-        team: user.team,
-        quota: userQuota,
-        used: userDomainsCount
-      });
-      
-      if (
-        data &&
-        Array.isArray(data) &&
-        userDomainsCount >= userQuota
-      ) {
-        console.log('❌ 用户超出域名配额限制');
-        return errorResponse("您已达到自定义域名的最大限制", 403);
-      }
+    // 检查用户配额
+    const { data } = await getUserCustomDomains(user.id);
+    const userDomainsCount = data && Array.isArray(data) ? data.length : 0;
+    const userQuota = TeamPlanQuota[user.team || "free"].customDomains;
+    
+    console.log('📊 用户域名配额检查:', {
+      userId: user.id,
+      team: user.team,
+      quota: userQuota,
+      used: userDomainsCount
+    });
+    
+    if (
+      data &&
+      Array.isArray(data) &&
+      userDomainsCount >= userQuota
+    ) {
+      console.log('❌ 用户超出域名配额限制');
+      return errorResponse("您已达到自定义域名的最大限制", 403);
     }
 
     const requestData = await request.json();

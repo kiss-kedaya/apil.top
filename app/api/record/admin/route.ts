@@ -7,12 +7,6 @@ export async function GET(req: Request) {
   try {
     const user = checkUserStatus(await getCurrentUser());
     if (user instanceof Response) return user;
-    if (user.role !== "ADMIN") {
-      return Response.json({ message: "Unauthorized" }, {
-        status: 401,
-        statusText: "Unauthorized",
-      });
-    }
 
     const url = new URL(req.url);
     const page = url.searchParams.get("page");

@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
 
     const count = await getUserSendEmailCount(
       user.id,
-      user.role === "ADMIN" && all === "true",
+      all === "true",
     );
     return NextResponse.json(count);
   } catch (error) {
