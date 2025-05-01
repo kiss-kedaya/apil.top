@@ -11,7 +11,7 @@
 - 📮 **临时邮箱**：创建多个临时邮箱接收和发送邮件（支持调用 API）
 - 🌐 **多租户支持**：无缝管理多个 DNS 记录
 - 📸 **截图 API**：访问截图 API、网站元数据抓取 API
-- �😀 **权限管理**：方便审核的管理员面板
+- 😀 **权限管理**：方便审核的管理员面板
 - 🔒 **安全可靠**：基于 Cloudflare 强大的 DNS API
 
 ## Screenshots
@@ -73,3 +73,16 @@ pnpm dev
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=kiss-kedaya/apil.top&type=Date" />
  </picture>
 </a>
+
+## 数据库迁移
+
+如果您遇到与数据库表结构相关的错误，例如"column enableEmail of relation user_custom_domains does not exist"，您需要执行数据库迁移：
+
+1. 确保已安装Prisma：`pnpm add -D prisma`
+2. 执行Prisma迁移命令：
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
+
+这将根据Prisma模式更新您的数据库结构。

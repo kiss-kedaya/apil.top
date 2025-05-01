@@ -259,6 +259,13 @@ model UserCustomDomain {
   email           String?
   verificationKey String?
   isVerified      Boolean  @default(false)
+  enableEmail     Boolean  @default(false)
+  emailVerified   Boolean  @default(false)
+  smtpServer      String?
+  smtpPort        Int?
+  smtpUsername    String?
+  smtpPassword    String?
+  fromEmail       String?
   createdAt       DateTime @default(now()) @map(name: "created_at")
   updatedAt       DateTime @default(now()) @map(name: "updated_at")
 

@@ -84,6 +84,19 @@ pnpm dev
  </picture>
 </a>
 
+## Database Migration
+
+If you encounter errors related to database table structure, such as "column enableEmail of relation user_custom_domains does not exist", you need to perform a database migration:
+
+1. Ensure Prisma is installed: `pnpm add -D prisma`
+2. Run Prisma migration commands:
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
+
+This will update your database structure according to the Prisma schema.
+
 ## 自定义域名配置
 
 本项目支持用户添加自定义域名并自动绑定到Vercel项目。要启用此功能，请在您的`.env.local`文件中添加以下配置：

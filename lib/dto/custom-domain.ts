@@ -3,7 +3,7 @@ import { promisify } from "util";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db";
-import { logError, logInfo } from "@/lib/utils/log-to-db";
+import { logError, logInfo, logWarn } from "@/lib/utils/log-to-db";
 
 // 新增自定义域名验证
 export const createCustomDomainSchema = z.object({
@@ -71,32 +71,73 @@ export async function createUserCustomDomain(userId: string, data: any) {
       .map(() => Math.random().toString(36).charAt(2))
       .join("");
 
-    // 确保数据库中有user_custom_domains表
+    // 检查是否存在enableEmail字段，避免SQL错误
+    let hasEmailFields = true;
     try {
-      const res =
-        await prisma.$queryRaw`SELECT 1 FROM user_custom_domains LIMIT 1`;
+      // 尝试获取列信息
+      const columnInfo = await prisma.$queryRaw`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'user_custom_domains' 
+        AND column_name = 'enableEmail'
+      `;
+      hasEmailFields = Array.isArray(columnInfo) && columnInfo.length > 0;
     } catch (error) {
-      // 如果表不存在，需要执行迁移
-      logError("自定义域名表可能不存在，请确保已运行迁移", error);
-      return { status: "error", message: "系统配置错误，请联系管理员", details: error?.message || String(error) };
+      logWarn("检查enableEmail字段存在性失败，将假设不存在", error);
+      hasEmailFields = false;
     }
 
-    // 创建新的自定义域名记录
-    const res = await prisma.$queryRaw`
+    // 根据字段是否存在创建不同的SQL
+    let newDomain;
+    if (hasEmailFields) {
+      // 完整版本 - 包含所有邮件相关字段
+      newDomain = await prisma.$queryRaw`
+        INSERT INTO user_custom_domains (
+          id, 
+          "userId", 
+          "domainName", 
+          "isCloudflare", 
+          "verificationKey", 
+          "isVerified",
+          "enableEmail",
+          "emailVerified",
+          "smtpServer",
+          "smtpPort",
+          "smtpUsername",
+          "smtpPassword",
+          "fromEmail",
+          created_at, 
+          updated_at
+        )
+        VALUES (
+          ${crypto.randomUUID()}, 
+          ${userId}, 
+          ${domainName}, 
+          true, 
+          ${verificationKey}, 
+          false,
+          ${enableEmail || false},
+          false,
+          NULL,
+          NULL,
+          NULL,
+          NULL,
+          NULL,
+          NOW(), 
+          NOW()
+        )
+        RETURNING *
+      `;
+    } else {
+      // 兼容版本 - 不包含邮件相关字段
+      newDomain = await prisma.$queryRaw`
       INSERT INTO user_custom_domains (
         id, 
         "userId", 
         "domainName", 
         "isCloudflare", 
         "verificationKey", 
-        "isVerified",
-        "enableEmail",
-        "emailVerified",
-        "smtpServer",
-        "smtpPort",
-        "smtpUsername",
-        "smtpPassword",
-        "fromEmail",
+        "isVerified", 
         created_at, 
         updated_at
       )
@@ -106,24 +147,29 @@ export async function createUserCustomDomain(userId: string, data: any) {
         ${domainName}, 
         true, 
         ${verificationKey}, 
-        false,
-        ${enableEmail || false},
-        false,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
+        false, 
         NOW(), 
         NOW()
       )
       RETURNING *
     `;
 
-    return { status: "success", data: Array.isArray(res) ? res[0] : res };
+      // 记录字段缺失信息
+      logInfo("自定义域名表缺少邮件相关字段，请运行数据库迁移");
+    }
+
+    return {
+      status: "success",
+      data: Array.isArray(newDomain) ? newDomain[0] : newDomain,
+    };
   } catch (error) {
     logError("创建自定义域名错误", error);
-    return { status: "error", message: "创建自定义域名失败", details: error?.message || String(error), error };
+    return {
+      status: "error",
+      message: "创建自定义域名失败",
+      details: error?.message || String(error),
+      error,
+    };
   }
 }
 
@@ -199,6 +245,22 @@ export async function updateUserCustomDomain(userId: string, data: any) {
     const { id, domainName, isVerified, enableEmail, emailVerified } =
       updateCustomDomainSchema.parse(data);
 
+    // 检查是否存在邮件相关字段
+    let hasEmailFields = true;
+    try {
+      // 尝试获取列信息
+      const columnInfo = await prisma.$queryRaw`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'user_custom_domains' 
+        AND column_name = 'enableEmail'
+      `;
+      hasEmailFields = Array.isArray(columnInfo) && columnInfo.length > 0;
+    } catch (error) {
+      logWarn("检查enableEmail字段存在性失败，将假设不存在", error);
+      hasEmailFields = false;
+    }
+
     let updateQuery = `
       UPDATE user_custom_domains
       SET 
@@ -214,12 +276,21 @@ export async function updateUserCustomDomain(userId: string, data: any) {
       updateParts.push(`"isVerified" = ${isVerified}`);
     }
 
-    if (enableEmail !== undefined) {
-      updateParts.push(`"enableEmail" = ${enableEmail}`);
-    }
+    // 只有当字段存在时才添加邮件相关更新
+    if (hasEmailFields) {
+      if (enableEmail !== undefined) {
+        updateParts.push(`"enableEmail" = ${enableEmail}`);
+      }
 
-    if (emailVerified !== undefined) {
-      updateParts.push(`"emailVerified" = ${emailVerified}`);
+      if (emailVerified !== undefined) {
+        updateParts.push(`"emailVerified" = ${emailVerified}`);
+      }
+    } else if (enableEmail !== undefined || emailVerified !== undefined) {
+      // 如果尝试更新不存在的字段，记录警告
+      logWarn(`尝试更新不存在的邮件字段，请先运行数据库迁移`, {
+        enableEmail,
+        emailVerified,
+      });
     }
 
     updateParts.push(`updated_at = NOW()`);
@@ -255,7 +326,7 @@ export async function verifyUserCustomDomain(
 
     const domain = domainResult.data;
     logInfo(
-      `获取到域名信息: ${domain.domainName}, verificationKey=${domain.verificationKey}`
+      `获取到域名信息: ${domain.domainName}, verificationKey=${domain.verificationKey}`,
     );
 
     // 验证域名TXT记录
@@ -332,7 +403,7 @@ async function verifyDomainDNS(domain: any): Promise<DomainVerificationResult> {
         recordValues.push(txtValue);
 
         logInfo(
-          `- 比较 DNS值="${txtValue}" 与 验证密钥="${domain.verificationKey}"`
+          `- 比较 DNS值="${txtValue}" 与 验证密钥="${domain.verificationKey}"`,
         );
 
         if (txtValue === domain.verificationKey) {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition, useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { User, UserEmail } from "@prisma/client";
 import randomName from "@scaleway/random-name";
 import {
@@ -13,7 +14,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import useSWR from "swr";
-import { usePathname, useRouter } from "next/navigation";
 
 import { siteConfig } from "@/config/site";
 import { TeamPlanQuota } from "@/config/team";
@@ -21,6 +21,7 @@ import { UserEmailList } from "@/lib/dto/email";
 import { reservedAddressSuffix } from "@/lib/enums";
 import { cn, fetcher, timeAgo } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import DomainSelector from "@/components/shared/DomainSelector";
 import ApiReference from "@/app/emails/api-reference";
 
 import CountUp from "../dashboard/count-up";
@@ -49,7 +50,6 @@ import {
 } from "../ui/tooltip";
 import { SendEmailModal } from "./SendEmailModal";
 import SendsEmailList from "./SendsEmailList";
-import DomainSelector from "@/components/shared/DomainSelector";
 
 interface EmailSidebarProps {
   user: User;
@@ -89,7 +89,9 @@ export default function EmailSidebar({
   const [showSendsModal, setShowSendsModal] = useState(false);
   const [userEmails, setUserEmails] = useState<UserEmailList[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [availableDomains, setAvailableDomains] = useState<string[]>(siteConfig.emailDomains);
+  const [availableDomains, setAvailableDomains] = useState<string[]>(
+    siteConfig.emailDomains,
+  );
   const [isLoadingDomains, setIsLoadingDomains] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const [emailListPages, setEmailListPages] = useState(1);
@@ -121,13 +123,13 @@ export default function EmailSidebar({
       try {
         const size = 50;
         const response = await fetch(
-          `/api/email?page=${page}&size=${size}${isAdminModel ? "&all=true" : ""}`
+          `/api/email?page=${page}&size=${size}${isAdminModel ? "&all=true" : ""}`,
         );
         if (response.ok) {
           const result = await response.json();
           if (result.list && Array.isArray(result.list)) {
             setUserEmails(result.list);
-            
+
             // 设置总页数
             if (result.total) {
               setEmailListPages(Math.ceil(result.total / size));
@@ -139,12 +141,12 @@ export default function EmailSidebar({
         console.error("获取邮箱列表出错:", error);
       }
     },
-    [isAdminModel, pageSize]
+    [isAdminModel, pageSize],
   );
 
   useEffect(() => {
     fetchEmails();
-    
+
     // 设置默认域名
     if (!domainSuffix && siteConfig.emailDomains.length > 0) {
       setDomainSuffix(siteConfig.emailDomains[0]);
@@ -157,11 +159,11 @@ export default function EmailSidebar({
       if (data.list && Array.isArray(data.list)) {
         setUserEmails(data.list);
       }
-      
+
       if (data.total) {
         setTotalPages(Math.ceil(data.total / pageSize));
       }
-      
+
       // 如果没有选择邮箱且有数据，选择第一个
       if (!selectedEmailAddress && data.list && data.list.length > 0) {
         onSelectEmail(data.list[0].emailAddress);
@@ -360,9 +362,7 @@ export default function EmailSidebar({
             <div className="flex flex-col items-center gap-1 rounded-md bg-neutral-100 px-1 pb-1 pt-2 transition-colors hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-gray-700">
               <div className="flex items-center gap-1">
                 <Icons.mail className="size-3" />
-                <p className="line-clamp-1 text-start font-medium">
-                  邮箱地址
-                </p>
+                <p className="line-clamp-1 text-start font-medium">邮箱地址</p>
               </div>
               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 <CountUp count={data ? data.total : 0} />
@@ -396,9 +396,7 @@ export default function EmailSidebar({
             >
               <div className="flex items-center gap-1">
                 <Icons.mailOpen className="size-3" />
-                <p className="line-clamp-1 text-start font-medium">
-                  未读邮件
-                </p>
+                <p className="line-clamp-1 text-start font-medium">未读邮件</p>
               </div>
               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 <CountUp count={data ? data.totalUnreadCount : 0} />
@@ -628,12 +626,12 @@ export default function EmailSidebar({
           <div className="flex flex-col gap-6">
             <div className="rounded-lg border-0 p-0">
               <div className="p-0">
-                <h3 className="text-lg font-medium text-center">
+                <h3 className="text-center text-lg font-medium">
                   {isEdit ? "编辑邮箱地址" : "创建新邮箱地址"}
                 </h3>
                 <div className="mt-4 flex flex-col space-y-4">
                   <div className="relative mt-4 flex items-center rounded-md border focus-within:ring-1 focus-within:ring-ring">
-                  <Input
+                    <Input
                       placeholder={
                         isEdit
                           ? selectedEmailAddress?.split("@")[0]
@@ -662,14 +660,14 @@ export default function EmailSidebar({
                         type="email"
                         value={domainSuffix || undefined}
                         onChange={(value) => setDomainSuffix(value)}
-                    disabled={isEdit}
+                        disabled={isEdit}
                         triggerClassName="min-w-[120px] border-0 focus:ring-0"
                       />
                     </div>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     <p>提示：</p>
-                    <ul className="list-disc pl-4 space-y-1">
+                    <ul className="list-disc space-y-1 pl-4">
                       <li>邮箱用户名长度至少5个字符</li>
                       <li>只能包含字母、数字、下划线、连字符和点</li>
                       {isLoadingDomains ? (
@@ -691,38 +689,35 @@ export default function EmailSidebar({
                     >
                       取消
                     </Button>
-                  <Button
+                    <Button
                       disabled={isPending || !domainSuffix}
-                    onClick={() => {
+                      onClick={() => {
                         const input = document.getElementById(
                           "email-input",
                         ) as HTMLInputElement;
                         if (input) {
                           handleSubmitEmail(input.value);
                         }
-                    }}
-                  >
+                      }}
+                    >
                       {isPending ? (
                         <Icons.spinner className="size-4 animate-spin" />
                       ) : (
                         <p>{isEdit ? "更新" : "创建"}</p>
                       )}
-                  </Button>
+                    </Button>
                   </div>
                 </div>
               </div>
-              </div>
+            </div>
           </div>
-          </div>
-        </Modal>
+        </div>
+      </Modal>
 
       {/* 删除邮箱的模态框 */}
-      <Modal
-        showModal={showDeleteModal}
-        setShowModal={setShowDeleteModal}
-      >
-          <div className="p-6">
-          <h2 className="mb-4 text-lg font-semibold text-center">
+      <Modal showModal={showDeleteModal} setShowModal={setShowDeleteModal}>
+        <div className="p-6">
+          <h2 className="mb-4 text-center text-lg font-semibold">
             确认删除邮箱
           </h2>
           <p className="mb-4 text-sm text-gray-500">
@@ -733,7 +728,11 @@ export default function EmailSidebar({
               htmlFor="deleteConfirm"
               className="mb-1 block text-sm font-medium text-gray-700"
             >
-              请输入邮箱地址 <span className="font-semibold text-red-500">{emailToDelete}</span> 确认删除
+              请输入邮箱地址{" "}
+              <span className="font-semibold text-red-500">
+                {emailToDelete}
+              </span>{" "}
+              确认删除
             </label>
             <Input
               id="deleteConfirm"
@@ -745,21 +744,21 @@ export default function EmailSidebar({
               onChange={(e) => setDeleteInput(e.target.value)}
             />
           </div>
-            <div className="flex justify-end gap-2">
-              <Button
+          <div className="flex justify-end gap-2">
+            <Button
               type="button"
-                variant="outline"
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setDeleteInput("");
-                  setEmailToDelete(null);
-                }}
-              >
+              variant="outline"
+              onClick={() => {
+                setShowDeleteModal(false);
+                setDeleteInput("");
+                setEmailToDelete(null);
+              }}
+            >
               取消
-              </Button>
-              <Button
+            </Button>
+            <Button
               type="button"
-                variant="destructive"
+              variant="destructive"
               disabled={deleteInput !== emailToDelete || isPending}
               onClick={confirmDelete}
             >
@@ -768,10 +767,10 @@ export default function EmailSidebar({
               ) : (
                 <p>删除</p>
               )}
-              </Button>
-            </div>
+            </Button>
           </div>
-        </Modal>
+        </div>
+      </Modal>
     </div>
   );
 }
