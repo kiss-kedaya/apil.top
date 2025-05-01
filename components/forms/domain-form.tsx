@@ -134,7 +134,11 @@ export function DomainForm({
             : "域名添加成功，请按照指引完成域名验证"
         );
         if (data.data && !initData) {
-          setNewDomain(data.data); // 保存新添加的域名信息，用于显示验证指南
+          // 保存新添加的域名信息和Vercel绑定信息
+          setNewDomain({
+            ...data.data,
+            vercel: data.vercel, // 保存Vercel返回的信息
+          });
         } else {
           if (onSuccess) onSuccess();
           setShowForm(false);
@@ -239,6 +243,50 @@ export function DomainForm({
                   </li>
                 </ul>
               </div>
+
+              {/* Vercel域名验证部分 */}
+              {newDomain && newDomain.vercel && (
+                <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950">
+                  <h3 className="mb-2 font-semibold">Vercel域名验证</h3>
+                  <p className="mb-2 text-sm">
+                    您还需要完成Vercel域名验证，否则域名生效后会显示404错误。
+                  </p>
+                  
+                  {newDomain.vercel.error ? (
+                    <div className="text-sm text-red-600">
+                      Vercel绑定错误: {newDomain.vercel.error}
+                    </div>
+                  ) : newDomain.vercel.verified ? (
+                    <div className="text-sm text-green-600">Vercel域名已验证，无需额外操作。</div>
+                  ) : (
+                    <>
+                      {newDomain.vercel.config && (
+                        <div className="space-y-2">
+                          <div className="rounded-md bg-slate-100 p-3 dark:bg-slate-800">
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                              <div className="font-medium">记录类型:</div>
+                              <div>
+                                {newDomain.vercel.config.expectedVerificationRecords?.[0]?.type || "TXT"}
+                              </div>
+                              <div className="font-medium">主机记录:</div>
+                              <div className="break-all font-mono text-green-600">
+                                {newDomain.vercel.config.expectedVerificationRecords?.[0]?.name || "_vercel"}
+                              </div>
+                              <div className="font-medium">记录值:</div>
+                              <div className="break-all font-mono text-green-600">
+                                {newDomain.vercel.config.expectedVerificationRecords?.[0]?.value}
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            需要添加上述DNS记录以验证您在Vercel的域名所有权
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="mt-4 flex justify-end space-x-4">
