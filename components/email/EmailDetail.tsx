@@ -20,6 +20,7 @@ import {
   formatDate,
   formatFileSize,
 } from "@/lib/utils";
+import { logInfo } from "@/lib/utils/log-to-db";
 import { Icons } from "@/components/shared/icons";
 
 import { BlurImg } from "../shared/blur-image";
@@ -118,7 +119,7 @@ export default function EmailDetail({
       attachments = JSON.parse(email.attachments);
     }
   } catch (error) {
-    console.log("解析附件失败:", error);
+    logInfo("解析附件失败:", error);
   }
 
   // 处理邮件内容中的图片链接

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import useSWR from "swr";
 
 import { cn, fetcher, htmlToText, timeAgo } from "@/lib/utils";
+import { logError, logInfo } from "@/lib/utils/log-to-db";
 
 import BlurImage from "../shared/blur-image";
 import { Icons } from "../shared/icons";
@@ -88,7 +89,7 @@ export default function EmailList({
         body: JSON.stringify({ emailId }),
       }).then(() => mutate());
     } catch (error) {
-      console.log("标记邮件为已读时出错");
+      logInfo("标记邮件为已读时出错");
     }
   };
 

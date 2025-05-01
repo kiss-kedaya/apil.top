@@ -374,7 +374,7 @@ async function verifyDomainDNS(domain: any): Promise<DomainVerificationResult> {
 
     try {
       const txtRecords = await resolveTxt(txtRecordName);
-      logInfo(`DNS查询响应:`, txtRecords);
+      logInfo(`DNS查询响应: ${txtRecords}`);
 
       // 检查是否有TXT记录
       if (!txtRecords || txtRecords.length === 0) {

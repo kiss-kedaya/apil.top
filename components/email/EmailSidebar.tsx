@@ -20,6 +20,7 @@ import { TeamPlanQuota } from "@/config/team";
 import { UserEmailList } from "@/lib/dto/email";
 import { reservedAddressSuffix } from "@/lib/enums";
 import { cn, fetcher, timeAgo } from "@/lib/utils";
+import { logError, logInfo } from "@/lib/utils/log-to-db";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import DomainSelector from "@/components/shared/DomainSelector";
 import ApiReference from "@/app/emails/api-reference";
@@ -138,7 +139,7 @@ export default function EmailSidebar({
           }
         }
       } catch (error) {
-        console.error("获取邮箱列表出错:", error);
+        logError("获取邮箱列表出错:", error);
       }
     },
     [isAdminModel, pageSize],
@@ -230,7 +231,7 @@ export default function EmailSidebar({
             });
           }
         } catch (error) {
-          console.log("创建邮箱时出错:", error);
+          logInfo("创建邮箱时出错:", error);
           toast.error("创建邮箱失败");
         }
       }
@@ -263,7 +264,7 @@ export default function EmailSidebar({
           toast.error("删除邮箱失败");
         }
       } catch (error) {
-        console.log("删除邮箱时出错:", error);
+        logInfo("删除邮箱时出错:", error);
       }
     });
   };

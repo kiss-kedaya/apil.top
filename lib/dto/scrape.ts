@@ -1,6 +1,7 @@
 import { ScrapeMeta } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
+import { logError } from "@/lib/utils/log-to-db";
 
 export async function createScrapeMeta(
   data: Omit<ScrapeMeta, "id" | "createdAt" | "updatedAt">,
@@ -9,7 +10,7 @@ export async function createScrapeMeta(
     const meta = await findOrCreateScrapeMeta(data);
     return { status: "success", data: meta };
   } catch (error) {
-    console.error("create meta error", error);
+    logError("create meta error", error);
     return { status: "error", message: error.message };
   }
 }
