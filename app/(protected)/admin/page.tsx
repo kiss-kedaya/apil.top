@@ -46,7 +46,7 @@ async function UserInfoCardSection({ userId }: { userId: string }) {
 
 // 短链接卡片组件
 async function ShortUrlsCardSection({ userId }: { userId: string }) {
-  const url_count = await getUserShortUrlCount(userId, 1, "ADMIN");
+  const url_count = await getUserShortUrlCount(userId, 1, "USER");
 
   return (
     <DashboardInfoCard
@@ -63,7 +63,7 @@ async function ShortUrlsCardSection({ userId }: { userId: string }) {
 
 // DNS 记录卡片组件
 async function DnsRecordsCardSection({ userId }: { userId: string }) {
-  const record_count = await getUserRecordCount(userId, 1, "ADMIN");
+  const record_count = await getUserRecordCount(userId, 1, "USER");
 
   return (
     <DashboardInfoCard
@@ -80,7 +80,7 @@ async function DnsRecordsCardSection({ userId }: { userId: string }) {
 
 // 邮件卡片组件
 async function EmailsCardSection({ userId }: { userId: string }) {
-  const email_count = await getAllUserEmailsCount(userId, "ADMIN");
+  const email_count = await getAllUserEmailsCount(userId, "USER");
 
   return (
     <DashboardInfoCard

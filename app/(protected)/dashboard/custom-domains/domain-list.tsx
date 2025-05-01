@@ -356,23 +356,17 @@ export default function CustomDomainsList({ user, action }: CustomDomainListProp
           <div className="mt-4 rounded-md border p-4 dark:border-slate-700">
             <h3 className="mb-2 text-sm font-semibold">您的域名配额</h3>
             <p className="text-sm text-muted-foreground">
-              {user.role === "ADMIN" ? (
-                "作为管理员，您可以添加无限数量的自定义域名。"
-              ) : (
+              您当前的计划 ({user.team}) 允许添加最多{" "}
+              <span className="font-semibold">
+                {TeamPlanQuota[user.team].customDomains}
+              </span>{" "}
+              个自定义域名。
+              {data?.data && (
                 <>
-                  您当前的计划 ({user.team}) 允许添加最多{" "}
-                  <span className="font-semibold">
-                    {TeamPlanQuota[user.team].customDomains}
-                  </span>{" "}
-                  个自定义域名。
-                  {data?.data && (
-                    <>
-                      {" "}
-                      已使用{" "}
-                      <span className="font-semibold">{data.data.length}</span>/
-                      {TeamPlanQuota[user.team].customDomains}。
-                    </>
-                  )}
+                  {" "}
+                  已使用{" "}
+                  <span className="font-semibold">{data.data.length}</span>/
+                  {TeamPlanQuota[user.team].customDomains}。
                 </>
               )}
             </p>
