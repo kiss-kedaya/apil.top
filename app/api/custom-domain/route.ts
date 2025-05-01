@@ -66,18 +66,35 @@ export async function GET(req: Request) {
 
 // 创建新的自定义域名
 export async function POST(req: Request) {
+  console.log('📝 收到自定义域名创建请求');
+  
   try {
     const user = checkUserStatus(await getCurrentUser());
-    if (user instanceof Response) return user;
+    if (user instanceof Response) {
+      console.log('❌ 用户未认证');
+      return user;
+    }
+    console.log('✅ 用户已认证:', user.id);
 
     // 检查用户权限和配额
     if (user.role !== "ADMIN") {
       const { data } = await getUserCustomDomains(user.id);
+      const userDomainsCount = data && Array.isArray(data) ? data.length : 0;
+      const userQuota = TeamPlanQuota[user.team || "free"].customDomains;
+      
+      console.log('📊 用户域名配额检查:', {
+        userId: user.id,
+        team: user.team,
+        quota: userQuota,
+        used: userDomainsCount
+      });
+      
       if (
         data &&
         Array.isArray(data) &&
-        data.length >= TeamPlanQuota[user.team || "free"].customDomains
+        userDomainsCount >= userQuota
       ) {
+        console.log('❌ 用户超出域名配额限制');
         return Response.json(
           { status: "error", message: "您已达到自定义域名的最大限制" },
           { status: 403 },
@@ -86,35 +103,46 @@ export async function POST(req: Request) {
     }
 
     const requestData = await req.json();
-    console.log("接收到的域名数据:", requestData); // 调试用，记录请求数据
-
+    console.log("📥 接收到的域名数据:", requestData);
+    
     // 确保使用domainName字段
     if (!requestData.domainName) {
+      console.log('❌ 缺少domainName参数');
       return Response.json(
         { status: "error", message: "缺少域名参数" },
         { status: 400 },
       );
     }
 
+    console.log('📝 准备创建域名记录:', {
+      userId: user.id,
+      domainName: requestData.domainName
+    });
+    
     const result = await createUserCustomDomain(user.id, requestData);
+    console.log('📝 域名创建结果:', result);
 
     if (result.status === "error") {
+      console.log('❌ 域名创建失败:', result.message);
       return Response.json(result, { status: 400 });
     }
 
     // === Vercel自动绑定域名 ===
     // 检查Vercel配置是否可用
     if (!vercel || !projectName) {
-      console.warn("Vercel配置不完整，跳过域名自动绑定");
+      console.log('⚠️ Vercel配置不完整，跳过域名自动绑定:', {
+        hasToken: !!process.env.VERCEL_TOKEN,
+        projectName: process.env.VERCEL_PROJECT_NAME
+      });
       return Response.json(result);
     }
 
     try {
       const domainName = result.data?.domainName || requestData.domainName;
-
+      
       // 域名添加到Vercel项目
-      console.log("开始Vercel域名绑定:", { domainName, projectName });
-
+      console.log("🌐 开始Vercel域名绑定:", { domainName, projectName });
+      
       const addDomainResponse = await vercel.projects.addProjectDomain({
         idOrName: projectName,
         requestBody: {
@@ -123,50 +151,68 @@ export async function POST(req: Request) {
       });
 
       // 检查域名配置
+      console.log("🌐 Vercel域名添加成功，获取域名配置:", domainName);
       const checkConfiguration = await vercel.domains.getDomainConfig({
         domain: domainName,
       });
 
-      console.log("Vercel域名绑定成功:", {
+      console.log("✅ Vercel域名绑定成功:", {
         domain: addDomainResponse.name,
         verified: addDomainResponse.verified,
+        misconfigured: checkConfiguration.misconfigured
       });
 
-      return Response.json({
+      const responseData = {
         ...result,
         vercel: {
           domain: addDomainResponse.name,
           verified: addDomainResponse.verified,
           misconfigured: checkConfiguration.misconfigured,
-          config: checkConfiguration, // 返回全部配置，前端自己取
+          config: checkConfiguration,
         },
+      };
+      
+      console.log("📤 返回域名添加响应:", {
+        status: "success",
+        domainName: domainName,
+        hasVercelData: true
       });
+      
+      return Response.json(responseData);
     } catch (vercelError: any) {
       // 记录详细错误
-      console.error("Vercel绑定域名错误:", vercelError);
-
+      console.error("❌ Vercel绑定域名错误:", vercelError);
+      
       // 更详细的错误信息
       let errorMessage =
         vercelError instanceof Error
           ? vercelError.message
           : String(vercelError);
       let errorDetails = null;
-
+      
       // 尝试解析错误对象中的更多信息
       if (vercelError.response) {
         try {
           const errorBody = vercelError.response.body;
           if (typeof errorBody === "object") {
             errorDetails = errorBody;
+            console.log("❌ Vercel错误详情 (对象):", errorDetails);
           } else if (typeof errorBody === "string") {
             errorDetails = JSON.parse(errorBody);
+            console.log("❌ Vercel错误详情 (字符串):", errorDetails);
           }
         } catch (e) {
-          console.error("解析Vercel错误详情失败:", e);
+          console.error("❌ 解析Vercel错误详情失败:", e);
         }
       }
 
       // Vercel绑定失败也返回业务成功，但带上错误信息
+      console.log("📤 返回域名添加响应 (带Vercel错误):", {
+        status: "success",
+        domainName: result.data?.domainName,
+        hasVercelError: true
+      });
+      
       return Response.json({
         ...result,
         vercel: {
@@ -177,13 +223,19 @@ export async function POST(req: Request) {
     }
   } catch (error) {
     // 记录详细错误
-    console.error("创建自定义域名错误:", error);
+    console.error("❌ 创建自定义域名错误:", error);
+    const errorDetails = error instanceof Error ? error.message : String(error);
+    console.error("❌ 错误详情:", errorDetails);
+    
+    if (error instanceof Error && error.stack) {
+      console.error("❌ 错误堆栈:", error.stack);
+    }
 
     return Response.json(
       {
         status: "error",
         message: "创建自定义域名失败",
-        details: error instanceof Error ? error.message : String(error),
+        details: errorDetails,
       },
       { status: 500 },
     );

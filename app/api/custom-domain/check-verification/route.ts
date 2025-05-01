@@ -35,21 +35,30 @@ interface VerificationStatus {
 
 // 检查域名验证状态
 export async function POST(req: Request) {
+  console.log('📝 收到域名验证状态检查请求');
+  
   try {
     const user = checkUserStatus(await getCurrentUser());
-    if (user instanceof Response) return user;
+    if (user instanceof Response) {
+      console.log('❌ 用户未认证');
+      return user;
+    }
+    console.log('✅ 用户已认证:', user.id);
 
     const { id } = await req.json();
     if (!id) {
+      console.log('❌ 缺少域名ID参数');
       return Response.json(
         { status: "error", message: "缺少域名ID" },
         { status: 400 }
       );
     }
+    console.log('📝 检查域名ID:', id);
 
     // 获取域名详情
     const result = await getUserCustomDomainById(user.id, id);
     if (result.status === "error" || !result.data) {
+      console.log('❌ 域名不存在');
       return Response.json(
         { status: "error", message: "域名不存在" },
         { status: 404 }
@@ -57,12 +66,17 @@ export async function POST(req: Request) {
     }
 
     const domain = result.data;
+    console.log('📝 找到域名:', {
+      id: domain.id,
+      domainName: domain.domainName,
+      isVerified: domain.isVerified
+    });
 
     // 检查Vercel验证状态
     let vercelStatus: VercelStatus | null = null;
     if (vercel && domain.domainName) {
       try {
-        console.log("检查Vercel域名状态:", domain.domainName);
+        console.log("🌐 检查Vercel域名状态:", domain.domainName);
         
         const checkVercel = await vercel.domains.getDomainConfig({
           domain: domain.domainName,
@@ -74,11 +88,20 @@ export async function POST(req: Request) {
           config: checkVercel,
         };
         
-        console.log("Vercel域名状态:", vercelStatus);
+        console.log("🌐 Vercel域名状态:", {
+          domain: domain.domainName,
+          misconfigured: vercelStatus.misconfigured,
+          verified: vercelStatus.verified
+        });
       } catch (vercelError) {
-        console.error("检查Vercel域名状态出错:", vercelError);
+        console.error("❌ 检查Vercel域名状态出错:", vercelError);
         vercelStatus = { error: String(vercelError) };
       }
+    } else {
+      console.log("⚠️ 跳过Vercel验证检查:", {
+        hasVercel: !!vercel,
+        hasDomain: !!domain.domainName
+      });
     }
 
     // 初始化验证状态
@@ -90,6 +113,7 @@ export async function POST(req: Request) {
 
     // 如果已验证，直接返回
     if (domain.isVerified) {
+      console.log('✅ 域名已验证，直接返回状态');
       return Response.json({
         status: "success",
         data: {
@@ -103,6 +127,8 @@ export async function POST(req: Request) {
     try {
       // 检查DNS TXT记录
       const txtRecordName = `_kedaya.${domain.domainName}`;
+      console.log('📝 检查TXT记录:', txtRecordName);
+      
       const dnsResponse = await fetch(
         `https://cloudflare-dns.com/dns-query?name=${txtRecordName}&type=TXT`,
         {
@@ -113,16 +139,18 @@ export async function POST(req: Request) {
       );
 
       const dnsData = await dnsResponse.json();
-      console.log("DNS查询结果:", dnsData);
+      console.log("📝 DNS查询结果:", JSON.stringify(dnsData, null, 2));
 
       if (dnsData.Answer && dnsData.Answer.length > 0) {
         let foundValidKey = false;
         const currentValues = dnsData.Answer.map((r: any) => r.data.replace(/"/g, ""));
+        console.log("📝 发现TXT记录:", currentValues);
 
         for (const answer of dnsData.Answer) {
           const txtValue = answer.data.replace(/"/g, "");
           if (txtValue === domain.verificationKey) {
             foundValidKey = true;
+            console.log("✅ 验证密钥匹配成功:", txtValue);
             break;
           }
         }
@@ -138,7 +166,14 @@ export async function POST(req: Request) {
             resolvedHost: txtRecordName,
           },
         };
+        
+        console.log("📝 TXT记录验证结果:", {
+          exists: true,
+          isValid: foundValidKey,
+          expectedValue: domain.verificationKey
+        });
       } else {
+        console.log("❌ 未发现TXT记录");
         verificationStatus = {
           ...verificationStatus,
           txtRecord: {
@@ -151,13 +186,21 @@ export async function POST(req: Request) {
         };
       }
     } catch (error) {
-      console.error("检查验证状态错误:", error);
+      console.error("❌ 检查验证状态错误:", error);
       verificationStatus = {
         ...verificationStatus,
         error: "检查验证状态时出错",
       };
     }
 
+    console.log("📤 返回验证状态:", {
+      status: "success",
+      isVerified: verificationStatus.isVerified,
+      domainName: verificationStatus.domainName,
+      txtRecordExists: verificationStatus.txtRecord?.exists,
+      txtRecordValid: verificationStatus.txtRecord?.isValid
+    });
+    
     return Response.json({
       status: "success",
       data: {
@@ -176,7 +219,7 @@ export async function POST(req: Request) {
       }
     });
   } catch (error) {
-    console.error("检查验证状态错误:", error);
+    console.error("❌ 检查验证状态错误:", error);
     return Response.json(
       { status: "error", message: "验证检查过程中发生错误" },
       { status: 500 }

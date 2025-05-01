@@ -87,6 +87,7 @@ export function DomainForm({
   useEffect(() => {
     if (newDomain && newDomain.id) {
       const checkVerificationStatus = async () => {
+        console.log('🔵 开始检查域名验证状态:', newDomain);
         try {
           const response = await fetch(`/api/custom-domain/check-verification`, {
             method: "POST",
@@ -95,11 +96,14 @@ export function DomainForm({
           });
           
           const data = await response.json();
+          console.log('🔵 域名验证状态响应:', data);
+          
           if (data.status === "success") {
             setVerificationStatus(data.data);
+            console.log('✅ 设置验证状态:', data.data);
           }
         } catch (error) {
-          console.error("检查验证状态出错:", error);
+          console.error("❌ 检查验证状态出错:", error);
         }
       };
       
@@ -109,32 +113,51 @@ export function DomainForm({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
+    console.log('🔵 开始提交域名表单:', values);
 
     try {
       const url = initData
         ? `/api/custom-domain/update`
         : `/api/custom-domain`;
+      
+      const requestData = initData 
+        ? { ...values, id: initData.id } 
+        : { domainName: values.domainName };
+        
+      console.log(`🔵 发送${initData ? '更新' : '添加'}域名请求:`, {
+        url,
+        method: 'POST',
+        data: requestData
+      });
 
       const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(
-          initData ? { ...values, id: initData.id } : { domainName: values.domainName }
-        ),
+        body: JSON.stringify(requestData),
+      });
+
+      // 记录原始响应状态
+      console.log('🔵 收到响应状态:', {
+        status: response.status,
+        statusText: response.statusText
       });
 
       const data = await response.json();
-      console.log("域名添加响应:", data); // 调试用，获取完整响应
+      console.log('🔵 域名操作响应数据:', JSON.stringify(data, null, 2));
 
       if (data.status === "success") {
+        console.log('✅ 域名操作成功:', initData ? '更新成功' : '添加成功');
         toast.success(
           initData
             ? "域名更新成功"
             : "域名添加成功，请按照指引完成域名验证"
         );
         if (data.data && !initData) {
+          console.log('🔵 设置新域名数据:', data.data);
+          console.log('🔵 Vercel绑定信息:', data.vercel);
+          
           // 保存新添加的域名信息和Vercel绑定信息
           setNewDomain({
             ...data.data,
@@ -146,20 +169,25 @@ export function DomainForm({
           form.reset();
         }
       } else {
-        console.error("域名操作失败:", data);
+        console.error('❌ 域名操作失败:', data);
         toast.error(data.message || "操作失败");
         if (data.details) {
+          console.error('❌ 错误详情:', data.details);
           toast.error(`详细原因: ${data.details}`);
         }
       }
     } catch (error) {
-      console.error("提交表单出错:", error);
+      console.error('❌ 提交表单出错:', error);
+      if (error instanceof Error) {
+        console.error('❌ 错误堆栈:', error.stack);
+      }
       toast.error("提交表单出错");
       if (error instanceof Error) {
         toast.error(`错误详情: ${error.message}`);
       }
     } finally {
       setIsSubmitting(false);
+      console.log('🔵 表单提交流程结束');
     }
   }
 
@@ -314,6 +342,8 @@ export function DomainForm({
                 onClick={async () => {
                   try {
                     setIsSubmitting(true);
+                    console.log('🔵 开始验证域名:', newDomain.id);
+                    
                     const response = await fetch(`/api/custom-domain/update`, {
                       method: "PUT",
                       headers: { "Content-Type": "application/json" },
@@ -321,16 +351,20 @@ export function DomainForm({
                     });
 
                     const result = await response.json();
+                    console.log('🔵 域名验证响应:', result);
+                    
                     if (result.status === "success") {
+                      console.log('✅ 域名验证成功');
                       toast.success("域名验证成功");
                       if (onSuccess) onSuccess();
                       setShowForm(false);
                     } else {
+                      console.error('❌ 域名验证失败:', result);
                       toast.error(result.message || "域名验证失败");
                     }
                   } catch (error) {
+                    console.error('❌ 验证请求失败:', error);
                     toast.error("验证请求失败");
-                    console.error(error);
                   } finally {
                     setIsSubmitting(false);
                   }
