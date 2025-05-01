@@ -284,32 +284,30 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
               )}
             </div>
 
-            {user.role === "ADMIN" && (
-              <div className="relative w-full">
-                <Input
-                  className="h-8 text-xs md:text-xs"
-                  placeholder="按用户名搜索..."
-                  value={searchParams.userName}
-                  onChange={(e) => {
-                    setSearchParams({
-                      ...searchParams,
-                      userName: e.target.value,
-                    });
-                  }}
-                />
-                {searchParams.userName && (
-                  <Button
-                    className="absolute right-2 top-1/2 h-6 -translate-y-1/2 rounded-full px-1 text-gray-500 hover:text-gray-700"
-                    onClick={() =>
-                      setSearchParams({ ...searchParams, userName: "" })
-                    }
-                    variant={"ghost"}
-                  >
-                    <Icons.close className="size-3" />
-                  </Button>
-                )}
-              </div>
-            )}
+            <div className="relative w-full">
+              <Input
+                className="h-8 text-xs md:text-xs"
+                placeholder="按用户名搜索..."
+                value={searchParams.userName}
+                onChange={(e) => {
+                  setSearchParams({
+                    ...searchParams,
+                    userName: e.target.value,
+                  });
+                }}
+              />
+              {searchParams.userName && (
+                <Button
+                  className="absolute right-2 top-1/2 h-6 -translate-y-1/2 rounded-full px-1 text-gray-500 hover:text-gray-700"
+                  onClick={() =>
+                    setSearchParams({ ...searchParams, userName: "" })
+                  }
+                  variant={"ghost"}
+                >
+                  <Icons.close className="size-3" />
+                </Button>
+              )}
+            </div>
           </div>
 
           <Table>

@@ -158,7 +158,7 @@ export default function CustomDomainsList({ user, action }: CustomDomainListProp
 
   // 检查用户是否已达到域名限制
   const hasReachedLimit = () => {
-    if (user.role === "ADMIN") return false;
+    // 所有用户都有相同的限制
     const limit = TeamPlanQuota[user.team].customDomains;
     const count = data?.data?.length || 0;
     return count >= limit;

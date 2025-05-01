@@ -437,7 +437,7 @@ export default function EmailSidebar({
           </div>
         )}
 
-        {!isCollapsed && user.role === "ADMIN" && (
+        {!isCollapsed && (
           <div className="mt-2 flex items-center gap-2 text-sm">
             管理员模式:{" "}
             <Switch
