@@ -26,8 +26,8 @@ import { RadialShapeChart } from "./api-key-active-chart";
 import { LineChartMultiple } from "./line-chart-multiple";
 
 export const metadata = constructMetadata({
-  title: "Admin – apil.top",
-  description: "Admin page for only admin management.",
+  title: "管理员 – apil.top",
+  description: "仅供管理员管理的管理页面。",
 });
 
 // 用户卡片组件
@@ -37,7 +37,7 @@ async function UserInfoCardSection({ userId }: { userId: string }) {
   return (
     <UserInfoCard
       userId={userId}
-      title="Users"
+      title="用户"
       count={user_count}
       link="/admin/users"
     />
@@ -51,7 +51,7 @@ async function ShortUrlsCardSection({ userId }: { userId: string }) {
   return (
     <DashboardInfoCard
       userId={userId}
-      title="Short URLs"
+      title="短链接"
       total={url_count.total}
       monthTotal={url_count.month_total}
       limit={1000000}
@@ -68,7 +68,7 @@ async function DnsRecordsCardSection({ userId }: { userId: string }) {
   return (
     <DashboardInfoCard
       userId={userId}
-      title="DNS Records"
+      title="DNS记录"
       total={record_count.total}
       monthTotal={record_count.month_total}
       limit={1000000}
@@ -85,7 +85,7 @@ async function EmailsCardSection({ userId }: { userId: string }) {
   return (
     <DashboardInfoCard
       userId={userId}
-      title="Emails"
+      title="邮件"
       total={email_count.total}
       monthTotal={email_count.month_total}
       limit={1000000}
@@ -102,7 +102,7 @@ async function InboxCardSection({ userId }: { userId: string }) {
   return (
     <DashboardInfoCard
       userId={userId}
-      title="Inbox"
+      title="收件箱"
       total={inbox_count.total}
       monthTotal={inbox_count.month_total}
       limit={1000000}
@@ -133,7 +133,7 @@ async function RequestStatsSection() {
 
   return hasStats ? (
     <>
-      <h2 className="my-1 text-xl font-semibold">Request Statistics</h2>
+      <h2 className="my-1 text-xl font-semibold">请求统计</h2>
       <DailyPVUVChart
         data={screenshot_stats
           .concat(meta_stats)
@@ -199,7 +199,7 @@ async function MarkdownTextChartSection() {
 async function LogsSection({ userId }: { userId: string }) {
   return (
     <>
-      <h2 className="my-1 text-xl font-semibold">Request Logs</h2>
+      <h2 className="my-1 text-xl font-semibold">请求日志</h2>
       <LogsTable userId={userId} target={"/api/v1/scraping/admin/logs"} />
     </>
   );
@@ -255,8 +255,8 @@ export default async function AdminPage() {
   return (
     <>
       <DashboardHeader
-        heading="Admin Panel"
-        text="Access only for users with ADMIN role."
+        heading="管理员面板"
+        text="仅对具有管理员角色的用户开放访问。"
       />
       <div className="flex flex-col gap-5">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 xl:grid-cols-3">

@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue 
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 interface DomainSelectorProps {
   type?: "email" | "shortlink";
@@ -120,7 +121,7 @@ export default function DomainSelector({
         onValueChange={onChange}
         disabled={disabled || isLoading}
       >
-        <SelectTrigger className={triggerClassName}>
+        <SelectTrigger className={cn("bg-transparent hover:bg-background/80 transition-colors", triggerClassName)}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
