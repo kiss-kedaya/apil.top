@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     const result = await updateUserCustomDomain(user.id, data);
 
     if (result.status === "error") {
-      return errorResponse(result.message || "更新域名失败", 400, result.details);
+      return errorResponse(result.message || "更新域名失败", 400);
     }
 
     return successResponse(result.data, "域名更新成功");
