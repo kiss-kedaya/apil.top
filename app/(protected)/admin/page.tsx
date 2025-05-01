@@ -208,13 +208,13 @@ async function LogsSection({ userId }: { userId: string }) {
 // 主组件
 export default async function AdminPage() {
   const user = await getCurrentUser();
-  if (!user || !user.id || user.role !== "ADMIN") redirect("/login");
+  if (!user || !user.id) redirect("/login");
 
   return (
     <>
       <DashboardHeader
-        heading="Admin Panel"
-        text="Access only for users with ADMIN role."
+        heading="系统统计"
+        text="查看系统相关数据和统计信息"
       />
       <div className="flex flex-col gap-5">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 xl:grid-cols-3">

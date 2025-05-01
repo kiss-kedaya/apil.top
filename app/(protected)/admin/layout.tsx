@@ -9,10 +9,8 @@ interface ProtectedLayoutProps {
 export default async function Dashboard({ children }: ProtectedLayoutProps) {
   const user = await getCurrentUser();
 
-  // if (!user) redirect("/login");
-  // if (user.role !== "ADMIN") notFound();
-
-  if (!user || user.role !== "ADMIN") redirect("/login");
+  // 只需要用户登录即可访问
+  if (!user) redirect("/login");
 
   return <>{children}</>;
 }

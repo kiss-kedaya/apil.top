@@ -1,8 +1,5 @@
-import { prisma } from "@/lib/db";
 import { checkUserStatus } from "@/lib/dto/user";
-import { TIME_RANGES } from "@/lib/enums";
 import { getCurrentUser } from "@/lib/session";
-import { getStartDate } from "@/lib/utils";
 
 export const revalidate = 60;
 
