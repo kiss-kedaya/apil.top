@@ -50,10 +50,6 @@ export const ROLE_ENUM = [
     label: "User",
     value: "USER",
   },
-  {
-    label: "Admin",
-    value: "ADMIN",
-  },
 ];
 
 export const RECORD_TYPE_ENUMS = [

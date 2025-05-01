@@ -34,12 +34,9 @@ export async function POST(req: Request) {
       });
     }
 
-    // Check quota: 若是管理员则不检查，否则检查
+    // Check quota: 所有用户都需要检查配额
     const { total } = await getUserRecordCount(user.id);
-    if (
-      user.role !== "ADMIN" &&
-      total >= TeamPlanQuota[user.team].RC_NewRecords
-    ) {
+    if (total >= TeamPlanQuota[user.team].RC_NewRecords) {
       return Response.json({ message: "Your records have reached the free limit." }, {
         status: 403,
       });
