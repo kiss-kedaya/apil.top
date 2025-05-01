@@ -14,6 +14,12 @@ import { getCurrentUser } from "@/lib/session";
 import { z } from "zod";
 import { NextResponse } from "next/server";
 import { auth } from "auth";
+import { Vercel } from '@vercel/sdk';
+
+const vercel = new Vercel({
+  bearerToken: process.env.VERCEL_TOKEN!,
+});
+const projectName = process.env.VERCEL_PROJECT_NAME!;
 
 // 获取用户自定义域名列表
 export async function GET(req: Request) {
@@ -80,7 +86,36 @@ export async function POST(req: Request) {
       return Response.json(result, { status: 400 });
     }
 
-    return Response.json(result);
+    // === Vercel自动绑定域名 ===
+    try {
+      const addDomainResponse = await vercel.projects.addProjectDomain({
+        idOrName: projectName,
+        requestBody: {
+          name: data.domain, // 假设data.domain为用户输入的域名
+        },
+      });
+      const checkConfiguration = await vercel.domains.getDomainConfig({
+        domain: data.domain,
+      });
+      // console.log('checkConfiguration:', checkConfiguration); // 调试用
+      return Response.json({
+        ...result,
+        vercel: {
+          domain: addDomainResponse.name,
+          verified: addDomainResponse.verified,
+          misconfigured: checkConfiguration.misconfigured,
+          config: checkConfiguration, // 返回全部配置，前端可查看所有字段
+        },
+      });
+    } catch (vercelError: any) {
+      // Vercel绑定失败也返回业务成功，但带上错误信息
+      return Response.json({
+        ...result,
+        vercel: {
+          error: vercelError instanceof Error ? vercelError.message : String(vercelError),
+        },
+      });
+    }
   } catch (error) {
     console.error("创建自定义域名错误:", error);
     return Response.json(
