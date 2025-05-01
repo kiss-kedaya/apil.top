@@ -62,6 +62,28 @@ export default function DevLogsPage() {
   const [level, setLevel] = useState<string>("all");
   const [selectedLog, setSelectedLog] = useState<Log | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [devToken, setDevToken] = useState<string>("");
+  const [showDevOptions, setShowDevOptions] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string>("");
+
+  // 检测是否为开发环境并获取当前用户ID
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      setShowDevOptions(true);
+      
+      // 获取当前用户ID
+      fetch("/api/auth/session")
+        .then(res => res.json())
+        .then(data => {
+          if (data.user?.id) {
+            setCurrentUserId(data.user.id);
+          }
+        })
+        .catch(err => {
+          console.error("获取用户信息失败:", err);
+        });
+    }
+  }, []);
 
   // 获取日志
   const fetchLogs = async () => {
@@ -80,7 +102,16 @@ export default function DevLogsPage() {
         url.searchParams.append("level", level);
       }
 
-      const response = await fetch(url.toString());
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+      
+      // 如果有开发者令牌，添加到请求头
+      if (devToken) {
+        headers["x-dev-token"] = devToken;
+      }
+
+      const response = await fetch(url.toString(), { headers });
       if (response.status === 403) {
         throw new Error("无权限访问开发日志，请确认您拥有管理员权限");
       }
@@ -112,11 +143,19 @@ export default function DevLogsPage() {
 
     try {
       setLoading(true);
+      
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+      
+      // 如果有开发者令牌，添加到请求头
+      if (devToken) {
+        headers["x-dev-token"] = devToken;
+      }
+      
       const response = await fetch("/api/dev-logs", {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify({ all }),
       });
 
@@ -221,6 +260,48 @@ export default function DevLogsPage() {
             </Button>
           </div>
         </div>
+
+        {showDevOptions && (
+          <div className="mb-4 rounded-md border border-yellow-300 bg-yellow-50 p-3 dark:bg-yellow-900/20">
+            <h3 className="mb-2 font-medium">开发模式</h3>
+            <div className="flex gap-2">
+              <Input
+                placeholder="开发者令牌"
+                value={devToken}
+                onChange={(e) => setDevToken(e.target.value)}
+                className="max-w-xs"
+              />
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  setDevToken("dev-admin-access");
+                  setTimeout(() => fetchLogs(), 100);
+                }}
+              >
+                使用开发令牌
+              </Button>
+            </div>
+            {currentUserId && (
+              <div className="mt-2">
+                <p className="text-xs text-gray-500">
+                  当前用户ID: <code className="rounded bg-gray-100 px-1 py-0.5 dark:bg-gray-800">{currentUserId}</code>
+                </p>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="mt-1"
+                  onClick={() => window.location.href = "/dashboard/admin"}
+                >
+                  前往管理员设置
+                </Button>
+              </div>
+            )}
+            <p className="mt-1 text-xs text-gray-500">
+              在开发环境中，可以使用特殊令牌绕过管理员权限检查。
+            </p>
+          </div>
+        )}
 
         <form onSubmit={handleSearch} className="flex gap-2">
           <Input
