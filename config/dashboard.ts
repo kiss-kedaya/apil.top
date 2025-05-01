@@ -73,6 +73,12 @@ export const sidebarLinks: SidebarNavItem[] = [
         title: "记录",
         authorizeOnly: UserRole.ADMIN,
       },
+      {
+        href: "/admin/dev-logs",
+        icon: "fileText",
+        title: "开发日志",
+        authorizeOnly: UserRole.ADMIN,
+      },
     ],
   },
   {
