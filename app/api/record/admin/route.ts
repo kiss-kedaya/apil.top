@@ -23,7 +23,7 @@ export async function GET(req: Request) {
       1,
       Number(page || "1"),
       Number(size || "10"),
-      "ADMIN",
+      "USER",
     );
 
     return Response.json(data);
