@@ -267,3 +267,17 @@ model UserCustomDomain {
   @@index([userId, createdAt])
   @@map(name: "user_custom_domains")
 }
+
+// 开发日志模型
+model DevLog {
+  id        String   @id @default(uuid())
+  level     String   // 'info' | 'error' | 'warn'
+  message   String   @db.Text
+  details   String?  @db.Text
+  caller    String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([level])
+  @@index([createdAt(sort: Desc)])
+  @@map("dev_logs")
+}

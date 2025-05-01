@@ -3,6 +3,7 @@ import { promisify } from "util";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db";
+import { logError, logInfo } from "@/lib/utils/log-to-db";
 
 // 新增自定义域名验证
 export const createCustomDomainSchema = z.object({
@@ -76,7 +77,7 @@ export async function createUserCustomDomain(userId: string, data: any) {
         await prisma.$queryRaw`SELECT 1 FROM user_custom_domains LIMIT 1`;
     } catch (error) {
       // 如果表不存在，需要执行迁移
-      console.error("自定义域名表可能不存在，请确保已运行迁移:", error);
+      logError("自定义域名表可能不存在，请确保已运行迁移", error);
       return { status: "error", message: "系统配置错误，请联系管理员", details: error?.message || String(error) };
     }
 
@@ -121,7 +122,7 @@ export async function createUserCustomDomain(userId: string, data: any) {
 
     return { status: "success", data: Array.isArray(res) ? res[0] : res };
   } catch (error) {
-    console.error("创建自定义域名错误:", error);
+    logError("创建自定义域名错误", error);
     return { status: "error", message: "创建自定义域名失败", details: error?.message || String(error), error };
   }
 }
@@ -137,7 +138,7 @@ export async function getUserCustomDomains(userId: string) {
 
     return { status: "success", data: domains };
   } catch (error) {
-    console.error("获取自定义域名列表错误:", error);
+    logError("获取自定义域名列表错误", error);
     return { status: "error", message: "获取自定义域名列表失败" };
   }
 }
@@ -153,7 +154,7 @@ export async function getVerifiedUserCustomDomains(userId: string) {
 
     return { status: "success", data: domains };
   } catch (error) {
-    console.error("获取已验证自定义域名列表错误:", error);
+    logError("获取已验证自定义域名列表错误", error);
     return { status: "error", message: "获取已验证自定义域名列表失败" };
   }
 }
@@ -172,7 +173,7 @@ export async function getUserCustomDomainById(userId: string, id: string) {
       data: Array.isArray(domain) && domain.length > 0 ? domain[0] : null,
     };
   } catch (error) {
-    console.error("获取自定义域名详情错误:", error);
+    logError("获取自定义域名详情错误", error);
     return { status: "error", message: "获取自定义域名详情失败" };
   }
 }
@@ -187,7 +188,7 @@ export async function deleteUserCustomDomain(userId: string, id: string) {
 
     return { status: "success" };
   } catch (error) {
-    console.error("删除自定义域名错误:", error);
+    logError("删除自定义域名错误", error);
     return { status: "error", message: "删除自定义域名失败" };
   }
 }
@@ -233,7 +234,7 @@ export async function updateUserCustomDomain(userId: string, data: any) {
       data: Array.isArray(result) && result.length > 0 ? result[0] : null,
     };
   } catch (error) {
-    console.error("更新自定义域名错误:", error);
+    logError("更新自定义域名错误", error);
     return { status: "error", message: "更新自定义域名失败" };
   }
 }
@@ -244,22 +245,22 @@ export async function verifyUserCustomDomain(
   id: string,
 ): Promise<ApiResponse<any>> {
   try {
-    console.log(`开始验证用户域名: userId=${userId}, domainId=${id}`);
+    logInfo(`开始验证用户域名: userId=${userId}, domainId=${id}`);
 
     const domainResult = await getUserCustomDomainById(userId, id);
     if (domainResult.status === "error" || !domainResult.data) {
-      console.error(`域名不存在: userId=${userId}, domainId=${id}`);
+      logError(`域名不存在: userId=${userId}, domainId=${id}`);
       return { status: "error", message: "域名不存在" };
     }
 
     const domain = domainResult.data;
-    console.log(
-      `获取到域名信息: ${domain.domainName}, verificationKey=${domain.verificationKey}`,
+    logInfo(
+      `获取到域名信息: ${domain.domainName}, verificationKey=${domain.verificationKey}`
     );
 
     // 验证域名TXT记录
     const verificationResult = await verifyDomainDNS(domain);
-    console.log(`验证结果:`, verificationResult);
+    logInfo(`验证结果:`, verificationResult);
 
     if (!verificationResult.success) {
       return {
@@ -270,7 +271,7 @@ export async function verifyUserCustomDomain(
     }
 
     // 验证通过，更新域名状态
-    console.log(`验证通过，更新域名状态为已验证`);
+    logInfo(`验证通过，更新域名状态为已验证`);
     const result = await prisma.$queryRaw`
       UPDATE user_custom_domains
       SET 
@@ -285,7 +286,7 @@ export async function verifyUserCustomDomain(
       data: Array.isArray(result) && result.length > 0 ? result[0] : null,
     };
   } catch (error) {
-    console.error("验证自定义域名错误:", error);
+    logError("验证自定义域名错误", error);
     return { status: "error", message: "验证域名过程中发生错误" };
   }
 }
@@ -295,18 +296,18 @@ async function verifyDomainDNS(domain: any): Promise<DomainVerificationResult> {
   try {
     // 构建需要验证的TXT记录名称
     const txtRecordName = `_kedaya.${domain.domainName}`;
-    console.log(`验证DNS TXT记录: ${txtRecordName}`);
+    logInfo(`验证DNS TXT记录: ${txtRecordName}`);
 
     // 使用Node.js内置dns模块查询TXT记录
     const resolveTxt = promisify(dns.resolveTxt);
 
     try {
       const txtRecords = await resolveTxt(txtRecordName);
-      console.log(`DNS查询响应:`, txtRecords);
+      logInfo(`DNS查询响应:`, txtRecords);
 
       // 检查是否有TXT记录
       if (!txtRecords || txtRecords.length === 0) {
-        console.error(`未找到TXT记录: ${txtRecordName}`);
+        logError(`未找到TXT记录: ${txtRecordName}`);
         return {
           success: false,
           message: `未找到验证TXT记录，请确保您已添加TXT记录：【主机记录: _kedaya，记录值: ${domain.verificationKey}】`,
@@ -320,7 +321,7 @@ async function verifyDomainDNS(domain: any): Promise<DomainVerificationResult> {
       }
 
       // 检查TXT记录值是否匹配验证密钥
-      console.log(`检查TXT记录值是否匹配验证密钥: ${domain.verificationKey}`);
+      logInfo(`检查TXT记录值是否匹配验证密钥: ${domain.verificationKey}`);
       let foundValidKey = false;
       const recordValues: string[] = [];
 
@@ -330,19 +331,19 @@ async function verifyDomainDNS(domain: any): Promise<DomainVerificationResult> {
         const txtValue = txtParts.join("");
         recordValues.push(txtValue);
 
-        console.log(
-          `- 比较 DNS值="${txtValue}" 与 验证密钥="${domain.verificationKey}"`,
+        logInfo(
+          `- 比较 DNS值="${txtValue}" 与 验证密钥="${domain.verificationKey}"`
         );
 
         if (txtValue === domain.verificationKey) {
           foundValidKey = true;
-          console.log(`找到匹配的验证密钥!`);
+          logInfo(`找到匹配的验证密钥!`);
           break;
         }
       }
 
       if (!foundValidKey) {
-        console.error(`TXT记录验证失败，找不到匹配的验证密钥`);
+        logError(`TXT记录验证失败，找不到匹配的验证密钥`);
         return {
           success: false,
           message:
@@ -355,11 +356,11 @@ async function verifyDomainDNS(domain: any): Promise<DomainVerificationResult> {
         };
       }
 
-      console.log(`域名验证成功!`);
+      logInfo(`域名验证成功!`);
       return { success: true };
     } catch (dnsError: any) {
       // DNS查询错误处理
-      console.error(`DNS查询错误:`, dnsError);
+      logError(`DNS查询错误:`, dnsError);
       // ENOTFOUND表示域名不存在，ENODATA表示没有对应类型的记录
       if (dnsError.code === "ENOTFOUND" || dnsError.code === "ENODATA") {
         return {
@@ -385,7 +386,7 @@ async function verifyDomainDNS(domain: any): Promise<DomainVerificationResult> {
       };
     }
   } catch (error) {
-    console.error("域名DNS验证错误:", error);
+    logError("域名DNS验证错误", error);
     return {
       success: false,
       message: "验证过程中发生错误，请稍后重试",
@@ -434,7 +435,7 @@ export async function configureEmailService(
       data: Array.isArray(result) && result.length > 0 ? result[0] : null,
     };
   } catch (error) {
-    console.error("配置邮箱服务错误:", error);
+    logError("配置邮箱服务错误", error);
     return { status: "error", message: "配置邮箱服务失败" };
   }
 }
@@ -491,7 +492,7 @@ export async function verifyEmailConfiguration(
       };
     }
   } catch (error) {
-    console.error("验证邮箱配置错误:", error);
+    logError("验证邮箱配置错误", error);
     return { status: "error", message: "验证邮箱配置过程中发生错误" };
   }
 }
@@ -505,7 +506,7 @@ async function testEmailConfiguration(
     // 使用node-mailer或其他邮件库发送测试邮件
 
     // 模拟测试过程
-    console.log(`测试邮箱配置: ${domain.smtpServer}:${domain.smtpPort}`);
+    logInfo(`测试邮箱配置: ${domain.smtpServer}:${domain.smtpPort}`);
 
     // TODO: 实现实际的邮件发送测试
     // 以下是一个模拟，实际实现需要使用正确的邮件库
@@ -539,7 +540,7 @@ async function testEmailConfiguration(
     // 模拟成功
     return { success: true };
   } catch (error) {
-    console.error("测试邮箱配置错误:", error);
+    logError("测试邮箱配置错误", error);
     return {
       success: false,
       message: `邮箱测试失败: ${error.message || "未知错误"}`,
@@ -612,7 +613,7 @@ export async function verifyEmailDNSRecords(
       },
     };
   } catch (error) {
-    console.error("验证邮箱DNS记录错误:", error);
+    logError("验证邮箱DNS记录错误", error);
     return { status: "error", message: "验证邮箱DNS记录过程中发生错误" };
   }
 }
@@ -867,7 +868,7 @@ export async function getEmailServiceStatus(
       },
     };
   } catch (error) {
-    console.error("获取邮箱服务状态错误:", error);
+    logError("获取邮箱服务状态错误", error);
     return { status: "error", message: "获取邮箱服务状态失败" };
   }
 }
