@@ -121,7 +121,7 @@ export function DomainForm({
           "Content-Type": "application/json",
         },
         body: JSON.stringify(
-          initData ? { ...values, id: initData.id } : values
+          initData ? { ...values, id: initData.id } : { domain: values.domainName }
         ),
       });
 
@@ -145,11 +145,18 @@ export function DomainForm({
           form.reset();
         }
       } else {
+        console.error("域名操作失败:", data);
         toast.error(data.message || "操作失败");
+        if (data.details) {
+          toast.error(`详细原因: ${data.details}`);
+        }
       }
     } catch (error) {
       console.error("提交表单出错:", error);
       toast.error("提交表单出错");
+      if (error instanceof Error) {
+        toast.error(`错误详情: ${error.message}`);
+      }
     } finally {
       setIsSubmitting(false);
     }

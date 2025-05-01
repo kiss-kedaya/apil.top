@@ -21,6 +21,8 @@ export const env = createEnv({
     CLOUDFLARE_EMAIL: z.string().min(1),
     SCREENSHOTONE_BASE_URL: z.string().optional(),
     GITHUB_TOKEN: z.string().optional(),
+    VERCEL_TOKEN: z.string().optional(),
+    VERCEL_PROJECT_NAME: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().min(1),
@@ -53,5 +55,7 @@ export const env = createEnv({
     GITHUB_TOKEN: process.env.GITHUB_TOKEN,
     LinuxDo_CLIENT_ID: process.env.LinuxDo_CLIENT_ID,
     LinuxDo_CLIENT_SECRET: process.env.LinuxDo_CLIENT_SECRET,
+    VERCEL_TOKEN: process.env.VERCEL_TOKEN,
+    VERCEL_PROJECT_NAME: process.env.VERCEL_PROJECT_NAME,
   },
 });

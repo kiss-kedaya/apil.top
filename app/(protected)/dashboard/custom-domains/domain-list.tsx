@@ -46,6 +46,14 @@ export interface UserCustomDomainData {
   updatedAt: string;
   created_at?: string;
   updated_at?: string;
+  // Vercel相关字段
+  vercel?: {
+    domain?: string;
+    verified?: boolean;
+    misconfigured?: boolean;
+    error?: string;
+    config?: any;
+  };
 }
 
 export interface CustomDomainListProps {
