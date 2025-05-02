@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
 import { errorResponse, successResponse } from "@/lib/api-response";
+import { env } from "@/env.mjs";
 
 // 自定义域名邮件请求验证模式
 const customDomainEmailSchema = z.object({
@@ -18,6 +19,8 @@ const customDomainEmailSchema = z.object({
   cc: z.string().optional(),
   headers: z.string().optional(),
   attachments: z.string().optional(),
+  // 添加webhook认证密钥
+  webhookKey: z.string().optional(),
 });
 
 /**
@@ -32,6 +35,13 @@ export async function POST(request: NextRequest) {
     if (!validationResult.success) {
       logger.error("邮件请求数据验证失败", validationResult.error);
       return errorResponse(validationResult.error.message, 400);
+    }
+    
+    // 验证webhook密钥（如果配置了）
+    const webhookKey = env.EMAIL_WEBHOOK_KEY;
+    if (webhookKey && body.webhookKey !== webhookKey) {
+      logger.error("邮件webhook密钥验证失败");
+      return errorResponse("未授权的请求", 401);
     }
     
     const emailData = validationResult.data;
@@ -49,8 +59,7 @@ export async function POST(request: NextRequest) {
       where: {
         domainName: domainPart,
         isVerified: true,
-        enableEmail: true,
-        emailVerified: true
+        enableEmail: true
       },
       include: {
         user: {
@@ -81,43 +90,66 @@ export async function POST(request: NextRequest) {
     });
     
     if (!userEmail) {
-      // 如果用户邮箱不存在，检查是否应该创建新邮箱或忽略
-      const localPart = to.split('@')[0];
-      
-      // 检查是否应该自动创建邮箱（可根据实际需求修改逻辑）
-      const shouldCreateEmail = localPart.length >= 5;
-      
-      if (shouldCreateEmail) {
-        // 创建新的用户邮箱
-        try {
-          const newUserEmail = await prisma.userEmail.create({
-            data: {
-              userId: customDomain.userId,
-              emailAddress: to
-            }
-          });
-          
-          logger.info(`自动创建新邮箱: ${to}`, {
-            userId: customDomain.userId,
-            emailId: newUserEmail.id
-          });
-          
-          // 继续处理邮件，使用新创建的邮箱
-          await saveForwardEmail(newUserEmail.id, emailData);
-        } catch (error) {
-          logger.error(`创建邮箱失败: ${to}`, { error });
-          return errorResponse("创建邮箱失败", 500);
+      // 如果用户邮箱不存在，自动创建
+      try {
+        const localPart = to.split('@')[0];
+        
+        // 过滤非法字符和长度检查
+        if (localPart.length < 3 || /[^a-zA-Z0-9._-]/.test(localPart)) {
+          logger.warn(`邮箱地址格式不合规范: ${to}`);
+          return errorResponse("邮箱地址格式不合规范", 400);
         }
-      } else {
-        logger.warn(`邮箱不存在且无法自动创建: ${to}`);
-        return errorResponse("邮箱不存在", 404);
+        
+        // 创建新的用户邮箱
+        const newUserEmail = await prisma.userEmail.create({
+          data: {
+            userId: customDomain.userId,
+            emailAddress: to
+          }
+        });
+        
+        logger.info(`自动创建新邮箱: ${to}`, {
+          userId: customDomain.userId,
+          emailId: newUserEmail.id
+        });
+        
+        // 使用新创建的邮箱保存邮件
+        const savedEmail = await saveForwardEmail(to, emailData);
+        
+        // 如果有配置转发，执行转发
+        if (customDomain.user?.email) {
+          await forwardToUserEmail(emailData, customDomain.user.email);
+        }
+        
+        return successResponse({
+          success: true,
+          emailId: savedEmail.id,
+          message: "邮件接收成功，已自动创建邮箱"
+        });
+      } catch (error) {
+        logger.error(`处理新邮箱失败: ${to}`, { error });
+        return errorResponse("处理邮件失败", 500);
       }
     } else {
-      // 使用现有邮箱处理邮件
-      await saveForwardEmail(userEmail.id, emailData);
+      // 使用现有邮箱保存邮件
+      try {
+        const savedEmail = await saveForwardEmail(to, emailData);
+        
+        // 如果有配置转发，执行转发
+        if (customDomain.user?.email) {
+          await forwardToUserEmail(emailData, customDomain.user.email);
+        }
+        
+        return successResponse({
+          success: true,
+          emailId: savedEmail.id,
+          message: "邮件接收成功"
+        });
+      } catch (error) {
+        logger.error(`保存邮件失败: ${to}`, { error });
+        return errorResponse("保存邮件失败", 500);
+      }
     }
-    
-    return successResponse({ success: true }, "邮件接收成功");
   } catch (error) {
     logger.error("处理自定义域名邮件失败", { error });
     return errorResponse("处理邮件失败", 500);
@@ -126,16 +158,16 @@ export async function POST(request: NextRequest) {
 
 /**
  * 保存转发的邮件
- * @param emailId 邮箱ID
+ * @param to 收件人邮箱
  * @param emailData 邮件数据
  */
-async function saveForwardEmail(emailId: string, emailData: any) {
+async function saveForwardEmail(to: string, emailData: any) {
   try {
     const forwardEmail = await prisma.forwardEmail.create({
       data: {
         from: emailData.from,
         fromName: emailData.fromName || "",
-        to: emailData.to,
+        to: to,
         subject: emailData.subject || "No Subject",
         text: emailData.text || "",
         html: emailData.html || "",
@@ -148,7 +180,7 @@ async function saveForwardEmail(emailId: string, emailData: any) {
       }
     });
     
-    logger.info(`邮件保存成功: ${emailData.from} -> ${emailData.to}`, {
+    logger.info(`邮件保存成功: ${emailData.from} -> ${to}`, {
       emailId: forwardEmail.id,
       subject: emailData.subject
     });
@@ -157,5 +189,40 @@ async function saveForwardEmail(emailId: string, emailData: any) {
   } catch (error) {
     logger.error("保存邮件失败", { error });
     throw error;
+  }
+}
+
+/**
+ * 转发邮件到用户主邮箱
+ * @param emailData 邮件数据
+ * @param userEmail 用户主邮箱
+ */
+async function forwardToUserEmail(emailData: any, userEmail: string): Promise<void> {
+  // 这里使用您的邮件发送服务（如使用nodemailer等）
+  // 实际代码取决于您使用的邮件发送服务
+  
+  try {
+    // 示例：记录转发请求
+    logger.info(`邮件转发请求: 转发到 ${userEmail}`, {
+      from: emailData.from,
+      to: emailData.to,
+      subject: emailData.subject
+    });
+    
+    // TODO: 实现实际的邮件转发逻辑
+    // 例如:
+    // const transporter = nodemailer.createTransport({...});
+    // await transporter.sendMail({
+    //   from: `"转发服务" <forward@example.com>`,
+    //   to: userEmail,
+    //   subject: `[转发] ${emailData.subject || 'No Subject'}`,
+    //   text: emailData.text || '',
+    //   html: emailData.html || '',
+    //   attachments: JSON.parse(emailData.attachments || '[]')
+    // });
+    
+  } catch (error) {
+    logger.error(`邮件转发失败: 转发到 ${userEmail}`, { error });
+    // 不抛出异常，避免影响主流程
   }
 } 

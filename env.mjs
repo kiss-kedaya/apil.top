@@ -58,4 +58,10 @@ export const env = createEnv({
     VERCEL_TOKEN: process.env.VERCEL_TOKEN,
     VERCEL_PROJECT_NAME: process.env.VERCEL_PROJECT_NAME,
   },
+  // 服务器地址和邮件服务配置
+  SERVER_IP: z.string().min(1, "SERVER_IP必须填写").optional(),
+  MAIL_SERVER: z.string().min(1, "MAIL_SERVER必须填写").optional().default("mail.apil.top"),
+  EMAIL_WEBHOOK_KEY: z.string().optional(),
+  DEFAULT_SMTP_SERVER: z.string().optional().default("smtp.apil.top"),
+  DEFAULT_SMTP_PORT: z.string().optional().default("587"),
 });

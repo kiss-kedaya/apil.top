@@ -13,6 +13,20 @@ const domainVerificationSchema = z.object({
   domainId: z.string().min(1, '域名ID不能为空'),
 });
 
+// 邮箱状态类型定义
+interface EmailStatus {
+  verified: boolean;
+  mx: boolean;
+  spf: boolean;
+  issues: string[];
+  dnsRecords: Array<{
+    type: string;
+    name: string;
+    value: string;
+    status: string;
+  }>;
+}
+
 /**
  * 检查域名验证状态API
  */
@@ -58,32 +72,76 @@ export async function POST(request: NextRequest) {
           return errorResponse(updateResult.message || "更新域名验证状态失败");
         }
         
-        // 检查邮箱配置
+        // 如果已启用邮箱服务，检查邮箱配置
+        let emailStatus: EmailStatus | undefined = undefined;
         if (domain.enableEmail) {
+          // 检查邮箱配置 - 简化版本
           const emailConfig = await DomainService.verifyEmailConfiguration(domain.domainName);
           
-          if (emailConfig.success) {
-            // 更新邮箱配置状态
-            await DomainService.updateEmailService(domainId, true, true);
-          } else {
-            // 邮箱配置验证失败，但域名验证成功
-            await DomainService.updateEmailService(domainId, true, false);
-          }
+          // 更新邮箱验证状态
+          await DomainService.updateEmailService(domainId, true, emailConfig.success);
           
-          return successResponse({
-            isVerified: true,
-            emailVerified: emailConfig.success,
-            emailStatus: emailConfig
-          }, "域名验证成功，已更新邮箱配置状态");
+          // 准备邮箱状态信息
+          emailStatus = {
+            verified: emailConfig.success,
+            mx: emailConfig.mx,
+            spf: emailConfig.spf,
+            issues: emailConfig.issues,
+            dnsRecords: [
+              {
+                type: "MX",
+                name: domain.domainName,
+                value: "10 mail.apil.top",
+                status: emailConfig.mx ? "正常" : "未配置"
+              },
+              {
+                type: "TXT (SPF)",
+                name: domain.domainName,
+                value: `v=spf1 include:apil.top ~all`,
+                status: emailConfig.spf ? "正常" : "未配置"
+              }
+            ]
+          };
         }
         
-        return successResponse({ isVerified: true }, "域名验证成功");
+        return successResponse({
+          isVerified: true,
+          domain: {
+            id: domain.id,
+            domainName: domain.domainName,
+            isVerified: true,
+            enableEmail: domain.enableEmail,
+            emailVerified: domain.enableEmail && emailStatus ? emailStatus.verified : false
+          },
+          emailStatus
+        }, domain.enableEmail && emailStatus
+          ? (emailStatus.verified 
+              ? "域名验证成功，邮箱服务已验证" 
+              : "域名验证成功，但邮箱服务未验证完成")
+          : "域名验证成功");
       } catch (error) {
         logger.error("更新域名验证状态失败", error);
         return errorResponse("域名验证成功，但更新数据库失败");
       }
     } else {
-      return successResponse({ isVerified: false }, "域名验证失败，请检查DNS配置");
+      // 域名未验证，提供更详细的指导
+      return successResponse({ 
+        isVerified: false,
+        verificationGuide: {
+          // 验证域名所有权的TXT记录
+          record: {
+            type: "TXT",
+            name: domain.domainName,
+            value: `verify=${domain.verificationKey}`,
+            explanation: "用于验证您对域名的所有权"
+          },
+          tips: [
+            "确保TXT记录已正确添加",
+            "DNS记录生效可能需要5分钟到48小时",
+            "验证前确认DNS解析已生效"
+          ]
+        }
+      }, "域名验证失败，请检查DNS配置");
     }
   } catch (error) {
     logger.error("检查域名验证状态失败", error);

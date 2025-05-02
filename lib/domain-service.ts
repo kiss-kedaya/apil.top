@@ -2,6 +2,8 @@ import dns from 'dns';
 import { promisify } from 'util';
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
+import { siteConfig } from "@/config/site";
+import { env } from "@/env.mjs";
 
 // DNS 查询Promise化
 const resolveTxt = promisify(dns.resolveTxt);
@@ -39,39 +41,43 @@ export class DomainService {
   }
 
   /**
-   * 验证域名的邮箱配置
+   * 验证域名的邮箱配置 - 简化版本，只检查基本MX和SPF记录
    * @param domainName 域名名称
    */
   public static async verifyEmailConfiguration(domainName: string): Promise<{
     success: boolean;
     mx: boolean;
     spf: boolean;
-    dkim: boolean;
-    dmarc: boolean;
     issues: string[];
   }> {
     try {
       const issues: string[] = [];
+      const mailServer = env.MAIL_SERVER || "mail.apil.top";
       
       // 验证MX记录
       let mxValid = false;
       try {
         const mxRecords = await resolveMx(domainName);
-        mxValid = mxRecords.length > 0;
+        // 只要有MX记录指向我们的邮件服务器即可
+        mxValid = mxRecords.some(record => 
+          record.exchange && record.exchange.includes(mailServer)
+        );
+        
         if (!mxValid) {
-          issues.push('未找到MX记录');
+          issues.push(`未找到指向 ${mailServer} 的MX记录`);
         }
       } catch (error) {
         issues.push('MX记录查询失败');
       }
       
-      // 验证SPF记录
+      // 验证SPF记录 - 只要有SPF记录包含我们的域名即可
       let spfValid = false;
       try {
         const txtRecords = await resolveTxt(domainName);
         for (const recordSet of txtRecords) {
           for (const record of recordSet) {
-            if (record.startsWith('v=spf1')) {
+            if (record.startsWith('v=spf1') && 
+                record.includes(siteConfig.mainDomains[0])) {
               spfValid = true;
               break;
             }
@@ -79,53 +85,19 @@ export class DomainService {
           if (spfValid) break;
         }
         if (!spfValid) {
-          issues.push('未找到SPF记录');
+          issues.push(`未找到包含 ${siteConfig.mainDomains[0]} 的SPF记录`);
         }
       } catch (error) {
         issues.push('SPF记录查询失败');
       }
       
-      // 验证DKIM记录
-      let dkimValid = false;
-      try {
-        const dkimSelector = 'mail._domainkey';
-        const dkimRecords = await resolveTxt(`${dkimSelector}.${domainName}`);
-        dkimValid = dkimRecords.length > 0;
-        if (!dkimValid) {
-          issues.push('未找到DKIM记录');
-        }
-      } catch (error) {
-        issues.push('DKIM记录查询失败');
-      }
-      
-      // 验证DMARC记录
-      let dmarcValid = false;
-      try {
-        const dmarcRecords = await resolveTxt(`_dmarc.${domainName}`);
-        for (const recordSet of dmarcRecords) {
-          for (const record of recordSet) {
-            if (record.startsWith('v=DMARC1')) {
-              dmarcValid = true;
-              break;
-            }
-          }
-          if (dmarcValid) break;
-        }
-        if (!dmarcValid) {
-          issues.push('未找到DMARC记录');
-        }
-      } catch (error) {
-        issues.push('DMARC记录查询失败');
-      }
-      
-      const success = mxValid && spfValid && dkimValid && dmarcValid;
+      // 简化后只检查MX和SPF
+      const success = mxValid && spfValid;
       
       return {
         success,
         mx: mxValid,
         spf: spfValid,
-        dkim: dkimValid,
-        dmarc: dmarcValid,
         issues
       };
     } catch (error) {
@@ -134,8 +106,6 @@ export class DomainService {
         success: false,
         mx: false,
         spf: false,
-        dkim: false,
-        dmarc: false,
         issues: ['邮箱配置验证过程中发生错误']
       };
     }
@@ -179,28 +149,95 @@ export class DomainService {
   }
 
   /**
-   * 配置域名的SMTP服务
+   * 启用邮箱服务 - 简化版，自动配置默认设置
    * @param domainId 域名ID
-   * @param smtpConfig SMTP配置信息
    */
-  public static async configureSmtp(
-    domainId: string,
-    smtpConfig: {
-      smtpServer: string;
-      smtpPort: number;
-      smtpUsername: string;
-      smtpPassword: string;
-      fromEmail: string;
-    }
-  ): Promise<void> {
+  public static async enableEmailService(domainId: string): Promise<void> {
     try {
+      // 获取域名信息
+      const domain = await prisma.userCustomDomain.findUnique({
+        where: { id: domainId }
+      });
+      
+      if (!domain) {
+        throw new Error('域名不存在');
+      }
+      
+      // 启用邮箱服务，设置基本配置
       await prisma.userCustomDomain.update({
         where: { id: domainId },
-        data: smtpConfig
+        data: { 
+          enableEmail: true,
+          // 先标记为未验证，等验证通过后再更新
+          emailVerified: false,
+          // 默认SMTP配置
+          smtpServer: env.DEFAULT_SMTP_SERVER || 'smtp.apil.top',
+          smtpPort: env.DEFAULT_SMTP_PORT ? parseInt(env.DEFAULT_SMTP_PORT) : 587,
+          smtpUsername: `${domain.userId}@${domain.domainName}`,
+          smtpPassword: this.generateRandomPassword(),
+          fromEmail: `noreply@${domain.domainName}`
+        }
+      });
+      
+      // 创建默认邮箱地址
+      await this.createDefaultEmailAddress(domain.userId, domain.domainName);
+      
+      logger.info(`已启用域名邮箱服务: ${domain.domainName}`, {
+        userId: domain.userId,
+        domainId: domain.id
       });
     } catch (error) {
-      logger.error(`配置域名SMTP服务失败: ${domainId}`, { error });
-      throw new Error('配置域名SMTP服务失败');
+      logger.error(`启用邮箱服务失败: ${domainId}`, { error });
+      throw new Error('启用邮箱服务失败');
+    }
+  }
+  
+  /**
+   * 生成随机密码
+   * @private
+   */
+  private static generateRandomPassword(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+    let result = '';
+    for (let i = 0; i < 16; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+  
+  /**
+   * 创建默认邮箱地址
+   * @param userId 用户ID
+   * @param domainName 域名
+   * @private
+   */
+  private static async createDefaultEmailAddress(userId: string, domainName: string): Promise<void> {
+    try {
+      // 创建默认邮箱地址
+      const defaultAddresses = ['admin', 'info', 'contact', 'support'];
+      
+      for (const prefix of defaultAddresses) {
+        const emailAddress = `${prefix}@${domainName}`;
+        
+        // 检查邮箱是否已存在
+        const existingEmail = await prisma.userEmail.findUnique({
+          where: { emailAddress }
+        });
+        
+        if (!existingEmail) {
+          await prisma.userEmail.create({
+            data: {
+              userId,
+              emailAddress
+            }
+          });
+          
+          logger.info(`创建默认邮箱: ${emailAddress}`, { userId });
+        }
+      }
+    } catch (error) {
+      logger.error(`创建默认邮箱失败`, { error });
+      // 不抛出异常，避免中断主流程
     }
   }
 
