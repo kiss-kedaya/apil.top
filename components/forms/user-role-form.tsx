@@ -122,11 +122,6 @@ export function UserRoleForm({ user }: UserNameFormProps) {
               )}
             </Button>
           </div>
-          <div className="flex flex-col justify-between p-1">
-            <p className="text-[13px] text-muted-foreground">
-              在实际生产环境中删除此字段
-            </p>
-          </div>
         </SectionColumns>
       </form>
     </Form>
