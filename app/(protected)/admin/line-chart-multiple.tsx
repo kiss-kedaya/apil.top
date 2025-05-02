@@ -71,7 +71,8 @@ export function LineChartMultiple({
     <Card>
       <CardHeader>
         <CardDescription>
-          {type1}{type2 && ` 和 ${type2}`}的请求总数。
+          {type1}
+          {type2 && ` 和 ${type2}`}的请求总数。
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -131,7 +132,23 @@ export function LineChartMultiple({
                 }
               }}
             />
-            <YAxis width={20} axisLine={false} tickLine={false} />
+            <YAxis
+              width={20}
+              axisLine={false}
+              tickLine={false}
+              label={{
+                value: "请求数",
+                angle: -90,
+                position: "insideLeft",
+                style: {
+                  textAnchor: "middle",
+                  fill: "#737373",
+                  fontSize: 12,
+                  whiteSpace: "nowrap",
+                  userSelect: "none",
+                },
+              }}
+            />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
 
             <Area

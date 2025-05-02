@@ -1,123 +1,94 @@
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "auth";
+import { errorResponse, successResponse } from "@/lib/api-response";
 import { getUserCustomDomainById } from "@/lib/dto/custom-domain";
-import { checkUserStatus } from "@/lib/dto/user";
-import { getCurrentUser } from "@/lib/session";
-import { env } from "@/env.mjs";
 
-// 获取域名验证指南
-export async function GET(req: Request) {
+// 为用户提供域名配置指南
+export async function GET(request: NextRequest) {
   try {
-    const user = checkUserStatus(await getCurrentUser());
-    if (user instanceof Response) return user;
+    const searchParams = request.nextUrl.searchParams;
+    const domainId = searchParams.get("id");
 
-    const url = new URL(req.url);
-    const id = url.searchParams.get("id");
-
-    if (!id) {
-      return Response.json(
-        { status: "error", message: "缺少域名ID" },
-        { status: 400 }
-      );
+    const session = await auth();
+    if (!session?.user?.id) {
+      return errorResponse("未授权访问", 401);
     }
 
-    // 获取域名详情
-    const result = await getUserCustomDomainById(user.id, id);
-    
-    if (result.status === "error") {
-      return Response.json(result, { status: 400 });
+    const userId = session.user.id;
+
+    if (!domainId) {
+      return errorResponse("缺少域名ID参数", 400);
     }
 
-    if (!result.data) {
-      return Response.json(
-        { status: "error", message: "域名不存在" },
-        { status: 404 }
-      );
+    // 获取域名信息
+    const result = await getUserCustomDomainById(userId, domainId);
+    if (result.status !== "success") {
+      return errorResponse(result.message || "获取域名信息失败");
     }
 
     const domain = result.data;
-    
-    // 构建验证指南
+    // 生成验证指南
     const verificationGuide = {
-      verificationMethod: "DNS验证",
-      steps: [
+      // DNS记录配置
+      dnsRecords: [
+        // 验证域名所有权的TXT记录
         {
-          step: 1,
-          title: "登录DNS管理面板",
-          description: "登录到您的域名DNS管理面板（如Cloudflare、GoDaddy、阿里云等）。"
+          type: "TXT",
+          name: domain.domainName,
+          value: `verify=${domain.verificationKey}`,
+          explanation: "用于验证您对域名的所有权"
         },
-        {
-          step: 2,
-          title: "添加TXT记录",
-          description: "在DNS管理页面添加一条TXT记录：",
-          details: {
-            type: "TXT",
-            name: `_kedaya.${domain.domainName}`,
-            value: domain.verificationKey,
-            ttl: "自动或600（10分钟）"
-          }
-        },
-        {
-          step: 3,
-          title: "等待DNS生效",
-          description: "DNS记录可能需要一些时间才能生效，通常在几分钟内，但最长可能需要48小时。"
-        },
-        {
-          step: 4,
-          title: "验证所有权",
-          description: "返回控制台，点击\"验证\"按钮完成域名所有权验证。"
-        }
-      ],
-      additionalSetup: [
-        {
-          title: "验证通过后",
-          description: "验证通过后，您需要将域名指向我们的服务器。请添加以下记录："
-        },
+        // 短链接解析的A记录
         {
           type: "A",
-          name: "@",
-          value: env.SERVER_IP || "请联系管理员获取服务器IP",
-          description: "将您的根域名指向我们的服务器"
-        },
-        {
-          type: "CNAME",
-          name: "www",
-          value: domain.domainName,
-          description: "将www子域指向您的根域名"
+          name: domain.domainName,
+          value: "你的服务器IP地址",
+          explanation: "将您的域名解析到我们的短链接服务"
         }
       ],
-      additionalResources: [
+      // 邮箱配置
+      emailRecords: [
+        // MX记录
         {
-          title: "DNS管理教程",
-          url: "https://support.cloudflare.com/hc/zh-cn/articles/360019093151"
+          type: "MX",
+          name: domain.domainName,
+          value: "10 mx.yourdomain.com",
+          explanation: "用于接收发送到您域名的电子邮件"
         },
+        // SPF记录
         {
-          title: "常见问题解答",
-          url: "/docs/custom-domains#常见问题"
+          type: "TXT",
+          name: domain.domainName,
+          value: "v=spf1 include:_spf.yourdomain.com ~all",
+          explanation: "邮件发送者验证，防止伪造邮件"
+        },
+        // DKIM记录
+        {
+          type: "TXT",
+          name: `mail._domainkey.${domain.domainName}`,
+          value: "v=DKIM1; k=rsa; p=您的DKIM公钥",
+          explanation: "用于邮件签名验证，提高邮件可信度"
+        },
+        // DMARC记录
+        {
+          type: "TXT", 
+          name: `_dmarc.${domain.domainName}`,
+          value: "v=DMARC1; p=none; sp=none; rua=mailto:dmarc@yourdomain.com",
+          explanation: "邮件验证和报告配置"
         }
       ],
-      verificationStatus: {
-        isVerified: domain.isVerified,
-        verificationKey: domain.verificationKey,
-        lastChecked: new Date().toISOString()
-      }
+      // 验证说明
+      verificationSteps: [
+        "登录您的域名注册商或DNS管理面板",
+        "添加上述DNS记录",
+        "等待DNS记录生效（通常需要5分钟到48小时）",
+        "返回我们的网站验证您的域名"
+      ]
     };
-    
-    // 返回验证指南
-    return Response.json({ 
-      status: "success", 
-      data: {
-        id: domain.id,
-        domainName: domain.domainName,
-        isVerified: domain.isVerified,
-        verificationKey: domain.verificationKey,
-        guide: verificationGuide
-      }
-    });
-    
+
+    return successResponse(verificationGuide, "获取域名验证指南成功");
   } catch (error) {
-    console.error("获取域名验证指南错误:", error);
-    return Response.json(
-      { status: "error", message: "获取域名验证指南失败" },
-      { status: 500 }
-    );
+    console.error("获取域名验证指南失败:", error);
+    return errorResponse("获取域名验证指南失败", 500);
   }
 } 
