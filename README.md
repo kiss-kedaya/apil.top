@@ -118,3 +118,36 @@ VERCEL_PROJECT_NAME=您的Vercel项目名称
 ### 获取项目名称
 
 项目名称是Vercel部署URL中的名称部分。例如，如果您的部署URL是`https://my-project-123.vercel.app`，则项目名称为`my-project-123`。
+
+## Custom Domain Configuration
+
+This project supports adding custom domains and automatically binding them to your Vercel project. To enable this feature, add the following to your `.env.local` file:
+
+```
+VERCEL_TOKEN=your_vercel_personal_access_token
+VERCEL_PROJECT_NAME=your_vercel_project_name
+```
+
+### Getting a Vercel Access Token
+
+1. Log in to your Vercel account
+2. Go to https://vercel.com/account/tokens
+3. Click "Create" to create a new token
+4. Set a descriptive name like "Custom Domain Integration"
+5. Select "Full Account" permissions
+6. Click "Create Token" and copy the generated token
+
+### Getting Project Name
+
+The project name is the name part of your Vercel deployment URL. For example, if your deployment URL is `https://my-project-123.vercel.app`, then the project name is `my-project-123`.
+
+### Custom Domain Email Service
+
+The project now features a simplified email service for custom domains:
+
+1. Users only need to add basic DNS records (MX and SPF)
+2. No need to deploy any Cloudflare Workers or complex configurations
+3. Email services are pre-deployed and ready to use
+4. Users can create email addresses with their custom domains immediately after DNS configuration
+
+This simplification makes it much easier for users to benefit from custom domain email services, enhancing the overall user experience.
