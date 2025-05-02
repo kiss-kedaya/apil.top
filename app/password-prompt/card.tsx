@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
@@ -23,6 +23,16 @@ export default function PasswordPrompt() {
   const [isPending, startTransition] = useTransition();
   const inputRefs = useRef<(HTMLInputElement | null)[]>(Array(6).fill(null));
 
+  const handleSubmit = useCallback((e: React.FormEvent) => {
+    startTransition(async () => {
+      e.preventDefault();
+      const fullPassword = password.join("");
+      if (slug && !isPending && fullPassword.length === 6) {
+        router.push(`/s/${slug}?password=${encodeURIComponent(fullPassword)}`);
+      }
+    });
+  }, [password, slug, isPending, router]);
+
   useEffect(() => {
     if (initialPassword) {
       const paddedPassword = initialPassword
@@ -32,7 +42,7 @@ export default function PasswordPrompt() {
       setPassword(paddedPassword);
       handleSubmit(new Event("submit") as any);
     }
-  }, [initialPassword]);
+  }, [initialPassword, handleSubmit]);
 
   const handleChange = (index: number, value: string) => {
     if (value.length > 1) return;
@@ -51,16 +61,6 @@ export default function PasswordPrompt() {
     } else if (e.key === "Enter") {
       handleSubmit(e as any);
     }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    startTransition(async () => {
-      e.preventDefault();
-      const fullPassword = password.join("");
-      if (slug && !isPending && fullPassword.length === 6) {
-        router.push(`/s/${slug}?password=${encodeURIComponent(fullPassword)}`);
-      }
-    });
   };
 
   const toggleVisibility = () => {

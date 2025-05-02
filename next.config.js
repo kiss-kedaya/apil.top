@@ -34,9 +34,6 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ["@prisma/client"],
   },
-  onError(error) {
-    console.error("Next.js config error:", error);
-  },
   async rewrites() {
     return [
       {

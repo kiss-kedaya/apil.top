@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, RefreshCw, Search, Trash2, Copy, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -67,7 +67,7 @@ export default function DevLogsPage() {
   const [copiedJson, setCopiedJson] = useState(false);
 
   // 获取日志
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -105,7 +105,7 @@ export default function DevLogsPage() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [page, level, searchTerm]);
 
   // 清空日志
   const clearLogs = async (all: boolean = false) => {
@@ -144,7 +144,7 @@ export default function DevLogsPage() {
   // 当页码、搜索词、级别变化时重新获取日志
   useEffect(() => {
     fetchLogs();
-  }, [page, level]);
+  }, [page, level, fetchLogs]);
 
   // 处理搜索
   const handleSearch = (e: React.FormEvent) => {

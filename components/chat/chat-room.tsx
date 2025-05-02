@@ -138,62 +138,55 @@ export default function ChatRoom() {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  const initializePeer = useCallback(() => {
-    if (peerInstance.current) return;
-
-    try {
-      const peer = new Peer({
-        config: {
-          iceServers: [
-            { urls: "stun:stun.l.google.com:19302" },
-            { urls: "stun:stun1.l.google.com:19302" },
-          ],
-        },
-      });
-      peerInstance.current = peer;
-
-      peer.on("open", (id) => {
-        setPeerId(id);
-        setUsers((prev) => {
-          const newUser = { peerId: id, username };
-          if (!prev.some((u) => u.peerId === id)) {
-            return [...prev, newUser];
-          }
-          return prev;
-        });
-        setConnectedCount(1);
-      });
-
-      if (!isInvited) {
-        peer.on("connection", (conn) => {
-          connections.current.push(conn);
-          handleConnection(conn);
-        });
+  const broadcastCount = useCallback((count: number) => {
+    connections.current.forEach((conn) => {
+      if (conn.open) {
+        try {
+          conn.send({ type: "COUNT", data: count });
+        } catch (err) {
+          console.error("Error broadcasting count:", err);
+        }
       }
+    });
+    setConnectedCount(count);
+  }, []);
 
-      peer.on("error", (err) => {
-        console.error("Peer error:", err);
-        toast.error("连接错误，请重试");
-        setIsConnected(false);
-      });
+  const broadcastUserList = useCallback((usersList = users) => {
+    const userList = JSON.stringify(usersList);
+    connections.current.forEach((conn) => {
+      if (conn.open) {
+        try {
+          conn.send({ type: "USERLIST", data: userList });
+        } catch (err) {
+          console.error("Error broadcasting user list:", err);
+        }
+      }
+    });
+  }, [users]);
 
-      peer.on("disconnected", () => {
-        setIsConnected(false);
-        toast.warning("已断开与对等网络的连接");
-      });
-    } catch (err) {
-      console.error("Failed to initialize peer:", err);
-      toast.error("初始化对等连接失败");
-    }
-  }, [username, isInvited]);
+  const broadcastMessage = useCallback((message: Message, senderConn: any) => {
+    connections.current.forEach((conn) => {
+      if (conn !== senderConn && conn.open) {
+        try {
+          if (message.image) {
+            conn.send({
+              type: "IMAGE",
+              data: { username: message.username, image: message.image },
+            });
+          } else if (message.text) {
+            conn.send({
+              type: "TEXT",
+              data: { username: message.username, text: message.text },
+            });
+          }
+        } catch (err) {
+          console.error("Error broadcasting message:", err);
+        }
+      }
+    });
+  }, []);
 
-  useEffect(() => {
-    if (username) {
-      initializePeer();
-    }
-  }, [initializePeer, username]);
-
-  const handleConnection = (conn: any) => {
+  const handleConnection = useCallback((conn: any) => {
     conn.on("open", () => {
       setIsConnected(true);
       setConnectedCount((prev) => {
@@ -247,13 +240,10 @@ export default function ChatRoom() {
               if (!mergedUsers.some((u) => u.peerId === peerId)) {
                 mergedUsers.push({ peerId, username });
               }
-              return mergedUsers.filter(
-                (user, index, self) =>
-                  index === self.findIndex((u) => u.peerId === user.peerId),
-              );
+              return mergedUsers;
             });
-          } catch (err) {
-            console.error("Error parsing user list:", err);
+          } catch (e) {
+            console.error("Failed to parse user list:", e);
           }
         } else if (data.type === "LEAVE") {
           const { username: leavingUsername, peerId: leavingPeerId } =
@@ -320,55 +310,62 @@ export default function ChatRoom() {
         setIsConnected(false);
       }
     });
-  };
+  }, [users, peerId, username, broadcastUserList, broadcastCount, broadcastMessage]);
 
-  const broadcastMessage = (message: Message, senderConn: any) => {
-    connections.current.forEach((conn) => {
-      if (conn !== senderConn && conn.open) {
-        try {
-          if (message.image) {
-            conn.send({
-              type: "IMAGE",
-              data: { username: message.username, image: message.image },
-            });
-          } else if (message.text) {
-            conn.send({
-              type: "TEXT",
-              data: { username: message.username, text: message.text },
-            });
+  const initializePeer = useCallback(() => {
+    if (peerInstance.current) return;
+
+    try {
+      const peer = new Peer({
+        config: {
+          iceServers: [
+            { urls: "stun:stun.l.google.com:19302" },
+            { urls: "stun:stun1.l.google.com:19302" },
+          ],
+        },
+      });
+      peerInstance.current = peer;
+
+      peer.on("open", (id) => {
+        setPeerId(id);
+        setUsers((prev) => {
+          const newUser = { peerId: id, username };
+          if (!prev.some((u) => u.peerId === id)) {
+            return [...prev, newUser];
           }
-        } catch (err) {
-          console.error("Error broadcasting message:", err);
-        }
-      }
-    });
-  };
+          return prev;
+        });
+        setConnectedCount(1);
+      });
 
-  const broadcastCount = (count: number) => {
-    connections.current.forEach((conn) => {
-      if (conn.open) {
-        try {
-          conn.send({ type: "COUNT", data: count });
-        } catch (err) {
-          console.error("Error broadcasting count:", err);
-        }
+      if (!isInvited) {
+        peer.on("connection", (conn) => {
+          connections.current.push(conn);
+          handleConnection(conn);
+        });
       }
-    });
-    setConnectedCount(count);
-  };
 
-  const broadcastUserList = (usersList = users) => {
-    const userList = JSON.stringify(usersList);
-    connections.current.forEach((conn) => {
-      if (conn.open) {
-        try {
-          conn.send({ type: "USERLIST", data: userList });
-        } catch (err) {
-          console.error("Error broadcasting user list:", err);
-        }
-      }
-    });
-  };
+      peer.on("error", (err) => {
+        console.error("Peer error:", err);
+        toast.error("连接错误，请重试");
+        setIsConnected(false);
+      });
+
+      peer.on("disconnected", () => {
+        setIsConnected(false);
+        toast.warning("已断开与对等网络的连接");
+      });
+    } catch (err) {
+      console.error("Failed to initialize peer:", err);
+      toast.error("初始化对等连接失败");
+    }
+  }, [username, isInvited, handleConnection]);
+
+  useEffect(() => {
+    if (username) {
+      initializePeer();
+    }
+  }, [initializePeer, username]);
 
   const connectToPeer = useCallback(() => {
     if (!peerInstance.current || !remotePeerId) return;

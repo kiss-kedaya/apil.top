@@ -79,7 +79,7 @@ export default function EmailList({
         onSelectEmail(null);
       }
     }
-  }, [emailAddress, data, selectedEmailId]);
+  }, [emailAddress, data, selectedEmailId, onSelectEmail]);
 
   const handleMarkAsRead = async (emailId: string) => {
     try {
