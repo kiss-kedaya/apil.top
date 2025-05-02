@@ -27,12 +27,19 @@ export async function GET(request: NextRequest) {
     
     // 验证请求参数
     const searchParams = request.nextUrl.searchParams;
-    const domainId = searchParams.get("domainId");
+    const domainIdParam = searchParams.get("domainId");
     
-    const validationResult = queryParamsSchema.safeParse({ domainId });
+    if (!domainIdParam) {
+      return errorResponse("缺少域名ID参数", 400);
+    }
+    
+    const validationResult = queryParamsSchema.safeParse({ domainId: domainIdParam });
     if (!validationResult.success) {
       return errorResponse(validationResult.error.message, 400);
     }
+    
+    // 使用经过验证的domainId
+    const { domainId } = validationResult.data;
     
     // 获取域名信息并验证所有权
     const domainResult = await getUserCustomDomainById(userId, domainId);

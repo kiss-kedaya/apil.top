@@ -23,6 +23,12 @@ export const env = createEnv({
     GITHUB_TOKEN: z.string().optional(),
     VERCEL_TOKEN: z.string().optional(),
     VERCEL_PROJECT_NAME: z.string().optional(),
+    // 服务器地址和邮件服务配置
+    SERVER_IP: z.string().min(1, "SERVER_IP必须填写").optional(),
+    MAIL_SERVER: z.string().min(1, "MAIL_SERVER必须填写").optional().default("mail.apil.top"),
+    EMAIL_WEBHOOK_KEY: z.string().optional(),
+    DEFAULT_SMTP_SERVER: z.string().optional().default("smtp.apil.top"),
+    DEFAULT_SMTP_PORT: z.string().optional().default("587"),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().min(1),
@@ -57,11 +63,10 @@ export const env = createEnv({
     LinuxDo_CLIENT_SECRET: process.env.LinuxDo_CLIENT_SECRET,
     VERCEL_TOKEN: process.env.VERCEL_TOKEN,
     VERCEL_PROJECT_NAME: process.env.VERCEL_PROJECT_NAME,
+    SERVER_IP: process.env.SERVER_IP,
+    MAIL_SERVER: process.env.MAIL_SERVER,
+    EMAIL_WEBHOOK_KEY: process.env.EMAIL_WEBHOOK_KEY,
+    DEFAULT_SMTP_SERVER: process.env.DEFAULT_SMTP_SERVER,
+    DEFAULT_SMTP_PORT: process.env.DEFAULT_SMTP_PORT,
   },
-  // 服务器地址和邮件服务配置
-  SERVER_IP: z.string().min(1, "SERVER_IP必须填写").optional(),
-  MAIL_SERVER: z.string().min(1, "MAIL_SERVER必须填写").optional().default("mail.apil.top"),
-  EMAIL_WEBHOOK_KEY: z.string().optional(),
-  DEFAULT_SMTP_SERVER: z.string().optional().default("smtp.apil.top"),
-  DEFAULT_SMTP_PORT: z.string().optional().default("587"),
 });

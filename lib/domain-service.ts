@@ -1,13 +1,7 @@
-import dns from 'dns';
-import { promisify } from 'util';
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
 import { siteConfig } from "@/config/site";
 import { env } from "@/env.mjs";
-
-// DNS 查询Promise化
-const resolveTxt = promisify(dns.resolveTxt);
-const resolveMx = promisify(dns.resolveMx);
 
 /**
  * 域名服务类 - 处理域名验证和服务配置
@@ -20,16 +14,31 @@ export class DomainService {
    */
   public static async verifyDomainOwnership(domainName: string, verificationKey: string): Promise<boolean> {
     try {
-      // 查询域名的TXT记录
-      const txtRecords = await resolveTxt(domainName);
+      // 使用Cloudflare DNS-over-HTTPS API检查TXT记录
+      const response = await fetch(
+        `https://cloudflare-dns.com/dns-query?name=${domainName}&type=TXT`, 
+        {
+          headers: { 'Accept': 'application/dns-json' }
+        }
+      );
+      
+      if (!response.ok) {
+        logger.error(`DNS查询失败: ${domainName}`, { status: response.status });
+        return false;
+      }
+      
+      const dnsData = await response.json();
+      
+      if (!dnsData.Answer || !Array.isArray(dnsData.Answer)) {
+        return false;
+      }
       
       // 检查是否包含验证值
       const expectedValue = `verify=${verificationKey}`;
-      for (const recordSet of txtRecords) {
-        for (const record of recordSet) {
-          if (record.includes(expectedValue)) {
-            return true;
-          }
+      for (const answer of dnsData.Answer) {
+        const txtValue = answer.data?.replace(/"/g, '');
+        if (txtValue?.includes(expectedValue)) {
+          return true;
         }
       }
       
@@ -54,41 +63,72 @@ export class DomainService {
       const issues: string[] = [];
       const mailServer = env.MAIL_SERVER || "mail.apil.top";
       
-      // 验证MX记录
+      // 验证MX记录 - 使用DNS-over-HTTPS
       let mxValid = false;
       try {
-        const mxRecords = await resolveMx(domainName);
-        // 只要有MX记录指向我们的邮件服务器即可
-        mxValid = mxRecords.some(record => 
-          record.exchange && record.exchange.includes(mailServer)
+        const mxResponse = await fetch(
+          `https://cloudflare-dns.com/dns-query?name=${domainName}&type=MX`, 
+          {
+            headers: { 'Accept': 'application/dns-json' }
+          }
         );
         
-        if (!mxValid) {
-          issues.push(`未找到指向 ${mailServer} 的MX记录`);
+        if (!mxResponse.ok) {
+          issues.push('MX记录查询失败');
+        } else {
+          const mxData = await mxResponse.json();
+          
+          if (mxData.Answer && Array.isArray(mxData.Answer)) {
+            // 检查MX记录是否指向我们的邮件服务器
+            mxValid = mxData.Answer.some(record => {
+              const mxValue = record.data?.toLowerCase() || '';
+              return mxValue.includes(mailServer.toLowerCase());
+            });
+          }
+          
+          if (!mxValid) {
+            issues.push(`未找到指向 ${mailServer} 的MX记录`);
+          }
         }
       } catch (error) {
         issues.push('MX记录查询失败');
+        logger.error(`MX记录查询失败: ${domainName}`, { error });
       }
       
-      // 验证SPF记录 - 只要有SPF记录包含我们的域名即可
+      // 验证SPF记录 - 使用DNS-over-HTTPS
       let spfValid = false;
       try {
-        const txtRecords = await resolveTxt(domainName);
-        for (const recordSet of txtRecords) {
-          for (const record of recordSet) {
-            if (record.startsWith('v=spf1') && 
-                record.includes(siteConfig.mainDomains[0])) {
-              spfValid = true;
-              break;
+        const txtResponse = await fetch(
+          `https://cloudflare-dns.com/dns-query?name=${domainName}&type=TXT`, 
+          {
+            headers: { 'Accept': 'application/dns-json' }
+          }
+        );
+        
+        if (!txtResponse.ok) {
+          issues.push('SPF记录查询失败');
+        } else {
+          const txtData = await txtResponse.json();
+          
+          if (txtData.Answer && Array.isArray(txtData.Answer)) {
+            // 检查是否有包含我们域名的SPF记录
+            for (const answer of txtData.Answer) {
+              const txtValue = answer.data?.replace(/"/g, '') || '';
+              if (txtValue.startsWith('v=spf1') && 
+                  txtValue.includes(siteConfig.mainDomains[0])) {
+                spfValid = true;
+                break;
+              }
             }
           }
-          if (spfValid) break;
-        }
-        if (!spfValid) {
-          issues.push(`未找到包含 ${siteConfig.mainDomains[0]} 的SPF记录`);
+          
+          if (!spfValid) {
+            issues.push(`未找到包含 ${siteConfig.mainDomains[0]} 的SPF记录`);
+          }
         }
       } catch (error) {
         issues.push('SPF记录查询失败');
+        logger.error(`SPF记录查询失败: ${domainName}`, { error });
       }
       
       // 简化后只检查MX和SPF
