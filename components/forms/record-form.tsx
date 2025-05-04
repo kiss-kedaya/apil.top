@@ -92,11 +92,11 @@ export function RecordForm({
       });
 
       if (!response.ok || response.status !== 200) {
-        toast.error("Created Failed!", {
+        toast.error("创建失败！", {
           description: await response.text(),
         });
       } else {
-        toast.success(`Created successfully!`);
+        toast.success(`创建成功！`);
         setShowForm(false);
         onRefresh();
       }
@@ -115,12 +115,12 @@ export function RecordForm({
           }),
         });
         if (!response.ok || response.status !== 200) {
-          toast.error("Update Failed", {
+          toast.error("更新失败", {
             description: await response.text(),
           });
         } else {
           const res = await response.json();
-          toast.success(`Update successfully!`);
+          toast.success(`更新成功！`);
           setShowForm(false);
           onRefresh();
         }
@@ -141,12 +141,12 @@ export function RecordForm({
           }),
         });
         if (!response.ok || response.status !== 200) {
-          toast.error("Delete Failed", {
+          toast.error("删除失败", {
             description: await response.text(),
           });
         } else {
           await response.json();
-          toast.success(`Success`);
+          toast.success(`删除成功`);
           setShowForm(false);
           onRefresh();
         }
@@ -157,11 +157,11 @@ export function RecordForm({
   return (
     <div className="mb-4 rounded-lg border border-dashed shadow-sm animate-in fade-in-50">
       <div className="rounded-t-lg bg-muted px-4 py-2 text-lg font-semibold">
-        {type === "add" ? "Create" : "Edit"} record
+        {type === "add" ? "创建" : "编辑"} 记录
       </div>
       <form className="p-4" onSubmit={onSubmit}>
         <div className="items-center justify-start gap-4 md:flex">
-          <FormSectionColumns title="Type">
+          <FormSectionColumns title="类型">
             <Select
               onValueChange={(value: RecordType) => {
                 setValue("type", value);
@@ -171,7 +171,7 @@ export function RecordForm({
               defaultValue={initData?.type || "CNAME"}
             >
               <SelectTrigger className="w-full shadow-inner">
-                <SelectValue placeholder="Select a type" />
+                <SelectValue placeholder="选择类型" />
               </SelectTrigger>
               <SelectContent>
                 {RECORD_TYPE_ENUMS.map((type) => (
@@ -181,12 +181,12 @@ export function RecordForm({
                 ))}
               </SelectContent>
             </Select>
-            <p className="p-1 text-[13px] text-muted-foreground">Required.</p>
+            <p className="p-1 text-[13px] text-muted-foreground">必填项。</p>
           </FormSectionColumns>
-          <FormSectionColumns title="Name">
+          <FormSectionColumns title="名称">
             <div className="flex w-full items-center gap-2">
               <Label className="sr-only" htmlFor="name">
-                Name (required)
+                名称 (必填)
               </Label>
               <div className="relative">
                 <Input
@@ -210,7 +210,7 @@ export function RecordForm({
                 </p>
               ) : (
                 <p className="pb-0.5 text-[13px] text-muted-foreground">
-                  Required. Use @ for root.
+                  必填项。使用 @ 表示根域名。
                 </p>
               )}
             </div>
@@ -218,15 +218,15 @@ export function RecordForm({
           <FormSectionColumns
             title={
               currentRecordType === "CNAME"
-                ? "Content"
+                ? "内容"
                 : currentRecordType === "A"
-                  ? "IPv4 address"
-                  : "Content"
+                  ? "IPv4 地址"
+                  : "内容"
             }
           >
             <div className="flex w-full items-center gap-2">
               <Label className="sr-only" htmlFor="content">
-                Content
+                内容
               </Label>
               <Input
                 id="content"
@@ -243,27 +243,27 @@ export function RecordForm({
               ) : (
                 <p className="pb-0.5 text-[13px] text-muted-foreground">
                   {currentRecordType === "CNAME"
-                    ? "Required. E.g. www.example.com"
+                    ? "必填项。例如: www.example.com"
                     : currentRecordType === "A"
-                      ? "Required. E.g. 8.8.8.8"
-                      : "Required."}
+                      ? "必填项。例如: 8.8.8.8"
+                      : "必填项。"}
                 </p>
               )}
             </div>
           </FormSectionColumns>
         </div>
 
-        <div className="items-center justify-start gap-4 md:flex">
+        <div className="mt-4 items-start justify-start gap-4 md:flex">
           <FormSectionColumns title="TTL">
             <Select
               onValueChange={(value: string) => {
-                setValue("ttl", Number(value));
+                setValue("ttl", parseInt(value));
               }}
-              name="ttl"
-              defaultValue={String(initData?.ttl || 1)}
+              name={"ttl"}
+              defaultValue={String(initData?.ttl) || "1"}
             >
               <SelectTrigger className="w-full shadow-inner">
-                <SelectValue placeholder="Select a time" />
+                <SelectValue placeholder="选择 TTL" />
               </SelectTrigger>
               <SelectContent>
                 {TTL_ENUMS.map((ttl) => (
@@ -274,73 +274,73 @@ export function RecordForm({
               </SelectContent>
             </Select>
             <p className="p-1 text-[13px] text-muted-foreground">
-              Optional. Time To Live.
+              缓存生存时间。
             </p>
           </FormSectionColumns>
-          <FormSectionColumns title="Comment">
-            <div className="flex items-center gap-2">
+          <FormSectionColumns title="备注">
+            <div className="flex w-full items-center gap-2">
               <Label className="sr-only" htmlFor="comment">
-                Comment
+                备注
               </Label>
               <Input
                 id="comment"
-                className="flex-2 shadow-inner"
-                size={74}
+                className="flex-1 shadow-inner"
+                placeholder="选填"
+                size={32}
                 {...register("comment")}
               />
             </div>
-            <p className="p-1 text-[13px] text-muted-foreground">
-              Enter your comment here (up to 100 characters)
-            </p>
+            <div className="flex flex-col justify-between p-1">
+              <p className="pb-0.5 text-[13px] text-muted-foreground">
+                可选备注信息。
+              </p>
+            </div>
           </FormSectionColumns>
-          {/* <FormSectionColumns title="Proxy">
-          <div className="flex w-full items-center gap-2">
-            <Label className="sr-only" htmlFor="proxy">
-              Proxy
-            </Label>
-            <Switch id="proxied" {...register("proxied")} />
-          </div>
-          <p className="p-1 text-[13px] text-muted-foreground">Proxy status</p>
-        </FormSectionColumns> */}
         </div>
 
-        {/* Action buttons */}
-        <div className="mt-3 flex justify-end gap-3">
+        <div className="mt-4 flex items-center justify-end gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setShowForm(false);
+            }}
+            type="button"
+          >
+            取消
+          </Button>
+          <Button
+            variant={type === "add" ? "default" : "outline"}
+            disabled={isPending}
+            type="submit"
+          >
+            {isPending ? (
+              <Icons.spinner className="mr-2 size-4 animate-spin" />
+            ) : type === "add" ? (
+              "创建"
+            ) : (
+              "更新"
+            )}
+          </Button>
           {type === "edit" && (
             <Button
-              type="button"
               variant="destructive"
-              className="mr-auto w-[80px] px-0"
-              onClick={() => handleDeleteRecord()}
+              onClick={() => {
+                if (
+                  window.confirm("确定要删除这条记录吗？此操作无法撤销。")
+                ) {
+                  handleDeleteRecord();
+                }
+              }}
+              type="button"
               disabled={isDeleting}
             >
               {isDeleting ? (
-                <Icons.spinner className="size-4 animate-spin" />
+                <Icons.spinner className="mr-2 size-4 animate-spin" />
               ) : (
-                <p>Delete</p>
+                "删除"
               )}
             </Button>
           )}
-          <Button
-            type="reset"
-            variant="outline"
-            className="w-[80px] px-0"
-            onClick={() => setShowForm(false)}
-          >
-            Cancle
-          </Button>
-          <Button
-            type="submit"
-            variant="blue"
-            disabled={isPending}
-            className="w-[80px] shrink-0 px-0"
-          >
-            {isPending ? (
-              <Icons.spinner className="size-4 animate-spin" />
-            ) : (
-              <p>{type === "edit" ? "Update" : "Save"}</p>
-            )}
-          </Button>
         </div>
       </form>
     </div>

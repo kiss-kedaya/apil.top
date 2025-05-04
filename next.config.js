@@ -128,6 +128,32 @@ const nextConfig = {
             value: 'public, max-age=31536000, immutable',
           }
         ],
+      },
+      {
+        source: '/site.webmanifest',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600',
+          }
+        ],
+      },
+      {
+        source: '/_static/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          }
+        ],
       }
     ];
   }

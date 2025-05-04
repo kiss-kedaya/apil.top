@@ -103,30 +103,45 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
     const originalState = record.active === 1;
     setChecked(checked); // 立即更新 UI
 
-    const res = await fetch(`/api/record/update`, {
-      method: "PUT",
-      body: JSON.stringify({
-        zone_id: record.zone_id,
-        record_id: record.record_id,
-        active: checked ? 1 : 0,
-        target: record.name,
-      }),
-    });
+    try {
+      const res = await fetch(`/api/record/update`, {
+        method: "PUT",
+        body: JSON.stringify({
+          zone_id: record.zone_id,
+          record_id: record.record_id,
+          active: checked ? 1 : 0,
+          target: record.name,
+        }),
+      });
 
-    if (res.ok) {
-      const data = await res.json();
-      if (data === "Target is accessible!") {
-        if (originalState) {
+      if (res.ok) {
+        const data = await res.json();
+        // 新的响应格式包含一个message字段
+        if (data && data.message) {
+          // 如果是关闭状态，保持关闭
+          // 如果是开启状态但目标不可访问，给予警告提示但仍允许用户开启
+          if (data.message.includes("不可访问")) {
+            toast.warning(data.message, {
+              description: "您可以保持开启，但在目标可访问前DNS解析可能不生效"
+            });
+          } else {
+            toast.success(data.message);
+          }
+          // 无论如何，都保持用户选择的状态
+          setChecked(checked);
+        } else {
+          // 兼容旧格式的响应
           setChecked(originalState);
+          toast.warning("接收到未知响应格式，请刷新页面重试");
         }
-        toast.success(data);
       } else {
         setChecked(originalState);
-        toast.warning(data);
+        toast.error("更新状态失败，请稍后重试");
       }
-    } else {
+    } catch (error) {
+      console.error("状态切换错误:", error);
       setChecked(originalState);
-      toast.error("更新状态失败");
+      toast.error("发生错误，请稍后重试");
     }
   };
 
