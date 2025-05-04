@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { User } from "@prisma/client";
 import { PenLine, RefreshCwIcon } from "lucide-react";
@@ -48,7 +48,7 @@ export interface RecordListProps {
 
 function TableColumnSekleton() {
   return (
-    <TableRow className="grid grid-cols-3 items-center sm:grid-cols-8">
+    <TableRow className="grid grid-cols-3 items-center sm:grid-cols-9">
       <TableCell className="col-span-1">
         <Skeleton className="h-5 w-24" />
       </TableCell>
@@ -59,6 +59,9 @@ function TableColumnSekleton() {
         <Skeleton className="h-5 w-24" />
       </TableCell>
       <TableCell className="col-span-1 hidden sm:inline-block">
+        <Skeleton className="h-5 w-16" />
+      </TableCell>
+      <TableCell className="col-span-1 hidden justify-center sm:flex">
         <Skeleton className="h-5 w-16" />
       </TableCell>
       <TableCell className="col-span-1 hidden justify-center sm:flex">
@@ -225,7 +228,7 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
           )}
           <Table>
             <TableHeader className="bg-gray-100/50 dark:bg-primary-foreground">
-              <TableRow className="grid grid-cols-3 items-center sm:grid-cols-8">
+              <TableRow className="grid grid-cols-3 items-center sm:grid-cols-9">
                 <TableHead className="col-span-1 flex items-center font-bold">
                   类型
                 </TableHead>
@@ -240,6 +243,9 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
                 </TableHead>
                 <TableHead className="col-span-1 hidden items-center justify-center font-bold sm:flex">
                   状态
+                </TableHead>
+                <TableHead className="col-span-1 hidden items-center justify-center font-bold sm:flex">
+                  代理
                 </TableHead>
                 <TableHead className="col-span-1 hidden items-center justify-center font-bold sm:flex">
                   更新时间
@@ -262,7 +268,7 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
                 data.list.map((record) => (
                   <TableRow
                     key={record.id}
-                    className="grid animate-fade-in grid-cols-3 items-center animate-in sm:grid-cols-8"
+                    className="grid animate-fade-in grid-cols-3 items-center animate-in sm:grid-cols-9"
                   >
                     <TableCell className="col-span-1">
                       <Badge className="text-xs" variant="outline">
@@ -308,7 +314,10 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
                       </span>
                     </TableCell>
                     <TableCell className="col-span-1 hidden justify-center sm:flex">
-                      <SwitchWrapper record={record} onChangeStatu={handleChangeStatu} />
+                      <StatusSwitchWrapper record={record} onChangeStatu={handleChangeStatu} />
+                    </TableCell>
+                    <TableCell className="col-span-1 hidden justify-center sm:flex">
+                      <ProxySwitchWrapper record={record} onChangeStatu={handleChangeStatu} />
                     </TableCell>
                     <TableCell className="col-span-1 hidden justify-center sm:flex">
                       {timeAgo(record.modified_on as unknown as Date)}
@@ -361,7 +370,8 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
   );
 }
 
-const SwitchWrapper = ({
+// 仅处理状态切换的组件
+const StatusSwitchWrapper = ({
   record,
   onChangeStatu,
 }: {
@@ -374,38 +384,77 @@ const SwitchWrapper = ({
   ) => Promise<void>;
 }) => {
   const [checked, setChecked] = useState(record.active === 1);
+
+  return (
+    <div className="flex items-center gap-1">
+      <Switch
+        className="data-[state=checked]:bg-blue-500"
+        checked={checked}
+        onCheckedChange={(value) => onChangeStatu(value, record, setChecked)}
+      />
+      <span className="text-xs ml-1">{checked ? "开启" : "关闭"}</span>
+    </div>
+  );
+};
+
+// 仅处理代理切换的组件
+const ProxySwitchWrapper = ({
+  record,
+  onChangeStatu,
+}: {
+  record: UserRecordFormData;
+  onChangeStatu: (
+    checked: boolean,
+    record: UserRecordFormData,
+    setChecked: (value: boolean) => void,
+    isProxy?: boolean
+  ) => Promise<void>;
+}) => {
   const [isProxied, setIsProxied] = useState(record.proxied);
+  const [isActive, setIsActive] = useState(record.active === 1);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // 当状态发生变化时，更新活跃状态
+  useEffect(() => {
+    setIsActive(record.active === 1);
+  }, [record.active]);
 
   const handleProxyToggle = async (proxyValue: boolean) => {
-    setIsProxied(proxyValue);
-    
-    // 只有当记录是激活状态时才发送代理更改请求
-    if (checked) {
-      await onChangeStatu(true, record, setChecked, proxyValue);
+    try {
+      setIsLoading(true);
+      setIsProxied(proxyValue); // 先更新UI
+      
+      // 如果状态为关闭，则自动开启状态
+      if (!isActive) {
+        // 先更新UI
+        setIsActive(true);
+        // 发送请求，开启状态并设置代理
+        await onChangeStatu(true, record, () => setIsActive(true), proxyValue);
+      } else {
+        // 状态已开启，只更新代理设置
+        await onChangeStatu(true, record, () => {}, proxyValue);
+      }
+    } catch (error) {
+      console.error("代理切换失败:", error);
+      // 发生错误时恢复原状态
+      setIsProxied(!proxyValue);
+      toast.error("代理状态切换失败，请稍后重试");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col gap-2 items-center">
-      <div className="flex items-center gap-1">
-        <Switch
-          className="data-[state=checked]:bg-blue-500"
-          checked={checked}
-          onCheckedChange={(value) => onChangeStatu(value, record, setChecked)}
-        />
-        <span className="text-xs ml-1">{checked ? "开启" : "关闭"}</span>
-      </div>
-      
-      {checked && (
-        <div className="flex items-center gap-1">
-          <Switch
-            className="data-[state=checked]:bg-orange-500"
-            checked={isProxied}
-            onCheckedChange={handleProxyToggle}
-          />
-          <span className="text-xs ml-1">{isProxied ? "代理" : "直连"}</span>
-        </div>
-      )}
+    <div className="flex items-center gap-1">
+      <Switch
+        className="data-[state=checked]:bg-orange-500"
+        checked={isProxied}
+        disabled={isLoading || !isActive}
+        onCheckedChange={handleProxyToggle}
+      />
+      <span className="text-xs ml-1">
+        {isLoading ? "更新中..." : isProxied ? "代理" : "直连"}
+      </span>
     </div>
   );
 };

@@ -180,13 +180,15 @@ export async function PUT(req: Request) {
           // 注意：对proxied参数的处理 - 使用请求中传来的值或保持原值
           const proxyStatus = proxied !== undefined ? proxied : recordData.proxied;
           
+          console.log("创建DNS记录，代理状态:", proxyStatus);
+          
           const recordToCreate: any = {
             type: recordData.type,
             name: recordData.name,
             content: recordData.content,
-            ttl: recordData.ttl,
+            ttl: recordData.ttl || 1,
             proxied: proxyStatus,
-            comment: recordData.comment,
+            comment: recordData.comment || "",
             tags: recordData.tags ? recordData.tags.split(",") : []
           };
           

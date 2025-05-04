@@ -65,7 +65,7 @@ export function RecordForm({
     defaultValues: {
       type: initData?.type || "CNAME",
       ttl: initData?.ttl || 1,
-      proxied: initData?.proxied || false,
+      proxied: initData?.proxied !== undefined ? initData.proxied : true,
       comment: initData?.comment || "",
       name:
         (initData?.name.endsWith(".apil.top")
