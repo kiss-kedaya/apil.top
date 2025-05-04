@@ -98,33 +98,42 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
     mutate(`${action}?page=${currentPage}&size=${pageSize}`, undefined);
   };
 
-  const handleChangeStatu = async (
+  const handleDNSRecordChange = async (
     checked: boolean,
     record: UserRecordFormData,
     setChecked: (value: boolean) => void,
-    isProxy?: boolean
+    changeType: "status" | "proxy"
   ) => {
-    const originalState = record.active === 1;
+    const originalState = changeType === "status" ? record.active === 1 : record.proxied;
     setChecked(checked); // 立即更新 UI
-
+    
     try {
+      // 构建请求参数
+      const params: any = {
+        zone_id: record.zone_id,
+        record_id: record.record_id,
+        target: record.name
+      };
+      
+      // 根据更改类型设置不同的参数
+      if (changeType === "status") {
+        params.active = checked ? 1 : 0;
+      } else {
+        params.proxied = checked;
+        // 如果开启代理，确保状态也是开启的
+        if (checked && record.active === 0) {
+          params.active = 1;
+        }
+      }
+
       const res = await fetch(`/api/record/update`, {
         method: "PUT",
-        body: JSON.stringify({
-          zone_id: record.zone_id,
-          record_id: record.record_id,
-          active: checked ? 1 : 0,
-          target: record.name,
-          proxied: isProxy // 如果提供了代理参数，则传递给后端
-        }),
+        body: JSON.stringify(params),
       });
 
       if (res.ok) {
         const data = await res.json();
-        // 新的响应格式包含一个message字段
         if (data && data.message) {
-          // 如果是关闭状态，保持关闭
-          // 如果是开启状态但目标不可访问，给予警告提示但仍允许用户开启
           if (data.message.includes("不可访问")) {
             toast.warning(data.message, {
               description: "您可以保持开启，但在目标可访问前DNS解析可能不生效"
@@ -132,24 +141,21 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
           } else {
             toast.success(data.message);
           }
-          // 无论如何，都保持用户选择的状态
-          setChecked(checked);
           
           // 如果返回了新记录ID，刷新页面
           if (data.record_id) {
             handleRefresh();
           }
         } else {
-          // 兼容旧格式的响应
           setChecked(originalState);
           toast.warning("接收到未知响应格式，请刷新页面重试");
         }
       } else {
         setChecked(originalState);
-        toast.error("更新状态失败，请稍后重试");
+        toast.error("更新失败，请稍后重试");
       }
     } catch (error) {
-      console.error("状态切换错误:", error);
+      console.error(`${changeType === "status" ? "状态" : "代理"}切换错误:`, error);
       setChecked(originalState);
       toast.error("发生错误，请稍后重试");
     }
@@ -314,10 +320,10 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
                       </span>
                     </TableCell>
                     <TableCell className="col-span-1 hidden justify-center sm:flex">
-                      <StatusSwitchWrapper record={record} onChangeStatu={handleChangeStatu} />
+                      <StatusSwitchWrapper record={record} onChangeStatu={handleDNSRecordChange} />
                     </TableCell>
                     <TableCell className="col-span-1 hidden justify-center sm:flex">
-                      <ProxySwitchWrapper record={record} onChangeStatu={handleChangeStatu} />
+                      <ProxySwitchWrapper record={record} onChangeStatu={handleDNSRecordChange} />
                     </TableCell>
                     <TableCell className="col-span-1 hidden justify-center sm:flex">
                       {timeAgo(record.modified_on as unknown as Date)}
@@ -380,7 +386,7 @@ const StatusSwitchWrapper = ({
     checked: boolean,
     record: UserRecordFormData,
     setChecked: (value: boolean) => void,
-    isProxy?: boolean
+    changeType: "status" | "proxy"
   ) => Promise<void>;
 }) => {
   const [checked, setChecked] = useState(record.active === 1);
@@ -390,7 +396,7 @@ const StatusSwitchWrapper = ({
       <Switch
         className="data-[state=checked]:bg-blue-500"
         checked={checked}
-        onCheckedChange={(value) => onChangeStatu(value, record, setChecked)}
+        onCheckedChange={(value) => onChangeStatu(value, record, setChecked, "status")}
       />
       <span className="text-xs ml-1">{checked ? "开启" : "关闭"}</span>
     </div>
@@ -407,7 +413,7 @@ const ProxySwitchWrapper = ({
     checked: boolean,
     record: UserRecordFormData,
     setChecked: (value: boolean) => void,
-    isProxy?: boolean
+    changeType: "status" | "proxy"
   ) => Promise<void>;
 }) => {
   const [isProxied, setIsProxied] = useState(record.proxied);
@@ -422,22 +428,13 @@ const ProxySwitchWrapper = ({
   const handleProxyToggle = async (proxyValue: boolean) => {
     try {
       setIsLoading(true);
-      setIsProxied(proxyValue); // 先更新UI
-      
-      // 如果状态为关闭，则自动开启状态
-      if (!isActive) {
-        // 先更新UI
+      await onChangeStatu(proxyValue, record, setIsProxied, "proxy");
+      // 如果代理被开启，那么状态也应该被开启
+      if (proxyValue && !isActive) {
         setIsActive(true);
-        // 发送请求，开启状态并设置代理
-        await onChangeStatu(true, record, () => setIsActive(true), proxyValue);
-      } else {
-        // 状态已开启，只更新代理设置
-        await onChangeStatu(true, record, () => {}, proxyValue);
       }
     } catch (error) {
       console.error("代理切换失败:", error);
-      // 发生错误时恢复原状态
-      setIsProxied(!proxyValue);
       toast.error("代理状态切换失败，请稍后重试");
     } finally {
       setIsLoading(false);

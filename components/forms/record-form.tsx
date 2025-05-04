@@ -53,6 +53,13 @@ export function RecordForm({
   const [currentRecordType, setCurrentRecordType] = useState(
     initData?.type || "CNAME",
   );
+  const [isActive, setIsActive] = useState(
+    initData?.active ? initData.active === 1 : true
+  );
+  const [isProxied, setIsProxied] = useState(
+    initData?.proxied !== undefined ? initData.proxied : true
+  );
+  const [formError, setFormError] = useState<string | null>(null);
 
   const {
     handleSubmit,
@@ -75,58 +82,51 @@ export function RecordForm({
     },
   });
 
-  const onSubmit = handleSubmit((data) => {
-    if (type === "add") {
-      handleCreateRecord(data);
-    } else if (type === "edit") {
-      handleUpdateRecord(data);
-    }
-  });
+  const onSubmit = async (values: FormData) => {
+    setFormError(null);
+    
+    try {
+      startTransition(async () => {
+        const formData = {
+          ...values,
+          active: isActive ? 1 : 0,
+          proxied: isProxied,
+          zone_id: initData?.zone_id,
+          record_id: initData?.record_id,
+        };
 
-  const handleCreateRecord = async (data: CreateDNSRecord) => {
-    startTransition(async () => {
-      const response = await fetch(`${action}/add`, {
-        method: "POST",
-        body: JSON.stringify({
-          records: [data],
-        }),
-      });
+        if (isProxied && !isActive) {
+          formData.active = 1;
+          setIsActive(true);
+        }
 
-      if (!response.ok || response.status !== 200) {
-        toast.error("创建失败！", {
-          description: await response.text(),
-        });
-      } else {
-        toast.success(`创建成功！`);
-        setShowForm(false);
-        onRefresh();
-      }
-    });
-  };
-
-  const handleUpdateRecord = async (data: CreateDNSRecord) => {
-    startTransition(async () => {
-      if (type === "edit") {
-        const response = await fetch(`${action}/update`, {
+        const response = await fetch(`${action}/save`, {
           method: "POST",
-          body: JSON.stringify({
-            recordId: initData?.record_id,
-            record: data,
-            userId: initData?.userId,
-          }),
+          body: JSON.stringify(formData),
         });
-        if (!response.ok || response.status !== 200) {
-          toast.error("更新失败", {
-            description: await response.text(),
-          });
-        } else {
-          const res = await response.json();
-          toast.success(`更新成功！`);
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          throw new Error(
+            errorData?.error || `提交失败: ${response.status}`
+          );
+        }
+
+        const result = await response.json();
+        
+        if (result.success) {
+          toast.success(initData ? "记录更新成功" : "记录创建成功");
           setShowForm(false);
           onRefresh();
+        } else {
+          throw new Error(result.error || "操作失败，请稍后重试");
         }
-      }
-    });
+      });
+    } catch (error) {
+      console.error("表单提交错误:", error);
+      setFormError(error instanceof Error ? error.message : "提交时发生未知错误");
+      toast.error("表单提交失败");
+    }
   };
 
   const handleDeleteRecord = async () => {
@@ -155,12 +155,19 @@ export function RecordForm({
     }
   };
 
+  const handleProxyChange = (value: boolean) => {
+    setIsProxied(value);
+    if (value && !isActive) {
+      setIsActive(true);
+    }
+  };
+
   return (
     <div className="mb-4 rounded-lg border border-dashed shadow-sm animate-in fade-in-50">
       <div className="rounded-t-lg bg-muted px-4 py-2 text-lg font-semibold">
         {type === "add" ? "创建" : "编辑"} 记录
       </div>
-      <form className="p-4" onSubmit={onSubmit}>
+      <form className="p-4" onSubmit={handleSubmit(onSubmit)}>
         <div className="items-center justify-start gap-4 md:flex">
           <FormSectionColumns title="类型">
             <Select
@@ -287,9 +294,7 @@ export function RecordForm({
                 <Switch
                   id="proxied"
                   checked={getValues("proxied")}
-                  onCheckedChange={(checked) => {
-                    setValue("proxied", checked);
-                  }}
+                  onCheckedChange={handleProxyChange}
                   className="data-[state=checked]:bg-orange-500"
                 />
                 <span className="ml-2 text-sm">

@@ -1,5 +1,10 @@
 import { env } from "@/env.mjs";
-import { updateDNSRecord, deleteDNSRecord, createDNSRecord } from "@/lib/cloudflare";
+import {
+  updateDNSRecord,
+  deleteDNSRecord,
+  createDNSRecord,
+  DNSRecordResponse
+} from "@/lib/cloudflare";
 import {
   updateUserRecord,
   updateUserRecordState,
@@ -7,9 +12,23 @@ import {
 import { checkUserStatus } from "@/lib/dto/user";
 import { reservedDomains } from "@/lib/enums";
 import { getCurrentUser } from "@/lib/session";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { PrismaClient } from "@prisma/client";
+import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
 const prisma = new PrismaClient();
+
+// 定义请求参数验证模式
+const updateParamsSchema = z.object({
+  zone_id: z.string(),
+  record_id: z.string(),
+  active: z.number().optional(),
+  proxied: z.boolean().optional(),
+  target: z.string().optional(),
+});
 
 // update record
 export async function POST(req: Request) {
@@ -93,184 +112,176 @@ export async function POST(req: Request) {
   }
 }
 
-// update record state
-export async function PUT(req: Request) {
+/**
+ * 处理DNS记录更新请求
+ */
+export async function PUT(request: Request) {
   try {
-    const user = checkUserStatus(await getCurrentUser());
-    if (user instanceof Response) return user;
-
-    const { CLOUDFLARE_ZONE_ID, CLOUDFLARE_API_KEY, CLOUDFLARE_EMAIL } = env;
-    if (!CLOUDFLARE_ZONE_ID || !CLOUDFLARE_API_KEY || !CLOUDFLARE_EMAIL) {
-      return Response.json({ message: "API密钥和区域ID是必需的。" }, {
-        status: 401,
-      });
+    // 验证用户会话
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: "未授权访问" },
+        { status: 401 }
+      );
     }
 
-    const { zone_id, record_id, target, active, proxied } = await req.json();
+    // 解析请求参数
+    const body = await request.json();
+    const validation = updateParamsSchema.safeParse(body);
     
-    // 获取完整的DNS记录信息
-    try {
-      // 首先从数据库获取完整记录信息
-      const recordData = await prisma.userRecord.findUnique({
-        where: {
-          record_id,
-          zone_id,
-        }
-      });
-      
-      if (!recordData) {
-        return Response.json({ message: "找不到该DNS记录" }, { status: 404 });
-      }
-      
-      // 根据状态进行相应操作
-      if (active === 0) {
-        // 如果状态设为关闭，则删除Cloudflare上的记录
-        try {
-          await deleteDNSRecord(
-            CLOUDFLARE_ZONE_ID,
-            CLOUDFLARE_API_KEY,
-            CLOUDFLARE_EMAIL,
-            record_id
-          );
-        } catch (error) {
-          // 如果删除失败，可能记录已不存在，继续执行
-          console.log("删除DNS记录失败，可能已不存在:", error);
-        }
-        
-        // 更新数据库中的状态
-        const res = await updateUserRecordState(
-          user.id,
-          record_id,
-          zone_id,
-          active
-        );
-        
-        if (!res) {
-          return Response.json({ message: "更新状态失败" }, { status: 502 });
-        }
-        
-        return Response.json({
-          message: "状态已关闭，DNS记录已从Cloudflare移除"
-        });
-      } else {
-        // 如果状态设为开启，首先检查目标是否可访问
-        let isTargetAccessible = false;
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3000); // 3秒超时
-          
-          const target_res = await fetch(`https://${target}`, {
-            method: 'HEAD',
-            headers: {
-              'User-Agent': 'DNS-Check-Bot'
-            },
-            signal: controller.signal
-          });
-          
-          clearTimeout(timeoutId);
-          isTargetAccessible = target_res.status === 200;
-        } catch (fetchError) {
-          isTargetAccessible = false;
-          console.log(`无法访问目标: ${fetchError}`);
-        }
-        
-        // 无论目标是否可访问，都重新创建DNS记录
-        try {
-          // 使用原始记录内容创建新记录
-          // 注意：对proxied参数的处理 - 使用请求中传来的值或保持原值
-          const proxyStatus = proxied !== undefined ? proxied : recordData.proxied;
-          
-          console.log("创建DNS记录，代理状态:", proxyStatus);
-          
-          const recordToCreate: any = {
-            type: recordData.type,
-            name: recordData.name,
-            content: recordData.content,
-            ttl: recordData.ttl || 1,
-            proxied: proxyStatus,
-            comment: recordData.comment || "",
-            tags: recordData.tags ? recordData.tags.split(",") : []
-          };
-          
-          const createResult = await createDNSRecord(
-            CLOUDFLARE_ZONE_ID,
-            CLOUDFLARE_API_KEY,
-            CLOUDFLARE_EMAIL,
-            recordToCreate
-          );
-          
-          if (!createResult.success) {
-            return Response.json({ 
-              message: "重新创建DNS记录失败", 
-              errors: createResult.errors 
-            }, { status: 500 });
-          }
-          
-          // 如果创建成功，更新数据库中的记录ID和状态
-          // 注意：新创建的记录会有新的record_id
-          const newRecordId = createResult.result?.id;
-          
-          if (!newRecordId) {
-            return Response.json({ message: "创建记录后未获得新ID" }, { status: 500 });
-          }
-          
-          // 删除旧记录，避免数据库引用错误
-          await prisma.userRecord.delete({
-            where: {
-              record_id,
-              zone_id
-            }
-          });
-          
-          // 创建更新后的记录
-          const updatedRecord = await prisma.userRecord.create({
-            data: {
-              userId: user.id,
-              record_id: newRecordId,
-              zone_id: CLOUDFLARE_ZONE_ID,
-              zone_name: recordData.zone_name,
-              name: recordData.name,
-              type: recordData.type,
-              content: recordData.content,
-              ttl: recordData.ttl,
-              proxied: proxyStatus,
-              proxiable: recordData.proxiable, 
-              comment: recordData.comment,
-              tags: recordData.tags,
-              created_on: new Date().toISOString(),
-              modified_on: new Date().toISOString(),
-              active: 1
-            }
-          });
-          
-          return Response.json({
-            message: isTargetAccessible ? 
-              "状态已开启，DNS记录已重新创建，且目标可访问!" : 
-              "状态已开启，DNS记录已重新创建，但目标不可访问!",
-            record_id: newRecordId
-          });
-        } catch (error) {
-          console.error("重新创建DNS记录时出错:", error);
-          return Response.json({ 
-            message: "重新创建DNS记录时出错", 
-            error: String(error) 
-          }, { status: 500 });
-        }
-      }
-    } catch (dbError) {
-      console.error("获取DNS记录信息出错:", dbError);
-      return Response.json({ message: "获取DNS记录信息失败" }, { status: 500 });
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: "参数验证失败", details: validation.error.format() },
+        { status: 400 }
+      );
     }
-  } catch (error) {
-    console.error(error);
-    const errorMessage = typeof error === 'string' 
-      ? { message: error } 
-      : (error && typeof error === 'object' 
-          ? { message: error.statusText || '发生错误', ...error } 
-          : { message: '发生错误' });
-    
-    return Response.json(errorMessage, {
-      status: error && typeof error === 'object' && 'status' in error ? error.status : 500
+
+    const { zone_id, record_id, active, proxied, target } = validation.data;
+
+    // 查询用户记录
+    const userRecord = await prisma.userRecord.findFirst({
+      where: {
+        record_id: record_id,
+        zone_id: zone_id,
+        user: {
+          email: session.user.email,
+        },
+      },
     });
+
+    if (!userRecord) {
+      return NextResponse.json(
+        { error: "记录不存在或无权访问" },
+        { status: 404 }
+      );
+    }
+
+    // 获取用户API密钥信息
+    const keyRecord = await prisma.user.findUnique({
+      where: {
+        id: userRecord.userId,
+      },
+      select: {
+        email: true,
+        cloudflareApiKey: true,
+      }
+    });
+
+    if (!keyRecord?.cloudflareApiKey) {
+      return NextResponse.json(
+        { error: "用户API密钥未配置" },
+        { status: 400 }
+      );
+    }
+
+    const cf_email = keyRecord.email;
+    const cf_key = keyRecord.cloudflareApiKey;
+
+    let response: DNSRecordResponse | undefined;
+    let message = "";
+
+    // 处理DNS记录状态变更
+    if (active !== undefined) {
+      if (active === 0) {
+        // 关闭记录 - 从Cloudflare删除
+        await deleteDNSRecord(zone_id, cf_key, cf_email, record_id);
+        message = "记录已关闭，DNS解析已停止";
+      } else {
+        // 开启记录 - 创建或更新DNS记录
+        try {
+          // 优先尝试更新
+          response = await updateDNSRecord(zone_id, cf_key, cf_email, record_id, {
+            name: userRecord.name,
+            type: userRecord.type as any,
+            content: userRecord.content || "",
+            ttl: userRecord.ttl || 1,
+            proxied: proxied !== undefined ? proxied : !!userRecord.proxied,
+            comment: userRecord.comment || "",
+          });
+        } catch (error) {
+          // 如果更新失败，则创建新记录
+          response = await createDNSRecord(zone_id, cf_key, cf_email, {
+            name: userRecord.name,
+            type: userRecord.type as any,
+            content: userRecord.content || "",
+            ttl: userRecord.ttl || 1,
+            proxied: proxied !== undefined ? proxied : !!userRecord.proxied,
+            comment: userRecord.comment || "",
+          });
+        }
+
+        if (response.result?.id) {
+          // 更新数据库中的记录ID
+          await prisma.userRecord.update({
+            where: {
+              id: userRecord.id,
+            },
+            data: {
+              record_id: response.result.id,
+              active: 1,
+            },
+          });
+          message = "记录已开启，DNS解析已生效";
+        }
+      }
+    } else if (proxied !== undefined) {
+      // 仅更新代理状态
+      response = await updateDNSRecord(zone_id, cf_key, cf_email, record_id, {
+        name: userRecord.name,
+        type: userRecord.type as any,
+        content: userRecord.content || "",
+        ttl: userRecord.ttl || 1,
+        proxied: proxied,
+        comment: userRecord.comment || "",
+      });
+      
+      message = proxied ? "已启用Cloudflare代理" : "已禁用Cloudflare代理";
+    }
+
+    // 更新数据库中的记录状态和代理状态
+    await prisma.userRecord.update({
+      where: {
+        id: userRecord.id,
+      },
+      data: {
+        active: active !== undefined ? active : userRecord.active,
+        proxied: proxied !== undefined ? proxied : userRecord.proxied,
+      },
+    });
+
+    // 检查目标可访问性并添加到响应消息
+    if (target && active === 1) {
+      try {
+        const checkResult = await fetch(`https://${target}`, {
+          method: "HEAD",
+          redirect: "manual",
+          headers: {
+            "User-Agent": "APIL-DNS-Check/1.0",
+          },
+        });
+        
+        if (!checkResult.ok && checkResult.status >= 400) {
+          message += `，但目标地址 ${target} 当前不可访问`;
+        }
+      } catch (error) {
+        message += `，但目标地址 ${target} 当前不可访问`;
+      }
+    }
+
+    // 重新验证路径以刷新页面数据
+    revalidatePath("/dashboard/records");
+    
+    return NextResponse.json({
+      success: true,
+      message,
+      record_id: response?.result?.id,
+    });
+  } catch (error) {
+    console.error("DNS记录更新错误:", error);
+    return NextResponse.json(
+      { error: "服务器处理失败", details: (error as Error).message },
+      { status: 500 }
+    );
   }
 }
