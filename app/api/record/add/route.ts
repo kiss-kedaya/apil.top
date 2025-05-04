@@ -49,8 +49,8 @@ export async function POST(req: Request) {
     const record = {
       ...records[0],
       id: generateSecret(16),
-      // type: "CNAME",
-      proxied: false,
+      // 设置默认值，确保proxied默认为true
+      proxied: records[0].proxied !== undefined ? records[0].proxied : true,
     };
 
     const record_name = record.name.endsWith(".apil.top")
@@ -103,7 +103,8 @@ export async function POST(req: Request) {
         tags: data.result.tags?.join("") ?? "",
         created_on: data.result.created_on,
         modified_on: data.result.modified_on,
-        active: 0,
+        // 确保记录默认是开启状态
+        active: 1,
       });
 
       if (res.status !== "success") {

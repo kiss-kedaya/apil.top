@@ -8,10 +8,13 @@ export async function GET(req: Request) {
     const user = checkUserStatus(await getCurrentUser());
     if (user instanceof Response) return user;
     if (user.role !== "ADMIN") {
-      return Response.json({ message: "Unauthorized" }, {
-        status: 401,
-        statusText: "Unauthorized",
-      });
+      return Response.json(
+        { message: "Unauthorized" },
+        {
+          status: 401,
+          statusText: "Unauthorized",
+        },
+      );
     }
 
     const url = new URL(req.url);
@@ -28,14 +31,18 @@ export async function GET(req: Request) {
 
     return Response.json(data);
   } catch (error) {
-    const errorMessage = typeof error === 'string' 
-      ? { message: error } 
-      : (error && typeof error === 'object' 
-          ? { message: error.statusText || '服务器错误', ...error } 
-          : { message: '服务器错误' });
-    
+    const errorMessage =
+      typeof error === "string"
+        ? { message: error }
+        : error && typeof error === "object"
+          ? { message: error.statusText || "服务器错误", ...error }
+          : { message: "服务器错误" };
+
     return Response.json(errorMessage, {
-      status: error && typeof error === 'object' && 'status' in error ? error.status : 500
+      status:
+        error && typeof error === "object" && "status" in error
+          ? error.status
+          : 500,
     });
   }
 }

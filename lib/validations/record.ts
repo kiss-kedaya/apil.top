@@ -6,7 +6,7 @@ export const createRecordSchema = z.object({
     .regex(/^[a-zA-Z0-9]+$/, "Invalid characters")
     .min(1)
     .max(32)
-    .default("CNAME"),
+    .default("A"),
   name: z
     .string()
     .regex(/^[a-zA-Z0-9-_]+$/, "Invalid characters")

@@ -51,7 +51,7 @@ export function RecordForm({
   const [isPending, startTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
   const [currentRecordType, setCurrentRecordType] = useState(
-    initData?.type || "CNAME",
+    initData?.type || "A",
   );
   const [isActive, setIsActive] = useState(
     initData?.active ? initData.active === 1 : true
@@ -70,7 +70,7 @@ export function RecordForm({
   } = useForm<FormData>({
     resolver: zodResolver(createRecordSchema),
     defaultValues: {
-      type: initData?.type || "CNAME",
+      type: initData?.type || "A",
       ttl: initData?.ttl || 1,
       proxied: initData?.proxied !== undefined ? initData.proxied : true,
       comment: initData?.comment || "",
@@ -157,6 +157,8 @@ export function RecordForm({
 
   const handleProxyChange = (value: boolean) => {
     setIsProxied(value);
+    setValue("proxied", value);
+    
     if (value && !isActive) {
       setIsActive(true);
     }
@@ -176,7 +178,7 @@ export function RecordForm({
                 setCurrentRecordType(value);
               }}
               name={"type"}
-              defaultValue={initData?.type || "CNAME"}
+              defaultValue={initData?.type || "A"}
             >
               <SelectTrigger className="w-full shadow-inner">
                 <SelectValue placeholder="选择类型" />
@@ -293,12 +295,12 @@ export function RecordForm({
               <div className="flex items-center">
                 <Switch
                   id="proxied"
-                  checked={getValues("proxied")}
+                  checked={isProxied}
                   onCheckedChange={handleProxyChange}
                   className="data-[state=checked]:bg-orange-500"
                 />
                 <span className="ml-2 text-sm">
-                  {getValues("proxied") ? "代理" : "直连"}
+                  {isProxied ? "代理" : "直连"}
                 </span>
               </div>
             </div>
