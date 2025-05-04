@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/shared/icons";
+import { Switch } from "@/components/ui/switch";
 
 import { FormSectionColumns } from "../dashboard/form-section-columns";
 import {
@@ -140,7 +141,7 @@ export function RecordForm({
             userId: initData?.userId,
           }),
         });
-        if (!response.ok || response.status !== 200) {
+        if (!response.ok) {
           toast.error("删除失败", {
             description: await response.text(),
           });
@@ -275,6 +276,29 @@ export function RecordForm({
             </Select>
             <p className="p-1 text-[13px] text-muted-foreground">
               缓存生存时间。
+            </p>
+          </FormSectionColumns>
+          <FormSectionColumns title="代理">
+            <div className="flex w-full items-center gap-2">
+              <Label className="sr-only" htmlFor="proxied">
+                代理
+              </Label>
+              <div className="flex items-center">
+                <Switch
+                  id="proxied"
+                  checked={getValues("proxied")}
+                  onCheckedChange={(checked) => {
+                    setValue("proxied", checked);
+                  }}
+                  className="data-[state=checked]:bg-orange-500"
+                />
+                <span className="ml-2 text-sm">
+                  {getValues("proxied") ? "代理" : "直连"}
+                </span>
+              </div>
+            </div>
+            <p className="p-1 text-[13px] text-muted-foreground">
+              开启后流量通过Cloudflare代理，可以获得安全防护和CDN加速，但可能有兼容性问题。
             </p>
           </FormSectionColumns>
           <FormSectionColumns title="备注">

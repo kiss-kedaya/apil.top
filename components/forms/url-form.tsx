@@ -138,7 +138,7 @@ export function UrlForm({
             userId: initData?.userId,
           }),
         });
-        if (!response.ok || response.status !== 200) {
+        if (!response.ok) {
           toast.error("删除失败", {
             description: await response.text(),
           });

@@ -99,6 +99,7 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
     checked: boolean,
     record: UserRecordFormData,
     setChecked: (value: boolean) => void,
+    isProxy?: boolean
   ) => {
     const originalState = record.active === 1;
     setChecked(checked); // 立即更新 UI
@@ -111,6 +112,7 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
           record_id: record.record_id,
           active: checked ? 1 : 0,
           target: record.name,
+          proxied: isProxy // 如果提供了代理参数，则传递给后端
         }),
       });
 
@@ -129,6 +131,11 @@ export default function UserRecordsList({ user, action }: RecordListProps) {
           }
           // 无论如何，都保持用户选择的状态
           setChecked(checked);
+          
+          // 如果返回了新记录ID，刷新页面
+          if (data.record_id) {
+            handleRefresh();
+          }
         } else {
           // 兼容旧格式的响应
           setChecked(originalState);
@@ -363,15 +370,42 @@ const SwitchWrapper = ({
     checked: boolean,
     record: UserRecordFormData,
     setChecked: (value: boolean) => void,
+    isProxy?: boolean
   ) => Promise<void>;
 }) => {
   const [checked, setChecked] = useState(record.active === 1);
+  const [isProxied, setIsProxied] = useState(record.proxied);
+
+  const handleProxyToggle = async (proxyValue: boolean) => {
+    setIsProxied(proxyValue);
+    
+    // 只有当记录是激活状态时才发送代理更改请求
+    if (checked) {
+      await onChangeStatu(true, record, setChecked, proxyValue);
+    }
+  };
 
   return (
-    <Switch
-      className="data-[state=checked]:bg-blue-500"
-      checked={checked}
-      onCheckedChange={(value) => onChangeStatu(value, record, setChecked)}
-    />
+    <div className="flex flex-col gap-2 items-center">
+      <div className="flex items-center gap-1">
+        <Switch
+          className="data-[state=checked]:bg-blue-500"
+          checked={checked}
+          onCheckedChange={(value) => onChangeStatu(value, record, setChecked)}
+        />
+        <span className="text-xs ml-1">{checked ? "开启" : "关闭"}</span>
+      </div>
+      
+      {checked && (
+        <div className="flex items-center gap-1">
+          <Switch
+            className="data-[state=checked]:bg-orange-500"
+            checked={isProxied}
+            onCheckedChange={handleProxyToggle}
+          />
+          <span className="text-xs ml-1">{isProxied ? "代理" : "直连"}</span>
+        </div>
+      )}
+    </div>
   );
 };
