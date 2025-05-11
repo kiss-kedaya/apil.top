@@ -8,6 +8,33 @@ import { env } from "@/env.mjs";
  */
 export class DomainService {
   /**
+   * 执行DNS查询
+   * @param domainName 要查询的域名
+   * @param recordType 记录类型（如TXT, MX等）
+   * @returns DNS查询结果
+   */
+  private static async performDnsQuery(domainName: string, recordType: string): Promise<any> {
+    try {
+      const response = await fetch(
+        `https://cloudflare-dns.com/dns-query?name=${domainName}&type=${recordType}`, 
+        {
+          headers: { 'Accept': 'application/dns-json' }
+        }
+      );
+      
+      if (!response.ok) {
+        logger.error(`DNS查询失败: ${domainName}，记录类型: ${recordType}`, { status: response.status });
+        return null;
+      }
+      
+      return await response.json();
+    } catch (error) {
+      logger.error(`DNS查询异常: ${domainName}，记录类型: ${recordType}`, { error });
+      return null;
+    }
+  }
+
+  /**
    * 验证域名所有权
    * @param domainName 域名名称
    * @param verificationKey 验证密钥
@@ -15,21 +42,9 @@ export class DomainService {
   public static async verifyDomainOwnership(domainName: string, verificationKey: string): Promise<boolean> {
     try {
       // 使用Cloudflare DNS-over-HTTPS API检查TXT记录
-      const response = await fetch(
-        `https://cloudflare-dns.com/dns-query?name=${domainName}&type=TXT`, 
-        {
-          headers: { 'Accept': 'application/dns-json' }
-        }
-      );
+      const dnsData = await this.performDnsQuery(domainName, 'TXT');
       
-      if (!response.ok) {
-        logger.error(`DNS查询失败: ${domainName}`, { status: response.status });
-        return false;
-      }
-      
-      const dnsData = await response.json();
-      
-      if (!dnsData.Answer || !Array.isArray(dnsData.Answer)) {
+      if (!dnsData || !dnsData.Answer || !Array.isArray(dnsData.Answer)) {
         return false;
       }
       
@@ -63,72 +78,44 @@ export class DomainService {
       const issues: string[] = [];
       const mailServer = env.MAIL_SERVER || "mail.qali.cn";
       
-      // 验证MX记录 - 使用DNS-over-HTTPS
+      // 验证MX记录
       let mxValid = false;
-      try {
-        const mxResponse = await fetch(
-          `https://cloudflare-dns.com/dns-query?name=${domainName}&type=MX`, 
-          {
-            headers: { 'Accept': 'application/dns-json' }
-          }
-        );
-        
-        if (!mxResponse.ok) {
-          issues.push('MX记录查询失败');
-        } else {
-          const mxData = await mxResponse.json();
-          
-          if (mxData.Answer && Array.isArray(mxData.Answer)) {
-            // 检查MX记录是否指向我们的邮件服务器
-            mxValid = mxData.Answer.some(record => {
-              const mxValue = record.data?.toLowerCase() || '';
-              return mxValue.includes(mailServer.toLowerCase());
-            });
-          }
-          
-          if (!mxValid) {
-            issues.push(`未找到指向 ${mailServer} 的MX记录`);
-          }
-        }
-      } catch (error) {
+      const mxData = await this.performDnsQuery(domainName, 'MX');
+      
+      if (!mxData) {
         issues.push('MX记录查询失败');
-        logger.error(`MX记录查询失败: ${domainName}`, { error });
+      } else if (mxData.Answer && Array.isArray(mxData.Answer)) {
+        // 检查MX记录是否指向我们的邮件服务器
+        mxValid = mxData.Answer.some(record => {
+          const mxValue = record.data?.toLowerCase() || '';
+          return mxValue.includes(mailServer.toLowerCase());
+        });
       }
       
-      // 验证SPF记录 - 使用DNS-over-HTTPS
+      if (!mxValid) {
+        issues.push(`未找到指向 ${mailServer} 的MX记录`);
+      }
+      
+      // 验证SPF记录
       let spfValid = false;
-      try {
-        const txtResponse = await fetch(
-          `https://cloudflare-dns.com/dns-query?name=${domainName}&type=TXT`, 
-          {
-            headers: { 'Accept': 'application/dns-json' }
-          }
-        );
-        
-        if (!txtResponse.ok) {
-          issues.push('SPF记录查询失败');
-        } else {
-          const txtData = await txtResponse.json();
-          
-          if (txtData.Answer && Array.isArray(txtData.Answer)) {
-            // 检查是否有包含我们域名的SPF记录
-            for (const answer of txtData.Answer) {
-              const txtValue = answer.data?.replace(/"/g, '') || '';
-              if (txtValue.startsWith('v=spf1') && 
-                  txtValue.includes(siteConfig.mainDomains[0])) {
-                spfValid = true;
-                break;
-              }
-            }
-          }
-          
-          if (!spfValid) {
-            issues.push(`未找到包含 ${siteConfig.mainDomains[0]} 的SPF记录`);
+      const txtData = await this.performDnsQuery(domainName, 'TXT');
+      
+      if (!txtData) {
+        issues.push('SPF记录查询失败');
+      } else if (txtData.Answer && Array.isArray(txtData.Answer)) {
+        // 检查是否有包含我们域名的SPF记录
+        for (const answer of txtData.Answer) {
+          const txtValue = answer.data?.replace(/"/g, '') || '';
+          if (txtValue.startsWith('v=spf1') && 
+              txtValue.includes(siteConfig.mainDomains[0])) {
+            spfValid = true;
+            break;
           }
         }
-      } catch (error) {
-        issues.push('SPF记录查询失败');
-        logger.error(`SPF记录查询失败: ${domainName}`, { error });
+      }
+      
+      if (!spfValid) {
+        issues.push(`未找到包含 ${siteConfig.mainDomains[0]} 的SPF记录`);
       }
       
       // 简化后只检查MX和SPF
@@ -158,6 +145,24 @@ export class DomainService {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     for (let i = 0; i < 32; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  /**
+   * 生成随机字符串
+   * @param length 字符串长度
+   * @param includeSpecial 是否包含特殊字符
+   * @private
+   */
+  private static generateRandomString(length: number, includeSpecial: boolean = false): string {
+    const alphaNumeric = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const special = '!@#$%^&*';
+    const chars = includeSpecial ? alphaNumeric + special : alphaNumeric;
+    
+    let result = '';
+    for (let i = 0; i < length; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;
@@ -214,7 +219,7 @@ export class DomainService {
           smtpServer: env.DEFAULT_SMTP_SERVER || 'smtp.qali.cn',
           smtpPort: env.DEFAULT_SMTP_PORT ? parseInt(env.DEFAULT_SMTP_PORT) : 587,
           smtpUsername: `${domain.userId}@${domain.domainName}`,
-          smtpPassword: this.generateRandomPassword(),
+          smtpPassword: this.generateRandomString(16, true),
           fromEmail: `noreply@${domain.domainName}`
         }
       });
@@ -230,19 +235,6 @@ export class DomainService {
       logger.error(`启用邮箱服务失败: ${domainId}`, { error });
       throw new Error('启用邮箱服务失败');
     }
-  }
-  
-  /**
-   * 生成随机密码
-   * @private
-   */
-  private static generateRandomPassword(): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-    let result = '';
-    for (let i = 0; i < 16; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
   }
   
   /**
@@ -276,7 +268,7 @@ export class DomainService {
         }
       }
     } catch (error) {
-      logger.error(`创建默认邮箱失败`, { error });
+      logger.error(`创建默认邮箱失败`, { error, userId, domainName });
       // 不抛出异常，避免中断主流程
     }
   }

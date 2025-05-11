@@ -89,6 +89,70 @@ export default auth(async (req) => {
   }
 });
 
+/**
+ * 处理重定向逻辑 - 提取公共代码
+ * @param target API返回的目标或错误信息
+ * @param slug 短链接标识
+ * @param baseUrl 基础URL（主域名情况为空，自定义域名情况为站点URL）
+ */
+function handleRedirection(target: string | any, slug: string = "", baseUrl: string = ""): NextResponse {
+  // 处理直接返回字符串的情况
+  if (typeof target === "string") {
+    // 检查是否是预定义的重定向
+    if (target in redirectMap) {
+      if (
+        ["PasswordRequired[0004]", "IncorrectPassword[0005]"].includes(
+          target,
+        )
+      ) {
+        return NextResponse.redirect(
+          `${baseUrl}${redirectMap[target]}${slug}`,
+          302,
+        );
+      }
+
+      return NextResponse.redirect(
+        `${baseUrl}${redirectMap[target]}`,
+        302,
+      );
+    }
+
+    // 否则将target作为URL直接重定向
+    return NextResponse.redirect(target, 302);
+  }
+
+  // 兼容旧格式的响应
+  if (target && typeof target === "object") {
+    if (target.message && target.message in redirectMap) {
+      if (
+        ["PasswordRequired[0004]", "IncorrectPassword[0005]"].includes(
+          target.message,
+        )
+      ) {
+        return NextResponse.redirect(
+          `${baseUrl}${redirectMap[target.message]}${slug}`,
+          302,
+        );
+      }
+
+      return NextResponse.redirect(
+        `${baseUrl}${redirectMap[target.message]}`,
+        302,
+      );
+    }
+
+    if (target.target && typeof target.target === "string") {
+      return NextResponse.redirect(target.target, 302);
+    }
+  }
+
+  // 如果无法解析响应
+  return NextResponse.redirect(
+    `${baseUrl}${redirectMap["Error[0003]"]}`,
+    302,
+  );
+}
+
 // 处理自定义域名的短链接请求
 async function handleCustomDomainShortUrl(
   req: NextAuthRequest,
@@ -98,14 +162,8 @@ async function handleCustomDomainShortUrl(
 ) {
   try {
     // 安全获取地理位置信息，防止undefined错误
-    let geo;
-    try {
-      geo = geolocation(req);
-    } catch (error) {
-      console.error("Geolocation error:", error);
-      geo = {}; // 使用空对象作为备选
-    }
-
+    const geo = safeGetGeolocation(req);
+    
     const headers = req.headers;
     const { browser, device } = parseUserAgent(headers.get("user-agent") || "");
 
@@ -140,69 +198,15 @@ async function handleCustomDomainShortUrl(
         body: JSON.stringify(trackingData),
       });
 
-      if (!res.ok)
+      if (!res.ok) {
         return NextResponse.redirect(
           `${siteConfig.url}${redirectMap["Error[0003]"]}`,
           302,
         );
+      }
 
       const target = await res.json();
-
-      // 处理直接返回字符串的情况
-      if (typeof target === "string") {
-        // 检查是否是预定义的重定向
-        if (target in redirectMap) {
-          if (
-            ["PasswordRequired[0004]", "IncorrectPassword[0005]"].includes(
-              target,
-            )
-          ) {
-            return NextResponse.redirect(
-              `${siteConfig.url}${redirectMap[target]}${slug || ""}`,
-              302,
-            );
-          }
-
-          return NextResponse.redirect(
-            `${siteConfig.url}${redirectMap[target]}`,
-            302,
-          );
-        }
-
-        // 否则将target作为URL直接重定向
-        return NextResponse.redirect(target, 302);
-      }
-
-      // 兼容旧格式的响应
-      if (target && typeof target === "object") {
-        if (target.message && target.message in redirectMap) {
-          if (
-            ["PasswordRequired[0004]", "IncorrectPassword[0005]"].includes(
-              target.message,
-            )
-          ) {
-            return NextResponse.redirect(
-              `${siteConfig.url}${redirectMap[target.message]}${slug || ""}`,
-              302,
-            );
-          }
-
-          return NextResponse.redirect(
-            `${siteConfig.url}${redirectMap[target.message]}`,
-            302,
-          );
-        }
-
-        if (target.target && typeof target.target === "string") {
-          return NextResponse.redirect(target.target, 302);
-        }
-      }
-
-      // 如果无法解析响应
-      return NextResponse.redirect(
-        `${siteConfig.url}${redirectMap["Error[0003]"]}`,
-        302,
-      );
+      return handleRedirection(target, slug || "", siteConfig.url);
     } catch (error) {
       console.error("API fetch error:", error);
       return NextResponse.redirect(
@@ -230,6 +234,16 @@ function extractSlug(url: string): string | null {
   }
 }
 
+// 安全获取地理位置信息
+function safeGetGeolocation(req: NextAuthRequest): any {
+  try {
+    return geolocation(req);
+  } catch (error) {
+    console.error("Geolocation error:", error);
+    return {}; // 使用空对象作为备选
+  }
+}
+
 // 解析用户代理
 const parser = new UAParser();
 function parseUserAgent(ua: string) {
@@ -254,14 +268,8 @@ async function handleShortUrl(req: NextAuthRequest) {
     const slug = extractSlug(req.url);
     if (!slug) return NextResponse.redirect(`/docs/short-urls`, 302);
 
-    // 安全获取地理位置信息，防止undefined错误
-    let geo;
-    try {
-      geo = geolocation(req);
-    } catch (error) {
-      console.error("Geolocation error:", error);
-      geo = {}; // 使用空对象作为备选
-    }
+    // 安全获取地理位置信息
+    const geo = safeGetGeolocation(req);
 
     const headers = req.headers;
     const { browser, device } = parseUserAgent(headers.get("user-agent") || "");
@@ -295,54 +303,12 @@ async function handleShortUrl(req: NextAuthRequest) {
         body: JSON.stringify(trackingData),
       });
 
-      if (!res.ok)
+      if (!res.ok) {
         return NextResponse.redirect(`${redirectMap["Error[0003]"]}`, 302);
+      }
 
       const target = await res.json();
-
-      // 处理直接返回字符串的情况
-      if (typeof target === "string") {
-        // 检查是否是预定义的重定向
-        if (target in redirectMap) {
-          if (
-            ["PasswordRequired[0004]", "IncorrectPassword[0005]"].includes(
-              target,
-            )
-          ) {
-            return NextResponse.redirect(`${redirectMap[target]}${slug}`, 302);
-          }
-
-          return NextResponse.redirect(`${redirectMap[target]}`, 302);
-        }
-
-        // 否则将target作为URL直接重定向
-        return NextResponse.redirect(target, 302);
-      }
-
-      // 兼容旧格式的响应
-      if (target && typeof target === "object") {
-        if (target.message && target.message in redirectMap) {
-          if (
-            ["PasswordRequired[0004]", "IncorrectPassword[0005]"].includes(
-              target.message,
-            )
-          ) {
-            return NextResponse.redirect(
-              `${redirectMap[target.message]}${slug}`,
-              302,
-            );
-          }
-
-          return NextResponse.redirect(`${redirectMap[target.message]}`, 302);
-        }
-
-        if (target.target && typeof target.target === "string") {
-          return NextResponse.redirect(target.target, 302);
-        }
-      }
-
-      // 如果无法解析响应
-      return NextResponse.redirect(`${redirectMap["Error[0003]"]}`, 302);
+      return handleRedirection(target, slug);
     } catch (error) {
       console.error("API fetch error:", error);
       return NextResponse.redirect(`${redirectMap["Error[0003]"]}`, 302);

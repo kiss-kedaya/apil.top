@@ -4,6 +4,20 @@ import { prisma } from "@/lib/db";
 
 import { getStartDate } from "../utils";
 
+// 访问统计批量处理队列
+const clicksQueue = new Map<string, {
+  urlId: string;
+  ip: string;
+  data: Omit<UrlMeta, "id" | "createdAt" | "updatedAt">;
+  timestamp: number;
+}>();
+
+// 批量处理间隔 (毫秒)
+const BATCH_INTERVAL = 10000; // 10秒
+
+// 上次批量处理时间
+let lastBatchProcess = Date.now();
+
 export interface ShortUrlFormData {
   id?: string;
   userId: string;
@@ -255,42 +269,103 @@ export async function getUrlBySuffix(suffix: string) {
   });
 }
 
-// meta
+// 处理统计数据队列，批量更新数据库
+async function processBatchClicks() {
+  if (clicksQueue.size === 0) return;
+  
+  try {
+    // 获取队列中所有点击数据
+    const clicks = Array.from(clicksQueue.values());
+    
+    // 清空队列
+    clicksQueue.clear();
+    
+    // 按URL ID分组
+    const clicksByUrlId = clicks.reduce((groups, click) => {
+      const key = `${click.urlId}:${click.ip}`;
+      if (!groups[key]) {
+        groups[key] = click;
+      }
+      return groups;
+    }, {} as Record<string, any>);
+    
+    // 批量更新数据库
+    const operations = Object.values(clicksByUrlId).map((click: any) => {
+      return prisma.urlMeta.upsert({
+        where: {
+          urlId_ip: {
+            urlId: click.urlId,
+            ip: click.ip,
+          }
+        },
+        update: {
+          click: { increment: 1 },
+          city: click.data.city || null,
+          country: click.data.country || null,
+          region: click.data.region || null,
+          latitude: click.data.latitude || null,
+          longitude: click.data.longitude || null,
+          referer: click.data.referer || null,
+          lang: click.data.lang || null,
+          device: click.data.device || null,
+          browser: click.data.browser || null,
+          updatedAt: new Date(),
+        },
+        create: {
+          ...click.data,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
+    });
+    
+    // 执行批量操作
+    await prisma.$transaction(operations);
+    
+    console.log(`批量处理了 ${operations.length} 条访问记录`);
+  } catch (error) {
+    console.error("处理批量点击失败:", error);
+  }
+  
+  // 更新最后处理时间
+  lastBatchProcess = Date.now();
+}
+
+// 定时检查是否需要处理队列
+setInterval(() => {
+  const now = Date.now();
+  // 如果距离上次处理超过间隔时间或队列中有超过50条记录，则处理队列
+  if ((now - lastBatchProcess > BATCH_INTERVAL && clicksQueue.size > 0) || clicksQueue.size >= 50) {
+    processBatchClicks();
+  }
+}, 5000); // 每5秒检查一次
+
+// 创建短链接访问记录 - 优化版
 export async function createUserShortUrlMeta(
   data: Omit<UrlMeta, "id" | "createdAt" | "updatedAt">,
 ) {
   try {
-    const meta = await findOrCreateUrlMeta(data);
-    return { status: "success", data: meta };
-  } catch (error) {
-    console.error("create meta error", error);
-    return { status: "error", message: error.message };
-  }
-}
-
-async function findOrCreateUrlMeta(data) {
-  const meta = await prisma.urlMeta.findFirst({
-    where: {
-      ip: data.ip,
+    // 生成唯一键
+    const key = `${data.urlId}:${data.ip}:${Date.now()}`;
+    
+    // 添加到队列
+    clicksQueue.set(key, {
       urlId: data.urlId,
-    },
-  });
-
-  if (meta) {
-    return await incrementClick(meta.id);
-  } else {
-    return await prisma.urlMeta.create({ data });
+      ip: data.ip,
+      data,
+      timestamp: Date.now(),
+    });
+    
+    // 如果队列太大，立即处理
+    if (clicksQueue.size >= 100) {
+      processBatchClicks();
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("添加访问记录到队列失败:", error);
+    return false;
   }
-}
-
-async function incrementClick(id) {
-  return await prisma.urlMeta.update({
-    where: { id },
-    data: {
-      click: { increment: 1 },
-      updatedAt: new Date(), // Prisma will handle the ISO string conversion
-    },
-  });
 }
 
 export async function getUrlMetaLiveLog(userId?: string) {

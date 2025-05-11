@@ -2,15 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
-import { errorResponse, successResponse } from "@/lib/api-response";
+import { errorResponse } from "@/lib/api-response";
+import { env } from "@/env.mjs";
 
 // 自定义域名短链接请求验证模式
 const customDomainLinkSchema = z.object({
   userId: z.string(),
   customDomain: z.string(),
   slug: z.string().optional(),
-  referer: z.string().optional(),
-  ip: z.string().optional(),
+  referer: z.string().default("(None)"),
+  ip: z.string().default("127.0.0.1"),
   city: z.string().optional(),
   region: z.string().optional(),
   country: z.string().optional(),
@@ -20,8 +21,70 @@ const customDomainLinkSchema = z.object({
   lang: z.string().optional(),
   device: z.string().optional(),
   browser: z.string().optional(),
-  password: z.string().optional()
+  password: z.string().default("")
 });
+
+/**
+ * 检查短链接是否过期
+ * @param shortUrl 短链接对象
+ * @returns 是否过期
+ */
+function isShortUrlExpired(shortUrl: any): boolean {
+  if (!shortUrl.expiration || shortUrl.expiration === "-1") {
+    return false;
+  }
+  
+  try {
+    const expirationTimestamp = parseInt(shortUrl.expiration);
+    return !isNaN(expirationTimestamp) && expirationTimestamp < Date.now();
+  } catch (error) {
+    logger.error(`短链接过期检查错误: ${shortUrl.id}`, { error });
+    return false; // 如果无法解析过期时间，默认为未过期
+  }
+}
+
+/**
+ * 更新短链接访问统计
+ * @param urlId 短链接ID
+ * @param trackingData 访问统计数据
+ */
+async function updateClickStatistics(urlId: string, trackingData: any): Promise<void> {
+  const { ip, referer, ...otherData } = trackingData;
+  
+  try {
+    await prisma.urlMeta.upsert({
+      where: {
+        urlId_ip: {
+          urlId: urlId,
+          ip
+        }
+      },
+      update: {
+        click: { increment: 1 },
+        referer: referer || null,
+        ...Object.entries(otherData).reduce((acc, [key, value]) => {
+          acc[key] = value || null;
+          return acc;
+        }, {} as Record<string, any>)
+      },
+      create: {
+        urlId: urlId,
+        click: 1,
+        ip,
+        referer: referer || null,
+        ...Object.entries(otherData).reduce((acc, [key, value]) => {
+          acc[key] = value || null;
+          return acc;
+        }, {} as Record<string, any>)
+      }
+    });
+    
+    logger.info(`短链接访问统计更新成功: ${urlId}`);
+  } catch (error) {
+    // 统计记录失败不影响重定向
+    logger.error(`统计记录失败: ${urlId}`, { error });
+  }
+}
 
 /**
  * 处理自定义域名的短链接请求
@@ -39,10 +102,7 @@ export async function POST(request: NextRequest) {
     const { 
       userId, 
       customDomain, 
-      slug = customDomain, 
-      referer = "(None)",
-      ip = "127.0.0.1",
-      password = "",
+      slug = customDomain,
       ...trackingData
     } = validationResult.data;
     
@@ -81,31 +141,10 @@ export async function POST(request: NextRequest) {
       
       // 如果没有找到，尝试创建一个默认的域名短链接
       if (!userUrl) {
-        // 检查用户是否存在
-        const user = await prisma.user.findUnique({
-          where: { id: userId },
-          select: { name: true }
-        });
-        
-        if (!user) {
-          logger.warn(`用户不存在: ${userId}`);
+        userUrl = await createDefaultDomainShortUrl(userId, customDomain);
+        if (!userUrl) {
           return NextResponse.json("Missing[0000]");
         }
-        
-        // 创建默认短链接，指向系统首页
-        userUrl = await prisma.userUrl.create({
-          data: {
-            userId: userId,
-            userName: user.name || '未知用户',
-            target: process.env.NEXT_PUBLIC_APP_URL || 'https://qali.cn',
-            url: customDomain, // 使用域名作为唯一标识
-            prefix: customDomain,
-            visible: 0,
-            active: 1
-          }
-        });
-        
-        logger.info(`已创建默认域名短链接: ${customDomain}`, { userId });
       }
     } else {
       // 查找常规短链接
@@ -118,79 +157,77 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    // 如果找不到短链接或已过期
+    // 如果找不到短链接
     if (!userUrl) {
       logger.warn(`找不到有效的短链接: ${slug}`, { userId, customDomain });
       return NextResponse.json("Missing[0000]");
     }
     
     // 检查短链接是否过期
-    if (userUrl.expiration !== "-1") {
-      const expirationTimestamp = parseInt(userUrl.expiration);
-      if (!isNaN(expirationTimestamp) && expirationTimestamp < Date.now()) {
-        logger.info(`短链接已过期: ${slug}`, { userId, customDomain });
-        return NextResponse.json("Expired[0001]");
-      }
+    if (isShortUrlExpired(userUrl)) {
+      logger.info(`短链接已过期: ${slug}`, { userId, customDomain });
+      return NextResponse.json("Expired[0001]");
     }
     
     // 检查密码保护
-    if (userUrl.password && userUrl.password !== password) {
+    if (userUrl.password && userUrl.password !== trackingData.password) {
       logger.info(`短链接需要密码: ${slug}`, { userId, customDomain });
       return NextResponse.json("PasswordRequired[0004]");
     }
     
     // 更新点击统计
-    try {
-      await prisma.urlMeta.upsert({
-        where: {
-          urlId_ip: {
-            urlId: userUrl.id,
-            ip
-          }
-        },
-        update: {
-          click: { increment: 1 },
-          // 更新附加统计数据
-          city: trackingData.city || null,
-          country: trackingData.country || null,
-          region: trackingData.region || null,
-          latitude: trackingData.latitude || null,
-          longitude: trackingData.longitude || null,
-          referer: referer || null,
-          lang: trackingData.lang || null,
-          device: trackingData.device || null,
-          browser: trackingData.browser || null
-        },
-        create: {
-          urlId: userUrl.id,
-          click: 1,
-          ip,
-          city: trackingData.city || null,
-          country: trackingData.country || null,
-          region: trackingData.region || null,
-          latitude: trackingData.latitude || null,
-          longitude: trackingData.longitude || null,
-          referer: referer || null,
-          lang: trackingData.lang || null,
-          device: trackingData.device || null,
-          browser: trackingData.browser || null
-        }
-      });
-      
-      logger.info(`短链接访问成功: ${slug} -> ${userUrl.target}`, { 
-        userId, 
-        customDomain,
-        target: userUrl.target
-      });
-    } catch (error) {
-      // 统计记录失败不影响重定向
-      logger.error(`统计记录失败: ${slug}`, { error });
-    }
+    updateClickStatistics(userUrl.id, trackingData);
+    
+    logger.info(`短链接访问成功: ${slug} -> ${userUrl.target}`, { 
+      userId, 
+      customDomain,
+      target: userUrl.target
+    });
     
     // 返回目标URL
     return NextResponse.json(userUrl.target);
   } catch (error) {
     logger.error("处理自定义域名短链接失败", { error });
     return NextResponse.json("Error[0003]");
+  }
+}
+
+/**
+ * 创建默认的域名短链接
+ * @param userId 用户ID
+ * @param domainName 域名名称
+ * @returns 创建的短链接对象，如果失败返回null
+ */
+async function createDefaultDomainShortUrl(userId: string, domainName: string) {
+  try {
+    // 检查用户是否存在
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true }
+    });
+    
+    if (!user) {
+      logger.warn(`用户不存在: ${userId}`);
+      return null;
+    }
+    
+    // 创建默认短链接，指向系统首页
+    const userUrl = await prisma.userUrl.create({
+      data: {
+        userId: userId,
+        userName: user.name || '未知用户',
+        target: env.NEXT_PUBLIC_APP_URL || 'https://qali.cn',
+        url: domainName, // 使用域名作为唯一标识
+        prefix: domainName,
+        visible: 0,
+        active: 1
+      }
+    });
+    
+    logger.info(`已创建默认域名短链接: ${domainName}`, { userId });
+    return userUrl;
+  } catch (error) {
+    logger.error(`创建默认域名短链接失败: ${domainName}`, { error, userId });
+    return null;
   }
 } 
