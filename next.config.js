@@ -6,6 +6,7 @@ import("./env.mjs");
 const nextConfig = {
   reactStrictMode: false,
   swcMinify: true,
+  output: 'standalone',
   // 禁用链接预加载，防止静态资源循环加载
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
@@ -33,6 +34,7 @@ const nextConfig = {
   // 禁用预加载功能
   experimental: {
     serverComponentsExternalPackages: ["@prisma/client"],
+    useSearchParamsInSSR: false, // 禁用SSR中使用searchParams
   },
   async rewrites() {
     return [
