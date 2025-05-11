@@ -6,7 +6,7 @@ import { constructMetadata } from "@/lib/utils";
 import { EmailDashboard } from "./email";
 
 export const metadata = constructMetadata({
-  title: "Emails - apil.top",
+  title: "Emails - qali.cn",
   description: "List and manage emails.",
 });
 

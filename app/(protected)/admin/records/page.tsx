@@ -7,7 +7,7 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import UserRecordsList from "../../dashboard/records/record-list";
 
 export const metadata = constructMetadata({
-  title: "DNS记录 - apil.top",
+  title: "DNS记录 - qali.cn",
   description: "列出并管理记录。",
 });
 

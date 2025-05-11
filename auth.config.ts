@@ -24,7 +24,7 @@ export default {
       async sendVerificationRequest({ identifier: email, url, provider }) {
         try {
           const { error } = await resend.emails.send({
-            from: provider.from || "no-reply@apil.top",
+            from: provider.from || "no-reply@qali.cn",
             to: [email],
             subject: "Verify your email address",
             html: getVerificationEmailHtml({ url, appName: siteConfig.name }),

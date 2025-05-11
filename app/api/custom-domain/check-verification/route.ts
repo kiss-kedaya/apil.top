@@ -91,13 +91,13 @@ export async function POST(request: NextRequest) {
               {
                 type: "MX",
                 name: domain.domainName,
-                value: "10 mail.apil.top",
+                value: "10 mail.qali.cn",
                 status: emailConfig.mx ? "正常" : "未配置"
               },
               {
                 type: "TXT (SPF)",
                 name: domain.domainName,
-                value: `v=spf1 include:apil.top ~all`,
+                value: `v=spf1 include:qali.cn ~all`,
                 status: emailConfig.spf ? "正常" : "未配置"
               }
             ]

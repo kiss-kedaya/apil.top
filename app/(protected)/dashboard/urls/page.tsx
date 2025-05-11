@@ -9,7 +9,7 @@ import LiveLog from "./live-logs";
 import UserUrlsList from "./url-list";
 
 export const metadata = constructMetadata({
-  title: "短链接 - apil.top",
+  title: "短链接 - qali.cn",
   description: "列出并管理记录。",
 });
 

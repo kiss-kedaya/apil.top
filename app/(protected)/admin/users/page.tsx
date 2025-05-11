@@ -7,7 +7,7 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import UsersList from "./user-list";
 
 export const metadata = constructMetadata({
-  title: "用户管理 – apil.top",
+  title: "用户管理 – qali.cn",
   description: "列出并管理所有用户。",
 });
 

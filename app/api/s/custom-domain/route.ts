@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
           data: {
             userId: userId,
             userName: user.name || '未知用户',
-            target: process.env.NEXT_PUBLIC_APP_URL || 'https://apil.top',
+            target: process.env.NEXT_PUBLIC_APP_URL || 'https://qali.cn',
             url: customDomain, // 使用域名作为唯一标识
             prefix: customDomain,
             visible: 0,

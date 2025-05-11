@@ -6,7 +6,7 @@ description: 逐步安装指南
 ## 0. 安装
 
 ```bash
-git clone https://github.com/kiss-kedaya/apil.top
+git clone https://github.com/kiss-kedaya/qali.cn
 ```
 
 进入文件夹并为您的项目安装依赖：
@@ -114,7 +114,7 @@ RESEND_API_KEY = re_your_resend_api_key;
 
 这是您 Cloudflare 区域的唯一标识符。您可以在 Cloudflare 仪表板的域名概览部分找到它。
 
-> 按照 [这种方式](https://dash.cloudflare.com/Your_Acount_Id/apil.top)，向下滚动至 `Zone ID`。
+> 按照 [这种方式](https://dash.cloudflare.com/Your_Acount_Id/qali.cn)，向下滚动至 `Zone ID`。
 
 ### 添加 CLOUDFLARE_API_KEY 环境变量
 
@@ -134,7 +134,7 @@ RESEND_API_KEY = re_your_resend_api_key;
 
 ```js title=".env"
 CLOUDFLARE_ZONE_ID=abcdef1234567890
-CLOUDFLARE_ZONE_NAME=apil.top
+CLOUDFLARE_ZONE_NAME=qali.cn
 CLOUDFLARE_API_KEY=1234567890abcdef1234567890abcdef
 CLOUDFLARE_EMAIL=user@example.com
 ```
@@ -154,7 +154,7 @@ CLOUDFLARE_EMAIL=user@example.com
 ![](/_static/docs/r2-domain.png)
 
 ```js title=".env"
-NEXT_PUBLIC_EMAIL_R2_DOMAIN=https://email-attachment.apil.top
+NEXT_PUBLIC_EMAIL_R2_DOMAIN=https://email-attachment.qali.cn
 ```
 
 ## 5. 添加业务配置
@@ -164,10 +164,10 @@ NEXT_PUBLIC_EMAIL_R2_DOMAIN=https://email-attachment.apil.top
 NEXT_PUBLIC_OPEN_SIGNUP=1
 
 # 短域名。用 `,` 分隔
-NEXT_PUBLIC_SHORT_DOMAINS=apil.top,apil.top
+NEXT_PUBLIC_SHORT_DOMAINS=qali.cn,qali.cn
 
 # 电子邮件域名。用 `,` 分隔
-NEXT_PUBLIC_EMAIL_DOMAINS=apil.top,apil.top
+NEXT_PUBLIC_EMAIL_DOMAINS=qali.cn,qali.cn
 ```
 
 ## 6. 添加 SCREENSHOTONE_BASE_URL 环境变量

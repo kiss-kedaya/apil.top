@@ -26,7 +26,7 @@ import { RadialShapeChart } from "./api-key-active-chart";
 import { LineChartMultiple } from "./line-chart-multiple";
 
 export const metadata = constructMetadata({
-  title: "管理员 – apil.top",
+  title: "管理员 – qali.cn",
   description: "仅供管理员管理的管理页面。",
 });
 

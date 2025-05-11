@@ -21,7 +21,7 @@ import LiveLog from "./urls/live-logs";
 import UserUrlsList from "./urls/url-list";
 
 export const metadata = constructMetadata({
-  title: "仪表板 - apil.top",
+  title: "仪表板 - qali.cn",
   description: "列出并管理记录。",
 });
 

@@ -51,9 +51,9 @@ export async function POST(req: Request) {
 
     const { record, recordId } = await req.json();
 
-    const record_name = record.name.endsWith(".apil.top")
+    const record_name = record.name.endsWith(".qali.cn")
       ? record.name
-      : record.name + ".apil.top";
+      : record.name + ".qali.cn";
     if (reservedDomains.includes(record_name)) {
       return Response.json({ message: "域名已被保留" }, {
         status: 403,

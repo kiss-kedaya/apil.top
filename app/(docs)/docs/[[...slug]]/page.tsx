@@ -38,7 +38,7 @@ export async function generateMetadata({
   const { title, description } = doc;
 
   return constructMetadata({
-    title: `${title} – apil.top`,
+    title: `${title} – qali.cn`,
     description: description,
   });
 }

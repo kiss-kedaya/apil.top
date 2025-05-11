@@ -961,7 +961,7 @@ export default function ChatRoom() {
           由{" "}
           <Link
             className="hover:underline"
-            href={"https://apil.top"}
+            href={"https://qali.cn"}
             target="_blank"
             style={{ fontFamily: "Bahamas Bold" }}
           >

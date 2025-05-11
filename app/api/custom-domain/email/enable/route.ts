@@ -76,13 +76,13 @@ export async function POST(request: NextRequest) {
           {
             type: "MX",
             name: domain.domainName,
-            value: `10 mail.apil.top`,
+            value: `10 mail.qali.cn`,
             explanation: "用于接收发送到您域名的电子邮件"
           },
           {
             type: "TXT",
             name: domain.domainName,
-            value: `v=spf1 include:apil.top ~all`,
+            value: `v=spf1 include:qali.cn ~all`,
             explanation: "邮件发送者验证，防止伪造邮件"
           }
         ]

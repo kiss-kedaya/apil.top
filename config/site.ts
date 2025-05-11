@@ -31,17 +31,17 @@ export interface SiteConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  name: "apilTop",
+  name: "qali.cn",
   description:
     "全能助手，链接、图床、邮箱、API，全部功能只需一个域名",
-  url: process.env.NEXT_PUBLIC_APP_URL || "https://apil.top",
-  ogImage: "https://apil.top/opengraph-image.jpg",
+  url: process.env.NEXT_PUBLIC_APP_URL || "https://qali.cn",
+  ogImage: "https://qali.cn/opengraph-image.jpg",
   links: {
     twitter: "https://twitter.com/kedayacom",
     github: "https://github.com/KedayaLive",
-    feedback: "https://github.com/kiss-kedaya/apil.top/issues",
+    feedback: "https://github.com/kiss-kedaya/qali.cn/issues",
     Telegram: "https://t.me/TGG798",
-    oichat: "https://oi.apil.top",
+    oichat: "https://oi.qali.cn",
   },
   mailSupport: "kedaya0226@qq.com",
   openSignup: open_signup === "1" ? true : false,
@@ -49,7 +49,7 @@ export const siteConfig: SiteConfig = {
   emailDomains: email_domains.split(",").filter(domain => domain.trim() !== ""),
   emailR2Domain: email_r2_domain,
   userCustomDomains: user_custom_domains.split(",").filter(domain => domain.trim() !== ""),
-  mainDomains: ["apil.top", "localhost"], // 主域名列表，用于识别自定义域名
+  mainDomains: ["qali.cn", "localhost"], // 主域名列表，用于识别自定义域名
 };
 
 export const footerLinks: SidebarNavItem[] = [

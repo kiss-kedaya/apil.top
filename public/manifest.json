@@ -1,8 +1,8 @@
 {
-  "name": "apil.top",
-  "short_name": "apil.top",
+  "name": "qali.cn",
+  "short_name": "qali.cn",
   "description": "A DNS record distribution system",
-  "appid": "com.apil.top",
+  "appid": "com.qali.cn",
   "versionName": "1.0.0",
   "versionCode": "1",
   "start_url": "/",

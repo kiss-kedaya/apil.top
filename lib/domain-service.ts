@@ -61,7 +61,7 @@ export class DomainService {
   }> {
     try {
       const issues: string[] = [];
-      const mailServer = env.MAIL_SERVER || "mail.apil.top";
+      const mailServer = env.MAIL_SERVER || "mail.qali.cn";
       
       // 验证MX记录 - 使用DNS-over-HTTPS
       let mxValid = false;
@@ -211,7 +211,7 @@ export class DomainService {
           // 先标记为未验证，等验证通过后再更新
           emailVerified: false,
           // 默认SMTP配置
-          smtpServer: env.DEFAULT_SMTP_SERVER || 'smtp.apil.top',
+          smtpServer: env.DEFAULT_SMTP_SERVER || 'smtp.qali.cn',
           smtpPort: env.DEFAULT_SMTP_PORT ? parseInt(env.DEFAULT_SMTP_PORT) : 587,
           smtpUsername: `${domain.userId}@${domain.domainName}`,
           smtpPassword: this.generateRandomPassword(),

@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     const serverIP = env.SERVER_IP || "请联系管理员获取服务器IP";
     
     // 邮件服务器域名 - 从配置获取
-    const mailServer = env.MAIL_SERVER || "mail.apil.top";
+    const mailServer = env.MAIL_SERVER || "mail.qali.cn";
     
     // 生成验证指南
     const verificationGuide = {

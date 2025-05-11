@@ -26,7 +26,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "email-attachment.apil.top",
+        hostname: "email-attachment.qali.cn",
       },
     ],
   },

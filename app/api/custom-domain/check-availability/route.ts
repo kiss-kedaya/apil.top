@@ -82,7 +82,7 @@ export async function POST(req: Request) {
 function isBlacklistedDomain(domain: string): boolean {
   // 黑名单域名列表
   const blacklist = [
-    "apil.top", // 系统主域名
+    "qali.cn", // 系统主域名
     "kedaya.com",
     "example.com",
     "example.org",

@@ -162,7 +162,7 @@ export default function PasswordPrompt() {
         Powered by{" "}
         <Link
           className="hover:underline"
-          href={"https://apil.top"}
+          href={"https://qali.cn"}
           target="_blank"
           style={{ fontFamily: "Bahamas Bold" }}
         >

@@ -53,9 +53,9 @@ export async function POST(req: Request) {
       proxied: records[0].proxied !== undefined ? records[0].proxied : true,
     };
 
-    const record_name = record.name.endsWith(".apil.top")
+    const record_name = record.name.endsWith(".qali.cn")
       ? record.name
-      : record.name + ".apil.top";
+      : record.name + ".qali.cn";
 
     if (reservedDomains.includes(record_name)) {
       return Response.json({ message: "Domain name is reserved" }, {

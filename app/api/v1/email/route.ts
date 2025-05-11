@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   const user = await checkApiKey(custom_api_key);
   if (!user?.id) {
     return Response.json(
-      { message: "API 密钥无效。你可以在 https://apil.top/dashboard/settings 获取你的 API 密钥。" },
+      { message: "API 密钥无效。你可以在 https://qali.cn/dashboard/settings 获取你的 API 密钥。" },
       { status: 401 },
     );
   }
@@ -90,7 +90,7 @@ export async function DELETE(req: NextRequest) {
   const user = await checkApiKey(custom_api_key);
   if (!user?.id) {
     return Response.json(
-      { message: "API 密钥无效。你可以在 https://apil.top/dashboard/settings 获取你的 API 密钥。" },
+      { message: "API 密钥无效。你可以在 https://qali.cn/dashboard/settings 获取你的 API 密钥。" },
       { status: 401 },
     );
   }

@@ -8,7 +8,7 @@ import DashboardScrapeCharts from "../charts";
 import { MetaScraping } from "../scrapes";
 
 export const metadata = constructMetadata({
-  title: "网址转元信息API - apil.top",
+  title: "网址转元信息API - qali.cn",
   description: "快速提取有价值的结构化网站数据",
 });
 

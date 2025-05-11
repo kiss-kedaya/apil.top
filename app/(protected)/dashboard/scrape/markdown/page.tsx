@@ -7,7 +7,7 @@ import { DashboardHeader } from "@/components/dashboard/header";
 import { MarkdownScraping, TextScraping } from "../scrapes";
 
 export const metadata = constructMetadata({
-  title: "网址转Markdown API - apil.top",
+  title: "网址转Markdown API - qali.cn",
   description:
     "快速提取网站内容并转换为Markdown格式",
 });
