@@ -143,7 +143,16 @@ export class ErrorHandler {
    * @param error AppError实例
    */
   static logError(error: AppError): void {
-    const logData = {
+    const logData: {
+      type: ErrorType;
+      message: string;
+      context: Record<string, any>;
+      originalError?: {
+        message: string;
+        name: string;
+        stack?: string;
+      };
+    } = {
       type: error.type,
       message: error.message,
       context: error.context,
