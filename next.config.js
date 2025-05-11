@@ -35,6 +35,8 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ["@prisma/client"],
     useSearchParamsInSSR: false, // 禁用SSR中使用searchParams
+    skipMiddlewareUrlNormalize: true, // 跳过中间件URL标准化
+    optimizePackageImports: ['lucide-react'],
   },
   async rewrites() {
     return [
