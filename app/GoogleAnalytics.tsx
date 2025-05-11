@@ -43,8 +43,7 @@ const GoogleAnalytics = () => {
           if (entry.entryType === 'largest-contentful-paint') {
             const lcpMetric = {
               name: 'LCP',
-              value: entry.startTime,
-              id: entry.id
+              value: entry.startTime
             };
             // 发送性能指标到GA
             gtag.event({
