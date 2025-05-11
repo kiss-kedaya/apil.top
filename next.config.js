@@ -38,6 +38,8 @@ const nextConfig = {
     skipMiddlewareUrlNormalize: true, // 跳过中间件URL标准化
     optimizePackageImports: ['lucide-react'],
   },
+  // 完全禁用静态页面生成
+  distDir: process.env.NODE_ENV === "production" ? ".next" : ".next-dev",
   // 允许构建继续执行，忽略预渲染错误
   onDemandEntries: {
     // 允许构建继续执行，忽略预渲染错误
