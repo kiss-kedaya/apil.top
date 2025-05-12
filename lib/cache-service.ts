@@ -134,11 +134,12 @@ export class CacheService {
    */
   private cleanup(): void {
     const now = Date.now();
-    for (const [key, item] of this.cache.entries()) {
+    // 使用Array.from包装迭代器，避免兼容性问题
+    Array.from(this.cache.entries()).forEach(([key, item]) => {
       if (now > item.expiry) {
         this.cache.delete(key);
       }
-    }
+    });
   }
 
   /**
