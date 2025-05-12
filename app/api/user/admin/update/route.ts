@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
     const { id, data } = await req.json();
 
-    const res = await updateUser(id, {
+    const updatedUser = await updateUser(id, {
       name: data.name,
       email: data.email,
       role: data.role,
@@ -22,12 +22,15 @@ export async function POST(req: Request) {
       image: data.image,
       apiKey: data.apiKey,
     });
-    if (!res?.id) {
+    if (!updatedUser?.id) {
       return Response.json({ message: "发生错误" }, {
         status: 400,
       });
     }
-    return Response.json({ message: "成功" });
+    return Response.json({ 
+      message: "成功",
+      user: updatedUser
+    });
   } catch (error) {
     return Response.json({ statusText: "服务器错误" }, { status: 500 });
   }

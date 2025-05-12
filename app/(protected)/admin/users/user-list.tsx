@@ -97,6 +97,26 @@ export default function UsersList({ user }: UrlListProps) {
     );
   };
 
+  // 用于更新单个用户信息而不刷新整个列表
+  const handleUserUpdate = (updatedUser: User) => {
+    if (data && data.list) {
+      // 创建新的数据对象，保持total不变
+      const newData = {
+        total: data.total,
+        list: data.list.map(user => 
+          user.id === updatedUser.id ? updatedUser : user
+        )
+      };
+      
+      // 使用mutate更新本地数据，但不重新获取
+      mutate(
+        `/api/user/admin?page=${currentPage}&size=${pageSize}&email=${searchParams.email}&userName=${searchParams.userName}`,
+        newData,
+        false
+      );
+    }
+  };
+
   return (
     <>
       <Card className="xl:col-span-2">
@@ -130,6 +150,7 @@ export default function UsersList({ user }: UrlListProps) {
               type="edit"
               initData={currentEditUser}
               onRefresh={handleRefresh}
+              onUpdateSuccess={handleUserUpdate}
             />
           )}
           <div className="mb-2 flex-row items-center gap-2 space-y-2 sm:flex sm:space-y-0">

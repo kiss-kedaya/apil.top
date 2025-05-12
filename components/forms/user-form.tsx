@@ -34,6 +34,7 @@ export interface RecordFormProps {
   type: FormType;
   initData?: User | null;
   onRefresh: () => void;
+  onUpdateSuccess?: (updatedUser: User) => void;
 }
 
 export function UserForm({
@@ -41,6 +42,7 @@ export function UserForm({
   type,
   initData,
   onRefresh,
+  onUpdateSuccess,
 }: RecordFormProps) {
   const [isPending, startTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
@@ -77,14 +79,23 @@ export function UserForm({
           method: "POST",
           body: JSON.stringify({ id: initData?.id, data }),
         });
+        
         if (!response.ok || response.status !== 200) {
           toast.error("Update Failed", {
             description: response.statusText,
           });
         } else {
+          const result = await response.json();
           toast.success(`Update successfully!`);
           setShowForm(false);
-          onRefresh();
+          
+          // 如果有更新后的用户数据并且提供了onUpdateSuccess回调，调用它
+          if (result.user && onUpdateSuccess) {
+            onUpdateSuccess(result.user);
+          } else {
+            // 如果没有获取到更新后的用户或没有提供回调，则执行传统的刷新
+            onRefresh();
+          }
         }
       }
     });
