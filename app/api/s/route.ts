@@ -48,15 +48,28 @@ function isShortUrlExpired(shortUrl: any): boolean {
 async function getCachedShortUrl(slug: string) {
   const cacheKey = `shortUrl:${slug}`;
   
-  return await cacheService.getOrSet(
+  // 默认缓存时间5分钟
+  const defaultTTL = 300 * 1000;
+  
+  // 先使用默认缓存时间获取数据
+  const shortUrl = await cacheService.getOrSet(
     cacheKey,
     async () => {
       const shortUrl = await getUrlBySuffix(slug);
       return shortUrl || null;
     },
-    // 活跃的短链接缓存30秒，不活跃的缓存5分钟
-    shortUrl => shortUrl?.active === 1 ? 30 * 1000 : 5 * 60 * 1000
+    defaultTTL
   );
+  
+  // 如果获取到了短链接且是活跃的，则更新为短缓存时间
+  if (shortUrl && shortUrl.active === 1) {
+    // 活跃的链接使用较短的缓存时间（30秒）
+    const activeTTL = 30 * 1000;
+    // 重新设置缓存，覆盖之前的缓存时间
+    cacheService.set(cacheKey, shortUrl, activeTTL);
+  }
+  
+  return shortUrl;
 }
 
 export async function POST(req: NextRequest) {
