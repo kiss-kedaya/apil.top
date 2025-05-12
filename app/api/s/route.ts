@@ -52,15 +52,10 @@ async function getCachedShortUrl(slug: string) {
     cacheKey,
     async () => {
       const shortUrl = await getUrlBySuffix(slug);
-      
-      // 如果找到短链接且活跃，设置较短的缓存时间
-      if (shortUrl?.active === 1) {
-        cacheService.set(cacheKey, shortUrl, 30 * 1000); // 活跃短链接缓存30秒
-      }
-      
       return shortUrl || null;
     },
-    5 * 60 * 1000  // 默认缓存5分钟
+    // 活跃的短链接缓存30秒，不活跃的缓存5分钟
+    shortUrl => shortUrl?.active === 1 ? 30 * 1000 : 5 * 60 * 1000
   );
 }
 

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2015",
+    "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -24,8 +24,7 @@
         "name": "next"
       }
     ],
-    "strictNullChecks": true,
-    "types": ["node"]
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",

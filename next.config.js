@@ -6,14 +6,6 @@ import("./env.mjs");
 const nextConfig = {
   reactStrictMode: false,
   swcMinify: true,
-  output: 'standalone',
-  skipMiddlewareUrlNormalize: true, // 从experimental移到顶层
-  // 禁用静态生成，使所有页面成为动态SSR
-  unstable_runtimeJS: true,
-  // 禁止自动静态优化，解决useSearchParams问题
-  unstable_disableStaticRendering: true,
-  unstable_disableOptimizedLoading: true,
-  trailingSlash: true, // 统一添加尾部斜杠，消除路由歧义性
   // 禁用链接预加载，防止静态资源循环加载
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
@@ -41,86 +33,6 @@ const nextConfig = {
   // 禁用预加载功能
   experimental: {
     serverComponentsExternalPackages: ["@prisma/client"],
-    optimizePackageImports: ['lucide-react'],
-    // 显式禁用静态预渲染
-    disableOptimizedLoading: true,
-    isrMemoryCacheSize: 0,
-    // 防止预渲染失败
-    disableStaticRendering: true,
-  },
-  // 完全禁用静态页面生成
-  distDir: process.env.NODE_ENV === "production" ? ".next" : ".next-dev",
-  // 允许构建继续执行，忽略预渲染错误
-  onDemandEntries: {
-    // 允许构建继续执行，忽略预渲染错误
-    maxInactiveAge: 25 * 1000,
-    pagesBufferLength: 2,
-  },
-  typescript: {
-    // 忽略类型错误，允许构建继续
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    // 忽略ESLint错误，允许构建继续
-    ignoreDuringBuilds: true,
-  },
-  // 将所有页面设置为动态渲染，防止useSearchParams预渲染错误
-  async headers() {
-    return [
-      {
-        source: '/_next/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          }
-        ],
-      },
-      {
-        source: '/docs/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, stale-while-revalidate=86400',
-          }
-        ],
-      },
-      {
-        source: '/static/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          }
-        ],
-      },
-      {
-        source: '/site.webmanifest',
-        headers: [
-          {
-            key: 'Access-Control-Allow-Origin',
-            value: '*',
-          },
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600',
-          }
-        ],
-      },
-      {
-        source: '/_static/:path*',
-        headers: [
-          {
-            key: 'Access-Control-Allow-Origin',
-            value: '*',
-          },
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          }
-        ],
-      }
-    ];
   },
   async rewrites() {
     return [
@@ -186,6 +98,63 @@ const nextConfig = {
         destination: "/s/llk",
         permanent: true,
       },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        source: '/_next/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          }
+        ],
+      },
+      {
+        source: '/docs/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, stale-while-revalidate=86400',
+          }
+        ],
+      },
+      {
+        source: '/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          }
+        ],
+      },
+      {
+        source: '/site.webmanifest',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600',
+          }
+        ],
+      },
+      {
+        source: '/_static/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          }
+        ],
+      }
     ];
   }
 };
