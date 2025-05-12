@@ -1,9 +1,11 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 
-import { cacheService } from "@/lib/cache-service";
-import { createUserShortUrlMeta, getUrlBySuffix } from "@/lib/dto/short-urls";
-import { logger } from "@/lib/logger";
+import { cacheService } from "../../../lib/cache-service";
+import { createUserShortUrlMeta, getUrlBySuffix } from "../../../lib/dto/short-urls";
+import { logger } from "../../../lib/logger";
+
+
 
 // 验证请求的Schema
 const shortUrlRequestSchema = z.object({
@@ -54,8 +56,8 @@ async function getCachedShortUrl(slug: string) {
       const shortUrl = await getUrlBySuffix(slug);
       return shortUrl || null;
     },
-    // 活跃的短链接缓存30秒，不活跃的缓存5分钟
-    shortUrl => shortUrl?.active === 1 ? 30 * 1000 : 5 * 60 * 1000
+    // 缓存30秒
+    30 * 1000
   );
 }
 
