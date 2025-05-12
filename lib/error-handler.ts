@@ -143,20 +143,21 @@ export class ErrorHandler {
    * @param error AppError实例
    */
   static logError(error: AppError): void {
-    const logData = {
+    const logData: any = {
       type: error.type,
       message: error.message,
       context: error.context,
     };
-    
-    if (error.originalError) {
+
+    // 只有 AppError 才有 originalError
+    if (error instanceof AppError && error.originalError) {
       logData.originalError = {
         message: error.originalError.message,
         name: error.originalError.name,
         stack: error.originalError.stack,
       };
     }
-    
+
     switch (error.type) {
       case ErrorType.VALIDATION:
         logger.warn("验证错误", logData);
