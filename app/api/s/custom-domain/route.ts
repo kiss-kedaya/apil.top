@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
 import { errorResponse } from "@/lib/api-response";
+import { env } from "@/env.mjs";
 
 // 自定义域名短链接请求验证模式
 const customDomainLinkSchema = z.object({
@@ -215,7 +216,7 @@ async function createDefaultDomainShortUrl(userId: string, domainName: string) {
       data: {
         userId: userId,
         userName: user.name || '未知用户',
-        target: process.env.NEXT_PUBLIC_APP_URL || 'https://qali.cn',
+        target: env.NEXT_PUBLIC_APP_URL || 'https://qali.cn',
         url: domainName, // 使用域名作为唯一标识
         prefix: domainName,
         visible: 0,
