@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { NextRequest } from "next/server";
-import { VM } from "vm2";
+import * as vm from "vm";
 import { z } from "zod";
 
 // 验证请求的Schema
@@ -61,54 +61,48 @@ export async function POST(req: NextRequest) {
     // 读取JavaScript文件内容
     const jsContent = fs.readFileSync(fullPath, "utf-8");
 
-    // 使用vm2进行安全的JavaScript执行
-    const vm = new VM({
-      timeout: timeout,
-      sandbox: {
-        params: params,
-        console: {
-          logs: [],
-          log: function (...args) {
-            this.logs.push(args.map((arg) => String(arg)).join(" "));
-          },
-          error: function (...args) {
-            this.logs.push(
-              "[ERROR] " + args.map((arg) => String(arg)).join(" "),
-            );
-          },
-          warn: function (...args) {
-            this.logs.push(
-              "[WARN] " + args.map((arg) => String(arg)).join(" "),
-            );
-          },
-          info: function (...args) {
-            this.logs.push(
-              "[INFO] " + args.map((arg) => String(arg)).join(" "),
-            );
-          },
+    // 准备沙箱环境
+    const consoleLogs: string[] = [];
+    const context = vm.createContext({
+      params: params,
+      console: {
+        logs: consoleLogs,
+        log: function (...args: any[]) {
+          consoleLogs.push(args.map((arg) => String(arg)).join(" "));
         },
-        result: null,
+        error: function (...args: any[]) {
+          consoleLogs.push("[ERROR] " + args.map((arg) => String(arg)).join(" "));
+        },
+        warn: function (...args: any[]) {
+          consoleLogs.push("[WARN] " + args.map((arg) => String(arg)).join(" "));
+        },
+        info: function (...args: any[]) {
+          consoleLogs.push("[INFO] " + args.map((arg) => String(arg)).join(" "));
+        },
       },
+      result: null,
     });
 
     // 执行JavaScript代码
     try {
-      vm.run(`
+      // 设置超时
+      const script = new vm.Script(`
         try {
           ${jsContent}
         } catch(e) {
           console.error('脚本执行错误:', e.message);
         }
       `);
+      
+      // 执行脚本
+      const vmOptions = { timeout: timeout };
+      script.runInContext(context, vmOptions);
 
       // 获取执行结果
-      const result = vm.run('result');
-      const logs = vm.run('console.logs');
-      
       return Response.json({
         success: true,
-        result: result,
-        logs: logs,
+        result: context.result,
+        logs: consoleLogs,
       });
     } catch (execError) {
       return Response.json(
