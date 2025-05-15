@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
-import { NextRequest } from "next/server";
 import * as vm from "vm";
+import { NextRequest } from "next/server";
 import { z } from "zod";
 
 // 验证请求的Schema
@@ -39,7 +39,19 @@ export async function POST(req: NextRequest) {
 
     // 安全检查：确保文件路径在允许的目录内
     const allowedDir = path.resolve(process.cwd(), "scripts");
-    const fullPath = path.resolve(process.cwd(), jsPath);
+
+    // 智能处理文件路径
+    // 如果路径不是绝对路径且不以scripts/开头，则自动添加scripts/前缀
+    let normalizedPath = jsPath;
+    if (
+      !path.isAbsolute(jsPath) &&
+      !jsPath.startsWith("scripts/") &&
+      !jsPath.startsWith("./scripts/")
+    ) {
+      normalizedPath = path.join("scripts", jsPath);
+    }
+
+    const fullPath = path.resolve(process.cwd(), normalizedPath);
 
     if (!fullPath.startsWith(allowedDir)) {
       return Response.json(
@@ -75,13 +87,19 @@ export async function POST(req: NextRequest) {
           consoleLogs.push(args.map((arg) => String(arg)).join(" "));
         },
         error: function (...args: any[]) {
-          consoleLogs.push("[ERROR] " + args.map((arg) => String(arg)).join(" "));
+          consoleLogs.push(
+            "[ERROR] " + args.map((arg) => String(arg)).join(" "),
+          );
         },
         warn: function (...args: any[]) {
-          consoleLogs.push("[WARN] " + args.map((arg) => String(arg)).join(" "));
+          consoleLogs.push(
+            "[WARN] " + args.map((arg) => String(arg)).join(" "),
+          );
         },
         info: function (...args: any[]) {
-          consoleLogs.push("[INFO] " + args.map((arg) => String(arg)).join(" "));
+          consoleLogs.push(
+            "[INFO] " + args.map((arg) => String(arg)).join(" "),
+          );
         },
       },
       result: null,
@@ -93,39 +111,43 @@ export async function POST(req: NextRequest) {
       const scriptContent = `
         try {
           ${jsContent}
-          
+
           // 设置一个全局变量，用于存储执行结果
           var __executionResult = null;
-          
+
           // 如果指定了函数名，则调用该函数
-          ${functionName ? `
+          ${
+            functionName
+              ? `
             // 检查函数是否存在
             if (typeof ${functionName} !== 'function') {
               throw new Error('指定的函数 ${functionName} 不存在或不是一个函数');
             }
-            
+
             // 调用函数并保存结果
             __executionResult = ${functionName}(...${JSON.stringify(functionParams)});
-          ` : `
+          `
+              : `
             // 没有指定函数名，执行普通脚本逻辑
             __executionResult = result;
-          `}
+          `
+          }
         } catch(e) {
           console.error('脚本执行错误:', e.message);
           throw e;
         }
       `;
-      
+
       // 设置超时
       const script = new vm.Script(scriptContent);
-      
+
       // 执行脚本
       const vmOptions = { timeout: timeout };
       script.runInContext(context, vmOptions);
 
       // 获取执行结果
-      const executionResult = vm.runInContext('__executionResult', context);
-      
+      const executionResult = vm.runInContext("__executionResult", context);
+
       return Response.json({
         success: true,
         result: executionResult,
