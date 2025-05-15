@@ -9,6 +9,8 @@ const executeJsSchema = z.object({
   jsPath: z.string().min(1, "JavaScript文件路径不能为空"),
   params: z.record(z.any()).optional().default({}),
   timeout: z.number().optional().default(5000), // 默认5秒超时
+  functionName: z.string().optional(), // 要调用的函数名
+  functionParams: z.array(z.any()).optional(), // 函数参数数组
 });
 
 export async function POST(req: NextRequest) {
@@ -32,6 +34,8 @@ export async function POST(req: NextRequest) {
     const jsPath = data.jsPath;
     const params = data.params;
     const timeout = data.timeout;
+    const functionName = data.functionName;
+    const functionParams = data.functionParams || [];
 
     // 安全检查：确保文件路径在允许的目录内
     const allowedDir = path.resolve(process.cwd(), "scripts");
@@ -85,23 +89,46 @@ export async function POST(req: NextRequest) {
 
     // 执行JavaScript代码
     try {
-      // 设置超时
-      const script = new vm.Script(`
+      // 首先加载JS文件内容
+      const scriptContent = `
         try {
           ${jsContent}
+          
+          // 设置一个全局变量，用于存储执行结果
+          var __executionResult = null;
+          
+          // 如果指定了函数名，则调用该函数
+          ${functionName ? `
+            // 检查函数是否存在
+            if (typeof ${functionName} !== 'function') {
+              throw new Error('指定的函数 ${functionName} 不存在或不是一个函数');
+            }
+            
+            // 调用函数并保存结果
+            __executionResult = ${functionName}(...${JSON.stringify(functionParams)});
+          ` : `
+            // 没有指定函数名，执行普通脚本逻辑
+            __executionResult = result;
+          `}
         } catch(e) {
           console.error('脚本执行错误:', e.message);
+          throw e;
         }
-      `);
+      `;
+      
+      // 设置超时
+      const script = new vm.Script(scriptContent);
       
       // 执行脚本
       const vmOptions = { timeout: timeout };
       script.runInContext(context, vmOptions);
 
       // 获取执行结果
+      const executionResult = vm.runInContext('__executionResult', context);
+      
       return Response.json({
         success: true,
-        result: context.result,
+        result: executionResult,
         logs: consoleLogs,
       });
     } catch (execError) {
