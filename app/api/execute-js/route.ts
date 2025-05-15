@@ -11,7 +11,76 @@ const executeJsSchema = z.object({
   timeout: z.number().optional().default(5000), // 默认5秒超时
   functionName: z.string().optional(), // 要调用的函数名
   functionParams: z.array(z.any()).optional(), // 函数参数数组
+  bypassCache: z.boolean().optional().default(false), // 是否跳过缓存
 });
+
+// 脚本文件缓存
+interface ScriptCache {
+  content: string; // JS文件内容
+  lastModified: number; // 文件最后修改时间
+  lastAccessed: number; // 最后访问时间
+}
+
+// 全局脚本缓存对象
+const scriptCache: Record<string, ScriptCache> = {};
+
+// 缓存配置
+const CACHE_MAX_AGE = 3600000; // 缓存最大生存时间（1小时）
+
+// 定期清理过期缓存（每30分钟）
+if (typeof setInterval !== "undefined") {
+  setInterval(() => {
+    const now = Date.now();
+    for (const path in scriptCache) {
+      if (now - scriptCache[path].lastAccessed > CACHE_MAX_AGE) {
+        delete scriptCache[path];
+      }
+    }
+  }, 1800000);
+}
+
+/**
+ * 从缓存获取JS文件内容，如果缓存不存在或已过期则重新加载
+ */
+function getScriptContent(
+  fullPath: string,
+  bypassCache: boolean = false,
+): string {
+  const now = Date.now();
+
+  // 1. 如果要求跳过缓存或缓存不存在，直接读取文件
+  if (bypassCache || !scriptCache[fullPath]) {
+    const stats = fs.statSync(fullPath);
+    const content = fs.readFileSync(fullPath, "utf-8");
+
+    scriptCache[fullPath] = {
+      content,
+      lastModified: stats.mtimeMs,
+      lastAccessed: now,
+    };
+
+    return content;
+  }
+
+  // 2. 检查文件是否被修改（通过比较修改时间）
+  const stats = fs.statSync(fullPath);
+  if (stats.mtimeMs > scriptCache[fullPath].lastModified) {
+    // 文件已修改，更新缓存
+    const content = fs.readFileSync(fullPath, "utf-8");
+
+    scriptCache[fullPath] = {
+      content,
+      lastModified: stats.mtimeMs,
+      lastAccessed: now,
+    };
+
+    return content;
+  }
+
+  // 3. 使用缓存内容，但更新访问时间
+  scriptCache[fullPath].lastAccessed = now;
+  return scriptCache[fullPath].content;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,12 +105,12 @@ export async function POST(req: NextRequest) {
     const timeout = data.timeout;
     const functionName = data.functionName;
     const functionParams = data.functionParams || [];
+    const bypassCache = data.bypassCache || false;
 
     // 安全检查：确保文件路径在允许的目录内
     const allowedDir = path.resolve(process.cwd(), "scripts");
 
     // 智能处理文件路径
-    // 如果路径不是绝对路径且不以scripts/开头，则自动添加scripts/前缀
     let normalizedPath = jsPath;
     if (
       !path.isAbsolute(jsPath) &&
@@ -74,8 +143,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 读取JavaScript文件内容
-    const jsContent = fs.readFileSync(fullPath, "utf-8");
+    // 从缓存获取JS文件内容
+    const jsContent = getScriptContent(fullPath, bypassCache);
+    const isCached = !bypassCache && scriptCache[fullPath] !== undefined;
 
     // 准备沙箱环境
     const consoleLogs: string[] = [];
@@ -107,8 +177,8 @@ export async function POST(req: NextRequest) {
 
     // 执行JavaScript代码
     try {
-      // 首先加载JS文件内容
-      const scriptContent = `
+      // 构建执行脚本
+      const scriptToExecute = `
         try {
           ${jsContent}
 
@@ -138,10 +208,8 @@ export async function POST(req: NextRequest) {
         }
       `;
 
-      // 设置超时
-      const script = new vm.Script(scriptContent);
-
       // 执行脚本
+      const script = new vm.Script(scriptToExecute);
       const vmOptions = { timeout: timeout };
       script.runInContext(context, vmOptions);
 
@@ -152,6 +220,7 @@ export async function POST(req: NextRequest) {
         success: true,
         result: executionResult,
         logs: consoleLogs,
+        jsFromCache: isCached, // 标记JS是否来自缓存
       });
     } catch (execError) {
       return Response.json(
