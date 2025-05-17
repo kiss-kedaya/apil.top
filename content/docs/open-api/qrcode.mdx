@@ -5,4 +5,123 @@ description: 从 URL 生成二维码
 
 ## 使用方法
 
+该API允许您将任何URL转换为二维码图片。支持多种参数来自定义二维码的外观和格式。
+
+### 请求格式
+
+**POST 请求 (推荐)**
+
+```bash
+POST https://qali.cn/api/v1/scraping/qrcode
+Content-Type: application/json
+
+{
+  "url": "https://example.com",
+  "key": "YOUR_API_KEY",
+  "width": 200,
+  "margin": 4,
+  "dark": "#000000",
+  "light": "#ffffff",
+  "type": "png"
+}
+```
+
+**GET 请求 (兼容模式)**
+
+```bash
+GET https://qali.cn/api/v1/scraping/qrcode?url=https://example.com&key=YOUR_API_KEY&width=200&margin=4&dark=%23000000&light=%23ffffff&type=png
+```
+
+### 参数说明
+
+| 参数名 | 类型 | 必需 | 默认值 | 描述 |
+| ----- | --- | ---- | ----- | ---- |
+| url | string | 是 | - | 需要转换为二维码的URL |
+| key | string | 是 | - | 您的API密钥 |
+| width | number | 否 | 200 | 二维码的宽度(像素) |
+| margin | number | 否 | 4 | 二维码边距(模块) |
+| dark | string | 否 | #000000 | 二维码暗色部分的颜色 |
+| light | string | 否 | #ffffff | 二维码亮色部分的颜色 |
+| type | string | 否 | png | 输出类型: png、jpeg、webp或string |
+
+### 响应格式
+
+如果type参数为"string"，则返回文本格式的二维码（ASCII艺术）。对于其他类型，返回相应格式的图片。
+
+### 错误码
+
+| 状态码 | 描述 |
+| ----- | ---- |
+| 400 | 参数错误，URL或API密钥缺失或格式不正确 |
+| 401 | API密钥无效 |
+| 500 | 服务器内部错误 |
+
+### 示例
+
+**使用cURL发送POST请求**
+
+```bash
+curl -X POST \
+  https://qali.cn/api/v1/scraping/qrcode \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "url": "https://qali.cn",
+  "key": "YOUR_API_KEY",
+  "width": 300,
+  "type": "png"
+}'
+```
+
+**使用JavaScript发送POST请求**
+
+```javascript
+async function generateQRCode() {
+  const response = await fetch('https://qali.cn/api/v1/scraping/qrcode', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      url: 'https://qali.cn',
+      key: 'YOUR_API_KEY',
+      width: 300,
+      type: 'png'
+    })
+  });
+  
+  if (response.ok) {
+    const imageData = await response.text();
+    // 处理返回的图片数据
+    document.getElementById('qrcode').src = imageData;
+  } else {
+    console.error('生成二维码失败');
+  }
+}
+```
+
+**使用Python发送POST请求**
+
+```python
+import requests
+import json
+
+url = 'https://qali.cn/api/v1/scraping/qrcode'
+data = {
+    'url': 'https://qali.cn',
+    'key': 'YOUR_API_KEY',
+    'width': 300,
+    'type': 'png'
+}
+
+response = requests.post(url, json=data)
+
+if response.status_code == 200:
+    # 保存二维码图片
+    with open('qrcode.png', 'wb') as f:
+        f.write(response.content)
+    print('二维码已保存')
+else:
+    print(f'错误: {response.text}')
+```
+
 
