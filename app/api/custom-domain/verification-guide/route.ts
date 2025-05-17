@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
 
     return successResponse(verificationGuide, "获取域名验证指南成功");
   } catch (error) {
-    await  logger.error("获取域名验证指南失败:", error);
+    await logger.error("获取域名验证指南失败:", error);
     return errorResponse("获取域名验证指南失败", 500);
   }
 }
