@@ -204,7 +204,7 @@ export async function POST(req: NextRequest) {
           `
           }
         } catch(e) {
-          logger.error('脚本执行错误:', e.message);
+          await  logger.error('脚本执行错误:', e.message);
           throw e;
         }
       `;
@@ -233,7 +233,7 @@ export async function POST(req: NextRequest) {
       );
     }
   } catch (error) {
-    logger.error("执行JavaScript API错误:", error);
+    await  logger.error("执行JavaScript API错误:", error);
     return Response.json(
       {
         error: "服务器错误",

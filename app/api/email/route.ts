@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
       { status: 200 },
     );
   } catch (error) {
-    logger.error("获取用户邮箱列表失败:", error);
+    await  logger.error("获取用户邮箱列表失败:", error);
     return NextResponse.json(
       { status: "error", message: "获取用户邮箱列表失败" },
       { status: 500 },

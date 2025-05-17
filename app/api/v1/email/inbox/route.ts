@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
     const emails = await getEmailsByEmailAddress(emailAddress, page, pageSize);
     return NextResponse.json(emails, { status: 200 });
   } catch (error) {
-    logger.error("Error fetching emails:", error);
+    await  logger.error("Error fetching emails:", error);
     if (error.message === "Email address not found") {
       return NextResponse.json({ message: "未找到该邮箱地址" }, { status: 404 });
     }

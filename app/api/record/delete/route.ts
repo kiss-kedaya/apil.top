@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       statusText: "Not Implemented",
     });
   } catch (error) {
-    logger.error("API错误", error);
+    await  logger.error("API错误", error);
     const errorMessage =
       typeof error === "string"
         ? { message: error }

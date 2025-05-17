@@ -42,7 +42,7 @@ export async function POST(req: Request) {
     }
     return Response.json(res.data);
   } catch (error) {
-    logger.error(`[url/add] ${error}`);
+    await  logger.error(`[url/add] ${error}`);
     
     const errorMessage = typeof error === 'string' 
       ? { message: error } 

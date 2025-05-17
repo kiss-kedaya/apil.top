@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
     return Response.json(result);
   } catch (error) {
-    logger.error("删除自定义域名错误:", error);
+    await  logger.error("删除自定义域名错误:", error);
     return Response.json(
       { status: "error", message: "删除自定义域名失败" },
       { status: 500 }

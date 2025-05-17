@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     // 验证输入数据
     const validationResult = shortUrlRequestSchema.safeParse(body);
     if (!validationResult.success) {
-      logger.error("Invalid short URL request:", validationResult.error.message);
+      await  logger.error("Invalid short URL request:", validationResult.error.message);
       return Response.json("Missing[0000]");
     }
     
@@ -76,13 +76,13 @@ export async function POST(req: NextRequest) {
         browser: data.browser,
       });
     } catch (error) {
-      logger.error("Failed to create short URL meta:", error);
+      await  logger.error("Failed to create short URL meta:", error);
       // 即使记录失败也继续执行
     }
 
     return Response.json(shortUrl.target);
   } catch (error) {
-    logger.error("Error in short URL API:", error);
+    await  logger.error("Error in short URL API:", error);
     return Response.json("Error[0003]");
   }
 }

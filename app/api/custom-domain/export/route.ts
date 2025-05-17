@@ -61,7 +61,7 @@ async function* createDomainExportIterator(userId: string) {
     // 结束JSON数组
     yield encoder.encode("  ]\n}");
   } catch (error) {
-    logger.error("流式输出域名时出错:", error);
+    await  logger.error("流式输出域名时出错:", error);
     yield encoder.encode(`    {"error": "流式输出域名时出错"}\n  ]\n}`);
   }
 }

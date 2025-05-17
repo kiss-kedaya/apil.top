@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result);
   } catch (error) {
-    logger.error("配置邮箱服务API错误:", error);
+    await  logger.error("配置邮箱服务API错误:", error);
     return NextResponse.json({ error: "处理请求时发生错误" }, { status: 500 });
   }
 }
@@ -59,7 +59,7 @@ export async function PUT(request: Request) {
 
     return NextResponse.json(result);
   } catch (error) {
-    logger.error("验证邮箱配置API错误:", error);
+    await  logger.error("验证邮箱配置API错误:", error);
     return NextResponse.json({ error: "处理请求时发生错误" }, { status: 500 });
   }
 }

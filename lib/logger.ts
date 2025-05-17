@@ -1,4 +1,4 @@
-import { prisma } from "./prisma";
+import { prisma } from "./db";
 
 /**
  * 日志服务 - 提供应用程序日志记录功能

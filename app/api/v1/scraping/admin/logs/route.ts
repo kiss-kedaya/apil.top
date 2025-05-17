@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    logger.error("获取日志时出错:", error);
+    await  logger.error("获取日志时出错:", error);
 
     return Response.json(
       {

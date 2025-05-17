@@ -63,7 +63,7 @@ export async function POST(req: Request) {
       },
     );
   } catch (error) {
-    logger.error("API错误", error);
+    await  logger.error("API错误", error);
     const errorMessage =
       typeof error === "string"
         ? { message: error }

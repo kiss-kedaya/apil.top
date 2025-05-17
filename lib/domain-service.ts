@@ -23,13 +23,13 @@ export class DomainService {
       );
       
       if (!response.ok) {
-        logger.error(`DNS查询失败: ${domainName}，记录类型: ${recordType}`, { status: response.status });
+        await  logger.error(`DNS查询失败: ${domainName}，记录类型: ${recordType}`, { status: response.status });
         return null;
       }
       
       return await response.json();
     } catch (error) {
-      logger.error(`DNS查询异常: ${domainName}，记录类型: ${recordType}`, { error });
+      await  logger.error(`DNS查询异常: ${domainName}，记录类型: ${recordType}`, { error });
       return null;
     }
   }
@@ -59,7 +59,7 @@ export class DomainService {
       
       return false;
     } catch (error) {
-      logger.error(`域名验证失败: ${domainName}`, { error });
+      await  logger.error(`域名验证失败: ${domainName}`, { error });
       return false;
     }
   }
@@ -128,7 +128,7 @@ export class DomainService {
         issues
       };
     } catch (error) {
-      logger.error(`邮箱配置验证失败: ${domainName}`, { error });
+      await  logger.error(`邮箱配置验证失败: ${domainName}`, { error });
       return {
         success: false,
         mx: false,
@@ -188,7 +188,7 @@ export class DomainService {
         }
       });
     } catch (error) {
-      logger.error(`更新域名邮箱服务状态失败: ${domainId}`, { error });
+      await  logger.error(`更新域名邮箱服务状态失败: ${domainId}`, { error });
       throw new Error('更新域名邮箱服务状态失败');
     }
   }
@@ -232,7 +232,7 @@ export class DomainService {
         domainId: domain.id
       });
     } catch (error) {
-      logger.error(`启用邮箱服务失败: ${domainId}`, { error });
+      await  logger.error(`启用邮箱服务失败: ${domainId}`, { error });
       throw new Error('启用邮箱服务失败');
     }
   }
@@ -268,7 +268,7 @@ export class DomainService {
         }
       }
     } catch (error) {
-      logger.error(`创建默认邮箱失败`, { error, userId, domainName });
+      await  logger.error(`创建默认邮箱失败`, { error, userId, domainName });
       // 不抛出异常，避免中断主流程
     }
   }
@@ -293,7 +293,7 @@ export class DomainService {
       
       return domain;
     } catch (error) {
-      logger.error(`解析域名短链接信息失败: ${hostname}`, { error });
+      await  logger.error(`解析域名短链接信息失败: ${hostname}`, { error });
       return null;
     }
   }

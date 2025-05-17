@@ -30,7 +30,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(result);
   } catch (error) {
-    logger.error("获取邮箱服务状态API错误:", error);
+    await  logger.error("获取邮箱服务状态API错误:", error);
     return NextResponse.json({ error: "处理请求时发生错误" }, { status: 500 });
   }
 }

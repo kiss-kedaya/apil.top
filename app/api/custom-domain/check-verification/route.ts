@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
               : "域名验证成功，但邮箱服务未验证完成")
           : "域名验证成功");
       } catch (error) {
-        logger.error("更新域名验证状态失败", error);
+        await  logger.error("更新域名验证状态失败", error);
         return errorResponse("域名验证成功，但更新数据库失败");
       }
     } else {
@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
       }, "域名验证失败，请检查DNS配置");
     }
   } catch (error) {
-    logger.error("检查域名验证状态失败", error);
+    await  logger.error("检查域名验证状态失败", error);
     return errorResponse("检查域名验证状态失败", 500);
   }
 }
@@ -166,7 +166,7 @@ async function updateDomainVerification(domainId: string) {
       data: updatedDomain
     };
   } catch (error) {
-    logger.error(`更新域名验证状态失败: ${domainId}`, error);
+    await  logger.error(`更新域名验证状态失败: ${domainId}`, error);
     return {
       status: "error",
       message: "更新域名验证状态失败"

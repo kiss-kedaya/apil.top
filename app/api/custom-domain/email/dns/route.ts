@@ -30,7 +30,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result);
   } catch (error) {
-    logger.error("验证邮箱DNS记录API错误:", error);
+    await  logger.error("验证邮箱DNS记录API错误:", error);
     return NextResponse.json({ error: "处理请求时发生错误" }, { status: 500 });
   }
 }

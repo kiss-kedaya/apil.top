@@ -33,14 +33,14 @@ export async function POST(request: NextRequest) {
     const validationResult = customDomainEmailSchema.safeParse(body);
     
     if (!validationResult.success) {
-      logger.error("邮件请求数据验证失败", validationResult.error);
+      await  logger.error("邮件请求数据验证失败", validationResult.error);
       return errorResponse(validationResult.error.message, 400);
     }
     
     // 验证webhook密钥（如果配置了）
     const webhookKey = env.EMAIL_WEBHOOK_KEY;
     if (webhookKey && body.webhookKey !== webhookKey) {
-      logger.error("邮件webhook密钥验证失败");
+      await  logger.error("邮件webhook密钥验证失败");
       return errorResponse("未授权的请求", 401);
     }
     
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     // 解析邮件地址中的域名部分
     const domainPart = to.split('@')[1];
     if (!domainPart) {
-      logger.error(`无效的邮件地址: ${to}`);
+      await  logger.error(`无效的邮件地址: ${to}`);
       return errorResponse("无效的邮件地址", 400);
     }
     
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
           message: "邮件接收成功，已自动创建邮箱"
         });
       } catch (error) {
-        logger.error(`处理新邮箱失败: ${to}`, { error });
+        await  logger.error(`处理新邮箱失败: ${to}`, { error });
         return errorResponse("处理邮件失败", 500);
       }
     } else {
@@ -146,12 +146,12 @@ export async function POST(request: NextRequest) {
           message: "邮件接收成功"
         });
       } catch (error) {
-        logger.error(`保存邮件失败: ${to}`, { error });
+        await  logger.error(`保存邮件失败: ${to}`, { error });
         return errorResponse("保存邮件失败", 500);
       }
     }
   } catch (error) {
-    logger.error("处理自定义域名邮件失败", { error });
+    await  logger.error("处理自定义域名邮件失败", { error });
     return errorResponse("处理邮件失败", 500);
   }
 }
@@ -187,7 +187,7 @@ async function saveForwardEmail(to: string, emailData: any) {
     
     return forwardEmail;
   } catch (error) {
-    logger.error("保存邮件失败", { error });
+    await  logger.error("保存邮件失败", { error });
     throw error;
   }
 }
@@ -222,7 +222,7 @@ async function forwardToUserEmail(emailData: any, userEmail: string): Promise<vo
     // });
     
   } catch (error) {
-    logger.error(`邮件转发失败: 转发到 ${userEmail}`, { error });
+    await  logger.error(`邮件转发失败: 转发到 ${userEmail}`, { error });
     // 不抛出异常，避免影响主流程
   }
 } 

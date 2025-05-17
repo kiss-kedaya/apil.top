@@ -164,7 +164,8 @@ export async function POST(req: Request) {
       location: qrCode.location,
     });
   } catch (error) {
-    logger.error("二维码解析错误", error);
+    // 确保记录错误后再响应
+    await  logger.error("二维码解析错误", error);
     return Response.json({ statusText: "服务器错误" }, { status: 500 });
   }
 }

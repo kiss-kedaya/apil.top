@@ -283,7 +283,7 @@ export async function PUT(request: Request) {
             record_id: newRecordId
           });
         } catch (error) {
-          logger.error("重新创建DNS记录时出错:", error);
+          await  logger.error("重新创建DNS记录时出错:", error);
           return Response.json({ 
             message: "重新创建DNS记录时出错", 
             error: String(error) 
@@ -326,7 +326,7 @@ export async function PUT(request: Request) {
           success: true
         });
       } catch (error) {
-        logger.error("更新代理状态失败:", error);
+        await  logger.error("更新代理状态失败:", error);
         return Response.json({ 
           message: "更新代理状态失败", 
           error: String(error) 
@@ -339,7 +339,7 @@ export async function PUT(request: Request) {
       message
     });
   } catch (error) {
-    logger.error("DNS记录更新错误:", error);
+    await  logger.error("DNS记录更新错误:", error);
     const errorMessage = typeof error === 'string' 
       ? { message: error } 
       : (error && typeof error === 'object' 

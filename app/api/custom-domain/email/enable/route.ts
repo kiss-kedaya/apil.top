@@ -88,11 +88,11 @@ export async function POST(request: NextRequest) {
         ]
       }, "邮箱服务已启用，请按照指南配置DNS记录");
     } catch (error) {
-      logger.error("启用邮箱服务失败", error);
+      await  logger.error("启用邮箱服务失败", error);
       return errorResponse("启用邮箱服务失败", 500);
     }
   } catch (error) {
-    logger.error("处理邮箱服务启用请求失败", error);
+    await  logger.error("处理邮箱服务启用请求失败", error);
     return errorResponse("处理请求失败", 500);
   }
 } 

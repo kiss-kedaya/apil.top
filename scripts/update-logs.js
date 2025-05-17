@@ -9,20 +9,20 @@ console.log(`找到 ${apiFiles.length} 个API文件需要检查`);
 
 let updatedFiles = 0;
 
-// 第一遍处理：替换console.error为logger.error
+// 第一遍处理：替换console.error为await  logger.error
 apiFiles.forEach(filePath => {
   const fullPath = path.join(process.cwd(), filePath);
   let content = fs.readFileSync(fullPath, 'utf8');
   
   // 检查文件是否包含console.error
   if (content.includes('console.error')) {
-    // 替换console.error为logger.error
+    // 替换console.error为await  logger.error
     const updatedContent = content.replace(
       /console\.error\((['"`])(.*?)\1,\s*(.*?)\);/g, 
-      'logger.error($1$2$1, $3);'
+      'await  logger.error($1$2$1, $3);'
     ).replace(
       /console\.error\((['"`])(.*?)\1\);/g, 
-      'logger.error($1$2$1);'
+      'await  logger.error($1$2$1);'
     ).replace(
       /console\.error\((.*?)\);/g, 
       (match, args) => {
@@ -31,9 +31,9 @@ apiFiles.forEach(filePath => {
           return match;
         }
         if (!args.startsWith('"') && !args.startsWith("'") && !args.startsWith('`')) {
-          return `logger.error("API错误", ${args});`;
+          return `await  logger.error("API错误", ${args});`;
         }
-        return `logger.error(${args});`;
+        return `await  logger.error(${args});`;
       }
     );
     
@@ -57,7 +57,7 @@ apiFiles.forEach(filePath => {
   
   // 检查文件是否引入了logger和使用了logger
   const hasLoggerImport = content.includes('import { logger }') || content.includes('import {logger}');
-  const usesLogger = content.includes('logger.error');
+  const usesLogger = content.includes('await  logger.error');
   
   // 如果使用了logger但没有导入，添加导入
   if (usesLogger && !hasLoggerImport) {

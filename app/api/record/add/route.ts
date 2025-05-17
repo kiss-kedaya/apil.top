@@ -116,7 +116,7 @@ export async function POST(req: Request) {
       return Response.json(res.data);
     }
   } catch (error) {
-    logger.error("[错误]", error);
+    await  logger.error("[错误]", error);
     const errorMessage = typeof error === 'string' 
       ? { message: error } 
       : (error && typeof error === 'object' 

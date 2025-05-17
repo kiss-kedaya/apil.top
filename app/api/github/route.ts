@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
       },
     );
   } catch (error) {
-    logger.error("GitHub API error:", error);
+    await  logger.error("GitHub API error:", error);
     return NextResponse.json(
       {
         error:

@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     const emails = await getEmailsByEmailAddress(emailAddress, page, pageSize);
     return NextResponse.json(emails, { status: 200 });
   } catch (error) {
-    logger.error("获取邮件时出错:", error);
+    await  logger.error("获取邮件时出错:", error);
     if (error.message === "Email address not found or has been deleted") {
       return NextResponse.json({ error: "邮箱地址未找到或已被删除" }, { status: 404 });
     }

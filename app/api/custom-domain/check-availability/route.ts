@@ -55,7 +55,7 @@ export async function POST(req: Request) {
         );
       }
     } catch (error) {
-      logger.error("检查域名DNS错误:", error);
+      await  logger.error("检查域名DNS错误:", error);
       return Response.json(
         { status: "error", message: "检查域名DNS时出错" },
         { status: 500 },
@@ -71,7 +71,7 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
-    logger.error("检查域名可用性错误:", error);
+    await  logger.error("检查域名可用性错误:", error);
     return Response.json(
       { status: "error", message: "检查域名可用性失败" },
       { status: 500 },
@@ -163,7 +163,7 @@ async function checkDomainDNS(domain: string): Promise<{
       },
     };
   } catch (error) {
-    logger.error("DNS检查错误:", error);
+    await  logger.error("DNS检查错误:", error);
     return { available: false, message: "DNS检查过程中出错" };
   }
 }

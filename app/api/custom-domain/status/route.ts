@@ -53,7 +53,7 @@ export async function GET(req: Request) {
 
     return Response.json({ status: "success", data: statusInfo });
   } catch (error) {
-    logger.error("获取域名状态错误:", error);
+    await  logger.error("获取域名状态错误:", error);
     return Response.json(
       { status: "error", message: "获取域名状态失败" },
       { status: 500 },

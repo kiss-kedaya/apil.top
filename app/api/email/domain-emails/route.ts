@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
       totalCount: formattedEmails.length
     });
   } catch (error) {
-    logger.error("获取域名邮箱列表失败", error);
+    await  logger.error("获取域名邮箱列表失败", error);
     return errorResponse("获取域名邮箱列表失败", 500);
   }
 }
@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
       createdAt: newEmail.createdAt
     }, "邮箱创建成功");
   } catch (error) {
-    logger.error("创建新邮箱失败", error);
+    await  logger.error("创建新邮箱失败", error);
     return errorResponse("创建新邮箱失败", 500);
   }
 } 
