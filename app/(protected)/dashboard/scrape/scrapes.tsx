@@ -1015,14 +1015,6 @@ Content-Type: application/json
           )}
 
           <div className="mt-4 rounded-md border p-3">
-            <JsonView
-              className="max-w-2xl overflow-auto p-2"
-              style={theme === "dark" ? vscodeTheme : githubLightTheme}
-              value={decodedResult}
-              displayObjectSize={false}
-              displayDataTypes={false}
-            />
-
             {decodedResult.text && (
               <div className="mt-4 flex flex-col items-center justify-center rounded-md border bg-gray-50 p-4 dark:bg-gray-800">
                 <h3 className="mb-2 text-lg font-semibold">解析结果</h3>
