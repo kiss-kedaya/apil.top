@@ -59,7 +59,6 @@ export function ScreenshotScraping({
     useState("vmail.dev");
   const [screenshotInfo, setScreenshotInfo] = useState({
     tmp_url: "",
-    payload: "",
   });
 
   const handleScrapingScreenshot = async () => {
@@ -74,8 +73,7 @@ export function ScreenshotScraping({
         const blob = await res.blob();
         const imageUrl = URL.createObjectURL(blob);
         setScreenshotInfo({
-          tmp_url: imageUrl,
-          payload: `${window.location.origin}${payload}`,
+          tmp_url: imageUrl
         });
         toast.success("成功！");
       }
@@ -759,7 +757,6 @@ export function QrCodeDecoding({
   const [isDecoding, setIsDecoding] = useState(false);
   const [decodedResult, setDecodedResult] = useState<{
     text: string;
-    location?: any;
     error?: string;
   }>({
     text: "",
@@ -804,7 +801,7 @@ export function QrCodeDecoding({
         toast.error(errorData.statusText || "解析失败");
       } else {
         const data = await response.json();
-        setDecodedResult({ text: data.text, location: data.location });
+        setDecodedResult({ text: data.text});
         toast.success("解析成功！");
       }
     } catch (error) {
@@ -857,7 +854,7 @@ export function QrCodeDecoding({
             toast.error(errorData.statusText || "解析失败");
           } else {
             const data = await response.json();
-            setDecodedResult({ text: data.text, location: data.location });
+            setDecodedResult({ text: data.text});
             toast.success("解析成功！");
           }
         } catch (error) {
