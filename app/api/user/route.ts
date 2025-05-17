@@ -1,22 +1,12 @@
-import { auth } from "@/auth";
-
 import { deleteUserById } from "@/lib/dto/user";
+import { withAuth } from "@/app/lib/api-middleware";
+import { createSuccessResponse, createErrorResponse } from "@/app/lib/api-utils";
 
-export const DELETE = auth(async (req) => {
-  if (!req.auth) {
-    return new Response(JSON.stringify({ message: "未认证" }), { status: 401, headers: { 'Content-Type': 'application/json' } });
-  }
-
-  const currentUser = req.auth.user;
-  if (!currentUser || !currentUser?.id) {
-    return new Response(JSON.stringify({ message: "用户无效" }), { status: 401, headers: { 'Content-Type': 'application/json' } });
-  }
-
+export const DELETE = withAuth(async (req, user) => {
   try {
-    await deleteUserById(currentUser.id);
+    await deleteUserById(user.id);
+    return createSuccessResponse({ success: true }, "用户删除成功！");
   } catch (error) {
-    return new Response(JSON.stringify({ message: "服务器内部错误" }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    return createErrorResponse("用户删除失败", 500);
   }
-
-  return new Response(JSON.stringify({ message: "用户删除成功！" }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 });
