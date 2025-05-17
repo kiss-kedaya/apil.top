@@ -538,9 +538,19 @@ export function QrCodeScraping({
   const handleScrapingScreenshot = async () => {
     if (currentQrLink) {
       setIsShoting(true);
-      const payload = `/api/v1/scraping/qrcode?url=${protocol}${currentQrLink}&key=${user.apiKey}`;
+      const payload = `/api/v1/scraping/qrcode`;
       try {
-        const res = await fetch(payload);
+        const res = await fetch(payload, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            url: `${protocol}${currentQrLink}`,
+            key: user.apiKey
+          })
+        });
+        
         if (!res.ok || res.status !== 200) {
           toast.error(res.statusText || "生成二维码失败");
         } else {
@@ -571,7 +581,13 @@ export function QrCodeScraping({
 
   return (
     <>
-      <CodeLight content={`https://qali.cn/api/v1/scraping/qrcode`} />
+      <CodeLight content={`POST https://qali.cn/api/v1/scraping/qrcode
+Content-Type: application/json
+
+{
+  "url": "https://example.com",
+  "key": "YOUR_API_KEY"
+}`} />
       <Card className="bg-gray-50 dark:bg-gray-900">
         <CardHeader>
           <CardTitle>演示场景</CardTitle>

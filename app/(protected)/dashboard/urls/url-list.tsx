@@ -136,8 +136,18 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
   const handleQrcode = async (link: string) => {
     if (link && user.apiKey) {
       // setIsShoting(true);
-      const payload = `/api/v1/scraping/qrcode?url=${link}&key=${user.apiKey}`;
-      const res = await fetch(payload);
+      const payload = `/api/v1/scraping/qrcode`;
+      const res = await fetch(payload, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: link,
+          key: user.apiKey,
+        }),
+      });
+
       if (!res.ok || res.status !== 200) {
         toast.error(res.statusText);
       } else {
@@ -159,7 +169,15 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
     link.click();
   };
   const handleCopyQrCode = (url: string) => {
-    navigator.clipboard.writeText(qrcodeInfo.payload);
+    // 创建一个表示POST请求的文本说明
+    const apiInstructions = `POST ${window.location.origin}/api/v1/scraping/qrcode
+Content-Type: application/json
+
+{
+  "url": "${url}",
+  "key": "YOUR_API_KEY"
+}`;
+    navigator.clipboard.writeText(apiInstructions);
     toast.success("已复制到剪贴板");
   };
   const handleChangeStatu = async (checked: boolean, id: string) => {
