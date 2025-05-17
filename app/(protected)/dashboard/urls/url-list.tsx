@@ -103,10 +103,7 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
   const [pageSize, setPageSize] = useState(10);
   const [isShowStats, setShowStats] = useState(false);
   const [isShowQrcode, setShowQrcode] = useState(false);
-  const [qrcodeInfo, setQrcodeInfo] = useState({
-    tmp_url: "",
-    payload: "",
-  });
+  const [qrcodeInfo, setQrcodeInfo] = useState("");
   const [selectedUrlId, setSelectedUrlId] = useState("");
   const [searchParams, setSearchParams] = useState({
     slug: "",
@@ -153,10 +150,7 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
       } else {
         // const blob = await res.blob();
         // const imageUrl = URL.createObjectURL(blob);
-        setQrcodeInfo({
-          tmp_url: await res.text(),
-          payload: `${window.location.origin}${payload}`,
-        });
+        setQrcodeInfo(await res.text());
         // toast.success("Success!");
       }
       // setIsShoting(false);
@@ -164,8 +158,8 @@ export default function UserUrlsList({ user, action }: UrlListProps) {
   };
   const handleDownloadQrCode = (url: string) => {
     const link = document.createElement("a");
-    link.download = `wrdo-${url}.png`;
-    link.href = qrcodeInfo.tmp_url;
+    link.download = `qali-${url}.png`;
+    link.href = qrcodeInfo;
     link.click();
   };
   const handleCopyQrCode = (url: string) => {
@@ -500,7 +494,7 @@ Content-Type: application/json
                             )}
                             {user.apiKey && (
                               <BlurImg
-                                src={qrcodeInfo.tmp_url}
+                                src={qrcodeInfo}
                                 alt="二维码预览"
                                 className="rounded-md border"
                                 width={200}

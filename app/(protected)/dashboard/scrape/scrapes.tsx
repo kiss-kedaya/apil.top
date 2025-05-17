@@ -591,7 +591,7 @@ Content-Type: application/json
 }`} />
       <Card className="bg-gray-50 dark:bg-gray-900">
         <CardHeader>
-          <CardTitle>演示场景</CardTitle>
+          <CardTitle>二维码生成</CardTitle>
           <CardDescription>
             生成任何URL的二维码，方便在移动设备上快速访问网站。
           </CardDescription>

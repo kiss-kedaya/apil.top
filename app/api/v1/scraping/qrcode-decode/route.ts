@@ -1,26 +1,28 @@
-import { createScrapeMeta } from "@/lib/dto/scrape";
-import { checkApiKey } from "@/lib/dto/api-key";
-import { getIpInfo, isLink } from "@/lib/utils";
 // 正确导入Jimp
 import Jimp from "jimp";
 // 继续使用ts-ignore忽略jsQR的类型错误
 // @ts-ignore - 忽略jsQR的类型错误
 import jsQR from "jsqr";
-import fetch from "node-fetch";
+
+import { checkApiKey } from "@/lib/dto/api-key";
+import { createScrapeMeta } from "@/lib/dto/scrape";
+import { getIpInfo, isLink } from "@/lib/utils";
+
+// 修改 node-fetch 导入方式，使用动态导入
+// @ts-ignore - 暂时忽略类型错误
+const fetch = (...args: [string, object?]) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 export async function POST(req: Request) {
   try {
     let body;
-    
+
     try {
       body = await req.json();
     } catch (error) {
-      return Response.json(
-        { statusText: "无效的请求体格式" },
-        { status: 400 },
-      );
+      return Response.json({ statusText: "无效的请求体格式" }, { status: 400 });
     }
-    
+
     const imageUrl = body.url;
     const base64Image = body.base64;
 
@@ -57,16 +59,13 @@ export async function POST(req: Request) {
     }
 
     let imageBuffer: Buffer | undefined;
-    
+
     // 处理URL图片
     if (imageUrl) {
       if (!isLink(imageUrl)) {
-        return Response.json(
-          { statusText: "无效的图片URL" },
-          { status: 400 },
-        );
+        return Response.json({ statusText: "无效的图片URL" }, { status: 400 });
       }
-      
+
       try {
         const response = await fetch(imageUrl);
         if (!response.ok) {
@@ -82,13 +81,16 @@ export async function POST(req: Request) {
           { status: 400 },
         );
       }
-    } 
+    }
     // 处理base64图片
     else if (base64Image) {
       try {
         // 处理可能包含的Data URL前缀
-        const base64Data = base64Image.replace(/^data:image\/(png|jpeg|jpg|gif|webp);base64,/, '');
-        imageBuffer = Buffer.from(base64Data, 'base64');
+        const base64Data = base64Image.replace(
+          /^data:image\/(png|jpeg|jpg|gif|webp);base64,/,
+          "",
+        );
+        imageBuffer = Buffer.from(base64Data, "base64");
       } catch (error) {
         return Response.json(
           { statusText: "无效的base64编码图片" },
@@ -98,27 +100,30 @@ export async function POST(req: Request) {
     }
 
     if (!imageBuffer) {
-      return Response.json(
-        { statusText: "处理图片数据失败" },
-        { status: 400 },
-      );
+      return Response.json({ statusText: "处理图片数据失败" }, { status: 400 });
     }
 
     // 用Jimp加载图像
     // @ts-ignore - 忽略类型错误
     const image = await Jimp.read(imageBuffer);
     const { width, height } = image.bitmap;
-    
+
     // 创建像素数组供jsQR使用
     const imageData = new Uint8ClampedArray(width * height * 4);
-    
+
     let i = 0;
-    image.scan(0, 0, width, height, function(x: number, y: number, idx: number) {
-      imageData[i++] = this.bitmap.data[idx + 0]; // R
-      imageData[i++] = this.bitmap.data[idx + 1]; // G
-      imageData[i++] = this.bitmap.data[idx + 2]; // B
-      imageData[i++] = this.bitmap.data[idx + 3]; // A
-    });
+    image.scan(
+      0,
+      0,
+      width,
+      height,
+      function (x: number, y: number, idx: number) {
+        imageData[i++] = this.bitmap.data[idx + 0]; // R
+        imageData[i++] = this.bitmap.data[idx + 1]; // G
+        imageData[i++] = this.bitmap.data[idx + 2]; // B
+        imageData[i++] = this.bitmap.data[idx + 3]; // A
+      },
+    );
 
     // 用jsQR解析二维码
     const qrCode = jsQR(imageData, width, height, {
@@ -161,4 +166,4 @@ export async function POST(req: Request) {
     console.error("二维码解析错误:", error);
     return Response.json({ statusText: "服务器错误" }, { status: 500 });
   }
-} 
+}
