@@ -29,7 +29,7 @@ const customDomainLinkSchema = z.object({
  * @param shortUrl 短链接对象
  * @returns 是否过期
  */
-function isShortUrlExpired(shortUrl: any): boolean {
+async function isShortUrlExpired(shortUrl: any): Promise<boolean> {
   if (!shortUrl.expiration || shortUrl.expiration === "-1") {
     return false;
   }
@@ -38,7 +38,7 @@ function isShortUrlExpired(shortUrl: any): boolean {
     const expirationTimestamp = parseInt(shortUrl.expiration);
     return !isNaN(expirationTimestamp) && expirationTimestamp < Date.now();
   } catch (error) {
-    await  logger.error(`短链接过期检查错误: ${shortUrl.id}`, { error });
+    await logger.error(`短链接过期检查错误: ${shortUrl.id}`, { error });
     return false; // 如果无法解析过期时间，默认为未过期
   }
 }
@@ -82,7 +82,7 @@ async function updateClickStatistics(urlId: string, trackingData: any): Promise<
     logger.info(`短链接访问统计更新成功: ${urlId}`);
   } catch (error) {
     // 统计记录失败不影响重定向
-    await  logger.error(`统计记录失败: ${urlId}`, { error });
+    await logger.error(`统计记录失败: ${urlId}`, { error });
   }
 }
 
@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
     }
     
     // 检查短链接是否过期
-    if (isShortUrlExpired(userUrl)) {
+    if (await isShortUrlExpired(userUrl)) {
       logger.info(`短链接已过期: ${slug}`, { userId, customDomain });
       return NextResponse.json("Expired[0001]");
     }
@@ -187,7 +187,7 @@ export async function POST(request: NextRequest) {
     // 返回目标URL
     return NextResponse.json(userUrl.target);
   } catch (error) {
-    await  logger.error("处理自定义域名短链接失败", { error });
+    await logger.error("处理自定义域名短链接失败", { error });
     return NextResponse.json("Error[0003]");
   }
 }
@@ -227,7 +227,7 @@ async function createDefaultDomainShortUrl(userId: string, domainName: string) {
     logger.info(`已创建默认域名短链接: ${domainName}`, { userId });
     return userUrl;
   } catch (error) {
-    await  logger.error(`创建默认域名短链接失败: ${domainName}`, { error, userId });
+    await logger.error(`创建默认域名短链接失败: ${domainName}`, { error, userId });
     return null;
   }
 } 
