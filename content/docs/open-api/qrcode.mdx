@@ -88,7 +88,7 @@ async function generateQRCode() {
       type: 'png'
     })
   });
-  
+
   if (response.ok) {
     const imageData = await response.text();
     // 处理返回的图片数据
@@ -166,13 +166,7 @@ Content-Type: application/json
 
 ```json
 {
-  "text": "https://qali.cn",
-  "location": {
-    "topLeftCorner": { "x": 37, "y": 37 },
-    "topRightCorner": { "x": 262, "y": 37 },
-    "bottomRightCorner": { "x": 262, "y": 262 },
-    "bottomLeftCorner": { "x": 37, "y": 262 }
-  }
+  "text": "https://qali.cn"
 }
 ```
 
@@ -207,10 +201,10 @@ async function decodeQRCode() {
   const fileInput = document.getElementById('qrCodeImage');
   const file = fileInput.files[0];
   const reader = new FileReader();
-  
+
   reader.onload = async function(e) {
     const base64Image = e.target.result;
-    
+
     const response = await fetch('https://qali.cn/api/v1/scraping/qrcode-decode', {
       method: 'POST',
       headers: {
@@ -221,7 +215,7 @@ async function decodeQRCode() {
         key: 'YOUR_API_KEY'
       })
     });
-    
+
     if (response.ok) {
       const result = await response.json();
       console.log('解析结果:', result.text);
@@ -232,7 +226,7 @@ async function decodeQRCode() {
       console.error('解析二维码失败:', error.statusText);
     }
   };
-  
+
   reader.readAsDataURL(file);
 }
 ```

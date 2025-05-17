@@ -99,7 +99,7 @@
     "react-textarea-autosize": "^8.5.3",
     "recharts": "^2.12.7",
     "resend": "^3.4.0",
-    "sharp": "^0.33.4",
+    "sharp": "^0.33.5",
     "shiki": "^1.11.0",
     "sonner": "^1.5.0",
     "swr": "^2.2.5",
