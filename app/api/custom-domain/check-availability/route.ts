@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { checkUserStatus } from "@/lib/dto/user";
 import { getCurrentUser } from "@/lib/session";
+import { logger } from "@/lib/logger";
 
 // 验证域名格式的schema
 const domainSchema = z.object({
@@ -54,7 +55,7 @@ export async function POST(req: Request) {
         );
       }
     } catch (error) {
-      console.error("检查域名DNS错误:", error);
+      logger.error("检查域名DNS错误:", error);
       return Response.json(
         { status: "error", message: "检查域名DNS时出错" },
         { status: 500 },
@@ -70,7 +71,7 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
-    console.error("检查域名可用性错误:", error);
+    logger.error("检查域名可用性错误:", error);
     return Response.json(
       { status: "error", message: "检查域名可用性失败" },
       { status: 500 },
@@ -162,7 +163,7 @@ async function checkDomainDNS(domain: string): Promise<{
       },
     };
   } catch (error) {
-    console.error("DNS检查错误:", error);
+    logger.error("DNS检查错误:", error);
     return { available: false, message: "DNS检查过程中出错" };
   }
 }

@@ -1,6 +1,7 @@
 import { deleteUserCustomDomain } from "@/lib/dto/custom-domain";
 import { checkUserStatus } from "@/lib/dto/user";
 import { getCurrentUser } from "@/lib/session";
+import { logger } from "@/lib/logger";
 
 // 删除自定义域名
 export async function POST(req: Request) {
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
 
     return Response.json(result);
   } catch (error) {
-    console.error("删除自定义域名错误:", error);
+    logger.error("删除自定义域名错误:", error);
     return Response.json(
       { status: "error", message: "删除自定义域名失败" },
       { status: 500 }

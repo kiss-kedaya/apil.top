@@ -3,6 +3,7 @@ import { deleteDNSRecord } from "@/lib/cloudflare";
 import { deleteUserRecord } from "@/lib/dto/cloudflare-dns-record";
 import { checkUserStatus } from "@/lib/dto/user";
 import { getCurrentUser } from "@/lib/session";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: Request) {
   try {
@@ -62,7 +63,7 @@ export async function POST(req: Request) {
       },
     );
   } catch (error) {
-    console.error(error);
+    logger.error("API错误", error);
     const errorMessage =
       typeof error === "string"
         ? { message: error }

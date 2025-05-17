@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { env } from "@/env.mjs";
+import { logger } from "@/lib/logger";
 
 interface GitHubResponse {
   stargazers_count: number;
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
       },
     );
   } catch (error) {
-    console.error("GitHub API error:", error);
+    logger.error("GitHub API error:", error);
     return NextResponse.json(
       {
         error:

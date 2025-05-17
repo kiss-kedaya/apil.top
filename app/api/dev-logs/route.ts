@@ -4,6 +4,7 @@ import { Sql } from '@prisma/client/runtime/library';
 
 import { prisma } from "@/lib/db";
 import { errorResponse, successResponse } from "@/lib/api-response";
+import { logger } from "@/lib/logger";
 
 // 检查用户是否是管理员
 async function checkIsAdmin() {
@@ -21,7 +22,7 @@ async function checkIsAdmin() {
     }
     return false;
   } catch (error) {
-    console.error("权限检查失败:", error);
+    logger.error("权限检查失败:", error);
     return false;
   }
 }
@@ -33,7 +34,7 @@ async function cleanupOldLogs() {
     await prisma.$executeRaw`DELETE FROM dev_logs WHERE created_at < NOW() - INTERVAL '7 days'`;
     return true;
   } catch (error) {
-    console.error("清理旧日志失败:", error);
+    logger.error("清理旧日志失败:", error);
     return false;
   }
 }
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
     // 检查是否是管理员
     const isAdmin = await checkIsAdmin();
     if (!isAdmin) {
-      console.error("访问日志API权限被拒绝");
+      logger.error("访问日志API权限被拒绝");
       return errorResponse("无权限访问开发日志，需要管理员权限", 403);
     }
 
@@ -138,7 +139,7 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error("获取日志失败:", error);
+    logger.error("获取日志失败:", error);
     return errorResponse("获取日志失败", 500);
   }
 }
@@ -149,7 +150,7 @@ export async function DELETE(request: NextRequest) {
     // 检查是否是管理员
     const isAdmin = await checkIsAdmin();
     if (!isAdmin) {
-      console.error("清理日志API权限被拒绝");
+      logger.error("清理日志API权限被拒绝");
       return errorResponse("无权限操作开发日志，需要管理员权限", 403);
     }
     
@@ -170,7 +171,7 @@ export async function DELETE(request: NextRequest) {
       }
     }
   } catch (error) {
-    console.error("清理日志失败:", error);
+    logger.error("清理日志失败:", error);
     return errorResponse("清理日志失败", 500);
   }
 } 

@@ -4,6 +4,7 @@ import { checkUserStatus } from "@/lib/dto/user";
 import { getCurrentUser } from "@/lib/session";
 import { restrictByTimeRange } from "@/lib/team";
 import { createUrlSchema } from "@/lib/validations/url";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: Request) {
   try {
@@ -41,7 +42,7 @@ export async function POST(req: Request) {
     }
     return Response.json(res.data);
   } catch (error) {
-    console.error(`[url/add] ${error}`);
+    logger.error(`[url/add] ${error}`);
     
     const errorMessage = typeof error === 'string' 
       ? { message: error } 

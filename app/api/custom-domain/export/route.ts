@@ -1,8 +1,9 @@
 import { NextRequest } from "next/server";
 import { auth } from "auth";
+import { logger } from "@/lib/logger";
 
-import { getUserCustomDomains } from "@/lib/dto/custom-domain";
 import { errorResponse, handleApiError } from "@/lib/api-response";
+import { getUserCustomDomains } from "@/lib/dto/custom-domain";
 
 // 辅助函数：将异步迭代器转换为流
 function iteratorToStream(iterator: AsyncIterator<any>) {
@@ -18,7 +19,7 @@ function iteratorToStream(iterator: AsyncIterator<any>) {
       } catch (error) {
         controller.error(error);
       }
-    }
+    },
   });
 }
 
@@ -32,14 +33,14 @@ function sleep(time: number) {
 // 创建用于导出域名数据的迭代器
 async function* createDomainExportIterator(userId: string) {
   const encoder = new TextEncoder();
-  
+
   try {
     // 开始JSON数组
     yield encoder.encode('{\n  "status": "success",\n  "data": [\n');
-    
+
     // 获取域名数据
     const result = await getUserCustomDomains(userId);
-    
+
     if (result.status === "error") {
       yield encoder.encode(`    {"error": "${result.message}"}\n`);
     } else if (Array.isArray(result.data)) {
@@ -47,20 +48,20 @@ async function* createDomainExportIterator(userId: string) {
       for (let i = 0; i < result.data.length; i++) {
         const domain = result.data[i];
         const isLast = i === result.data.length - 1;
-        
+
         // 将域名数据格式化为JSON并添加到流中
         const domainJson = JSON.stringify(domain, null, 4);
-        yield encoder.encode(`    ${domainJson}${isLast ? '' : ','}\n`);
-        
+        yield encoder.encode(`    ${domainJson}${isLast ? "" : ","}\n`);
+
         // 人为添加一些延迟，模拟大型数据集
         await sleep(100);
       }
     }
-    
+
     // 结束JSON数组
-    yield encoder.encode('  ]\n}');
+    yield encoder.encode("  ]\n}");
   } catch (error) {
-    console.error("流式输出域名时出错:", error);
+    logger.error("流式输出域名时出错:", error);
     yield encoder.encode(`    {"error": "流式输出域名时出错"}\n  ]\n}`);
   }
 }
@@ -74,20 +75,20 @@ export async function GET(request: NextRequest) {
     }
 
     const userId = session.user.id;
-    
+
     // 创建流
     const iterator = createDomainExportIterator(userId);
     const stream = iteratorToStream(iterator);
-    
+
     // 返回流式响应
     return new Response(stream, {
       headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache',
-        'Content-Disposition': 'attachment; filename=custom-domains.json'
-      }
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache",
+        "Content-Disposition": "attachment; filename=custom-domains.json",
+      },
     });
   } catch (error) {
     return handleApiError(error, "导出域名数据失败");
   }
-} 
+}

@@ -3,6 +3,7 @@ import path from "path";
 import * as vm from "vm";
 import { NextRequest } from "next/server";
 import { z } from "zod";
+import { logger } from "@/lib/logger";
 
 // 验证请求的Schema
 const executeJsSchema = z.object({
@@ -203,7 +204,7 @@ export async function POST(req: NextRequest) {
           `
           }
         } catch(e) {
-          console.error('脚本执行错误:', e.message);
+          logger.error('脚本执行错误:', e.message);
           throw e;
         }
       `;
@@ -232,7 +233,7 @@ export async function POST(req: NextRequest) {
       );
     }
   } catch (error) {
-    console.error("执行JavaScript API错误:", error);
+    logger.error("执行JavaScript API错误:", error);
     return Response.json(
       {
         error: "服务器错误",

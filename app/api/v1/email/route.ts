@@ -6,6 +6,7 @@ import { checkApiKey } from "@/lib/dto/api-key";
 import { createUserEmail, deleteUserEmailByAddress } from "@/lib/dto/email";
 import { reservedAddressSuffix } from "@/lib/enums";
 import { restrictByTimeRange } from "@/lib/team";
+import { logger } from "@/lib/logger";
 
 // 创建新 UserEmail
 export async function POST(req: NextRequest) {
@@ -112,7 +113,7 @@ export async function DELETE(req: NextRequest) {
     await deleteUserEmailByAddress(emailAddress);
     return NextResponse.json({ message: "success" }, { status: 201 });
   } catch (error) {
-    console.error("Error deleting user email:", error);
+    logger.error("Error deleting user email:", error);
     if (error.message === "User email not found or already deleted") {
       return NextResponse.json({ message: "未找到该邮箱或已被删除" }, { status: 404 });
     }

@@ -2,6 +2,7 @@ import { env } from "@/env.mjs";
 import { deleteUserShortUrl } from "@/lib/dto/short-urls";
 import { checkUserStatus } from "@/lib/dto/user";
 import { getCurrentUser } from "@/lib/session";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: Request) {
   try {
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
     await deleteUserShortUrl(userId, url_id);
     return Response.json({ message: "成功" });
   } catch (error) {
-    console.error(error);
+    logger.error("API错误", error);
     const errorMessage = typeof error === 'string' 
       ? { message: error } 
       : (error && typeof error === 'object' 

@@ -13,6 +13,7 @@ import { checkUserStatus } from "@/lib/dto/user";
 import { reservedAddressSuffix } from "@/lib/enums";
 import { getCurrentUser } from "@/lib/session";
 import { restrictByTimeRange } from "@/lib/team";
+import { logger } from "@/lib/logger";
 
 const createEmailSchema = z.object({
   emailAddress: z.string().min(5),
@@ -68,7 +69,7 @@ export async function GET(req: NextRequest) {
       { status: 200 },
     );
   } catch (error) {
-    console.error("获取用户邮箱列表失败:", error);
+    logger.error("获取用户邮箱列表失败:", error);
     return NextResponse.json(
       { status: "error", message: "获取用户邮箱列表失败" },
       { status: 500 },

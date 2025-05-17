@@ -7,6 +7,7 @@ import jsQR from "jsqr";
 import { checkApiKey } from "@/lib/dto/api-key";
 import { createScrapeMeta } from "@/lib/dto/scrape";
 import { getIpInfo, isLink } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 
 // 修改 node-fetch 导入方式，使用动态导入
 // @ts-ignore - 暂时忽略类型错误
@@ -163,7 +164,7 @@ export async function POST(req: Request) {
       location: qrCode.location,
     });
   } catch (error) {
-    console.error("二维码解析错误:", error);
+    logger.error("二维码解析错误", error);
     return Response.json({ statusText: "服务器错误" }, { status: 500 });
   }
 }

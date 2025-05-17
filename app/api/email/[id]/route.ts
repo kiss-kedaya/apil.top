@@ -7,6 +7,7 @@ import {
 } from "@/lib/dto/email";
 import { checkUserStatus } from "@/lib/dto/user";
 import { getCurrentUser } from "@/lib/session";
+import { logger } from "@/lib/logger";
 
 // 查询单个 UserEmail
 export async function GET(
@@ -28,7 +29,7 @@ export async function GET(
     }
     return NextResponse.json(userEmail, { status: 200 });
   } catch (error) {
-    console.error("获取用户邮箱时出错:", error);
+    logger.error("获取用户邮箱时出错:", error);
     if (error.message === "Email not found") {
       return NextResponse.json({ message: "邮箱未找到" }, { status: 404 });
     }
@@ -55,7 +56,7 @@ export async function PUT(
     const userEmail = await updateUserEmail(id, emailAddress);
     return NextResponse.json(userEmail, { status: 200 });
   } catch (error) {
-    console.error("更新用户邮箱时出错:", error);
+    logger.error("更新用户邮箱时出错:", error);
     if (error.message === "User email not found or already deleted") {
       return NextResponse.json("用户邮箱未找到或已删除", { status: 404 });
     }
@@ -83,7 +84,7 @@ export async function DELETE(
     await deleteUserEmail(id);
     return NextResponse.json({ message: "成功" }, { status: 200 });
   } catch (error) {
-    console.error("删除用户邮箱时出错:", error);
+    logger.error("删除用户邮箱时出错:", error);
     if (error.message === "User email not found or already deleted") {
       return NextResponse.json("用户邮箱未找到或已删除", { status: 404 });
     }

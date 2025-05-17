@@ -1,6 +1,7 @@
 import { getUserCustomDomainById } from "@/lib/dto/custom-domain";
 import { checkUserStatus } from "@/lib/dto/user";
 import { getCurrentUser } from "@/lib/session";
+import { logger } from "@/lib/logger";
 
 // 获取域名状态和验证详情
 export async function GET(req: Request) {
@@ -52,7 +53,7 @@ export async function GET(req: Request) {
 
     return Response.json({ status: "success", data: statusInfo });
   } catch (error) {
-    console.error("获取域名状态错误:", error);
+    logger.error("获取域名状态错误:", error);
     return Response.json(
       { status: "error", message: "获取域名状态失败" },
       { status: 500 },

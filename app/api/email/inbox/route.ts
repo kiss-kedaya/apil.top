@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getEmailsByEmailAddress } from "@/lib/dto/email";
 import { checkUserStatus } from "@/lib/dto/user";
 import { getCurrentUser } from "@/lib/session";
+import { logger } from "@/lib/logger";
 
 // 通过 emailAddress 查询所有相关 ForwardEmail
 export async function GET(req: NextRequest) {
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
     const emails = await getEmailsByEmailAddress(emailAddress, page, pageSize);
     return NextResponse.json(emails, { status: 200 });
   } catch (error) {
-    console.error("获取邮件时出错:", error);
+    logger.error("获取邮件时出错:", error);
     if (error.message === "Email address not found or has been deleted") {
       return NextResponse.json({ error: "邮箱地址未找到或已被删除" }, { status: 404 });
     }

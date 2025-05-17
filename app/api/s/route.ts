@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 
 import { createUserShortUrlMeta, getUrlBySuffix } from "@/lib/dto/short-urls";
+import { logger } from "@/lib/logger";
 
 // 验证请求的Schema
 const shortUrlRequestSchema = z.object({
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
     // 验证输入数据
     const validationResult = shortUrlRequestSchema.safeParse(body);
     if (!validationResult.success) {
-      console.error("Invalid short URL request:", validationResult.error.message);
+      logger.error("Invalid short URL request:", validationResult.error.message);
       return Response.json("Missing[0000]");
     }
     
@@ -75,13 +76,13 @@ export async function POST(req: NextRequest) {
         browser: data.browser,
       });
     } catch (error) {
-      console.error("Failed to create short URL meta:", error);
+      logger.error("Failed to create short URL meta:", error);
       // 即使记录失败也继续执行
     }
 
     return Response.json(shortUrl.target);
   } catch (error) {
-    console.error("Error in short URL API:", error);
+    logger.error("Error in short URL API:", error);
     return Response.json("Error[0003]");
   }
 }

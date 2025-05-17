@@ -17,6 +17,7 @@ import {
 import { checkUserStatus } from "@/lib/dto/user";
 import { getCurrentUser } from "@/lib/session";
 import { errorResponse, handleApiError, successResponse } from "@/lib/api-response";
+import { logger } from "@/lib/logger";
 
 // 条件性创建Vercel实例，避免无token时报错
 const vercel = process.env.VERCEL_TOKEN
@@ -185,7 +186,7 @@ export async function POST(request: NextRequest) {
       return successResponse(responseData, "域名创建并绑定Vercel成功");
     } catch (vercelError: any) {
       // 记录详细错误
-      console.error("❌ Vercel绑定域名错误:", vercelError);
+      logger.error("❌ Vercel绑定域名错误:", vercelError);
       
       // 更详细的错误信息
       let errorMessage =
@@ -206,7 +207,7 @@ export async function POST(request: NextRequest) {
             console.log("❌ Vercel错误详情 (字符串):", errorDetails);
           }
         } catch (e) {
-          console.error("❌ 解析Vercel错误详情失败:", e);
+          logger.error("❌ 解析Vercel错误详情失败:", e);
         }
       }
 

@@ -2,6 +2,7 @@
 import { NextRequest } from "next/server";
 
 import { getScrapeStatsByUserId } from "@/lib/dto/scrape";
+import { logger } from "@/lib/logger";
 
 export interface LogsResponse {
   logs: {
@@ -100,7 +101,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("获取日志时出错:", error);
+    logger.error("获取日志时出错:", error);
 
     return Response.json(
       {

@@ -10,8 +10,8 @@ export const logger = {
    * @param context 上下文数据
    */
   info: async (message: string, context?: any) => {
-    await logToDatabase('info', message, context);
-    console.log(`[INFO] ${message}`, context ?? '');
+    await logToDatabase("info", message, context);
+    console.log(`[INFO] ${message}`, context ?? "");
   },
 
   /**
@@ -20,8 +20,8 @@ export const logger = {
    * @param context 上下文数据
    */
   warn: async (message: string, context?: any) => {
-    await logToDatabase('warn', message, context);
-    console.warn(`[WARN] ${message}`, context ?? '');
+    await logToDatabase("warn", message, context);
+    console.warn(`[WARN] ${message}`, context ?? "");
   },
 
   /**
@@ -30,9 +30,9 @@ export const logger = {
    * @param context 上下文数据
    */
   error: async (message: string, context?: any) => {
-    await logToDatabase('error', message, context);
-    console.error(`[ERROR] ${message}`, context ?? '');
-  }
+    await logToDatabase("error", message, context);
+    console.error(`[ERROR] ${message}`, context ?? "");
+  },
 };
 
 /**
@@ -41,12 +41,16 @@ export const logger = {
  * @param message 日志消息
  * @param context 上下文数据
  */
-async function logToDatabase(level: 'info' | 'warn' | 'error', message: string, context?: any) {
+async function logToDatabase(
+  level: "info" | "warn" | "error",
+  message: string,
+  context?: any,
+) {
   try {
     // 提取错误调用栈信息
     const stack = new Error().stack;
-    const caller = stack?.split('\n')[3]?.trim() || undefined;
-    
+    const caller = stack?.split("\n")[3]?.trim() || undefined;
+
     // 格式化上下文数据
     let details: string | undefined = undefined;
     if (context) {
@@ -54,7 +58,7 @@ async function logToDatabase(level: 'info' | 'warn' | 'error', message: string, 
         details = JSON.stringify({
           name: context.name,
           message: context.message,
-          stack: context.stack
+          stack: context.stack,
         });
       } else {
         try {
@@ -64,18 +68,18 @@ async function logToDatabase(level: 'info' | 'warn' | 'error', message: string, 
         }
       }
     }
-    
+
     // 记录到数据库
     await prisma.devLog.create({
       data: {
         level,
         message,
         details,
-        caller
-      }
+        caller,
+      },
     });
   } catch (error) {
     // 数据库记录失败时不抛出异常，仅在控制台记录
-    console.error('记录日志到数据库失败', error);
+    console.error("记录日志到数据库失败", error);
   }
-} 
+}

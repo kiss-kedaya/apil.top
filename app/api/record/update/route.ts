@@ -16,6 +16,7 @@ import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { logger } from "@/lib/logger";
 
 const prisma = new PrismaClient();
 
@@ -282,7 +283,7 @@ export async function PUT(request: Request) {
             record_id: newRecordId
           });
         } catch (error) {
-          console.error("重新创建DNS记录时出错:", error);
+          logger.error("重新创建DNS记录时出错:", error);
           return Response.json({ 
             message: "重新创建DNS记录时出错", 
             error: String(error) 
@@ -325,7 +326,7 @@ export async function PUT(request: Request) {
           success: true
         });
       } catch (error) {
-        console.error("更新代理状态失败:", error);
+        logger.error("更新代理状态失败:", error);
         return Response.json({ 
           message: "更新代理状态失败", 
           error: String(error) 
@@ -338,7 +339,7 @@ export async function PUT(request: Request) {
       message
     });
   } catch (error) {
-    console.error("DNS记录更新错误:", error);
+    logger.error("DNS记录更新错误:", error);
     const errorMessage = typeof error === 'string' 
       ? { message: error } 
       : (error && typeof error === 'object' 

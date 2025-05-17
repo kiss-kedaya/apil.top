@@ -10,6 +10,7 @@ import { checkUserStatus } from "@/lib/dto/user";
 import { reservedDomains } from "@/lib/enums";
 import { getCurrentUser } from "@/lib/session";
 import { generateSecret } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: Request) {
   try {
@@ -115,7 +116,7 @@ export async function POST(req: Request) {
       return Response.json(res.data);
     }
   } catch (error) {
-    console.error("[错误]", error);
+    logger.error("[错误]", error);
     const errorMessage = typeof error === 'string' 
       ? { message: error } 
       : (error && typeof error === 'object' 
