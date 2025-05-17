@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import JsonView from "@uiw/react-json-view";
 import { githubLightTheme } from "@uiw/react-json-view/githubLight";
 import { vscodeTheme } from "@uiw/react-json-view/vscode";
@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import BlurImage from "@/components/shared/blur-image";
+import { isLink } from "@/lib/utils";
 
 export interface MetaScrapingProps {
   title: string;
@@ -682,6 +683,275 @@ Content-Type: application/json
                   </svg>
                   <span className="text-xs">下载二维码</span>
                 </Button>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </>
+  );
+}
+
+export function QrCodeDecoding({
+  user,
+}: {
+  user: { id: string; apiKey: string };
+}) {
+  const { theme } = useTheme();
+  const [isDecoding, setIsDecoding] = useState(false);
+  const [decodedResult, setDecodedResult] = useState<{
+    text: string;
+    location?: any;
+    error?: string;
+  }>({
+    text: "",
+  });
+  const [qrImageUrl, setQrImageUrl] = useState("");
+  const [inputType, setInputType] = useState<"url" | "file">("url");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 从URL解析二维码
+  const handleDecodeFromUrl = async () => {
+    if (!qrImageUrl) {
+      toast.error("请输入图片URL");
+      return;
+    }
+
+    if (!user.apiKey) {
+      toast.error("请先获取API密钥");
+      return;
+    }
+
+    setIsDecoding(true);
+    setDecodedResult({ text: "" });
+
+    try {
+      const response = await fetch("/api/v1/scraping/qrcode-decode", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: qrImageUrl,
+          key: user.apiKey,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setDecodedResult({ text: "", error: errorData.statusText || "解析失败" });
+        toast.error(errorData.statusText || "解析失败");
+      } else {
+        const data = await response.json();
+        setDecodedResult({ text: data.text, location: data.location });
+        toast.success("解析成功！");
+      }
+    } catch (error) {
+      setDecodedResult({ text: "", error: "解析请求失败" });
+      toast.error("解析请求失败");
+    } finally {
+      setIsDecoding(false);
+    }
+  };
+
+  // 从文件解析二维码
+  const handleDecodeFromFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!user.apiKey) {
+      toast.error("请先获取API密钥");
+      return;
+    }
+
+    setIsDecoding(true);
+    setDecodedResult({ text: "" });
+
+    try {
+      // 读取文件为base64
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64 = event.target?.result as string;
+        
+        try {
+          const response = await fetch("/api/v1/scraping/qrcode-decode", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              base64,
+              key: user.apiKey,
+            }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            setDecodedResult({ text: "", error: errorData.statusText || "解析失败" });
+            toast.error(errorData.statusText || "解析失败");
+          } else {
+            const data = await response.json();
+            setDecodedResult({ text: data.text, location: data.location });
+            toast.success("解析成功！");
+          }
+        } catch (error) {
+          setDecodedResult({ text: "", error: "解析请求失败" });
+          toast.error("解析请求失败");
+        } finally {
+          setIsDecoding(false);
+        }
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (error) {
+      setIsDecoding(false);
+      toast.error("读取文件失败");
+    }
+  };
+
+  // 触发文件选择对话框
+  const handleOpenFileDialog = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  // 访问解析出的URL
+  const handleVisitDecodedUrl = () => {
+    if (decodedResult.text && isLink(decodedResult.text)) {
+      window.open(decodedResult.text, '_blank');
+    } else {
+      toast.error("解析结果不是有效的URL");
+    }
+  };
+
+  return (
+    <>
+      <CodeLight content={`POST https://qali.cn/api/v1/scraping/qrcode-decode
+Content-Type: application/json
+
+{
+  "url": "https://example.com/qrcode.png",
+  "key": "YOUR_API_KEY"
+}
+
+// 或者使用base64编码的图片
+{
+  "base64": "data:image/png;base64,...",
+  "key": "YOUR_API_KEY"
+}`} />
+      <Card className="bg-gray-50 dark:bg-gray-900">
+        <CardHeader>
+          <CardTitle>二维码解析</CardTitle>
+          <CardDescription>
+            解析图片中的二维码，获取其中包含的URL或文本内容。
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4 flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <input
+                type="radio"
+                id="url-input"
+                checked={inputType === "url"}
+                onChange={() => setInputType("url")}
+                className="h-4 w-4 rounded-full border-gray-300 bg-gray-100 text-primary focus:ring-2 focus:ring-primary"
+              />
+              <label htmlFor="url-input" className="text-sm font-medium">图片URL</label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="radio"
+                id="file-input"
+                checked={inputType === "file"}
+                onChange={() => setInputType("file")}
+                className="h-4 w-4 rounded-full border-gray-300 bg-gray-100 text-primary focus:ring-2 focus:ring-primary"
+              />
+              <label htmlFor="file-input" className="text-sm font-medium">上传图片</label>
+            </div>
+          </div>
+
+          {inputType === "url" ? (
+            <div className="flex items-center">
+              <Input
+                type="text"
+                placeholder="输入包含二维码的图片URL"
+                className="h-10 rounded-r-none border focus:border-primary active:border-primary"
+                value={qrImageUrl}
+                onChange={(e) => setQrImageUrl(e.target.value)}
+              />
+              <Button
+                className="flex items-center gap-1.5 rounded-l-none bg-primary text-primary-foreground hover:bg-primary/90"
+                onClick={handleDecodeFromUrl}
+                disabled={isDecoding}
+              >
+                {isDecoding ? (
+                  <span className="text-sm">解析中...</span>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M13.8 12H3" />
+                    </svg>
+                    <span className="text-xs">解析</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleDecodeFromFile}
+                className="hidden"
+              />
+              <Button
+                className="flex w-full items-center justify-center gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
+                onClick={handleOpenFileDialog}
+                disabled={isDecoding}
+              >
+                {isDecoding ? (
+                  <span className="text-sm">解析中...</span>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242M12 12v9M8 17l4-5 4 5" />
+                    </svg>
+                    <span className="text-sm">选择包含二维码的图片</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+
+          <div className="mt-4 rounded-md border p-3">
+            <JsonView
+              className="max-w-2xl overflow-auto p-2"
+              style={theme === "dark" ? vscodeTheme : githubLightTheme}
+              value={decodedResult}
+              displayObjectSize={false}
+              displayDataTypes={false}
+            />
+            
+            {decodedResult.text && (
+              <div className="mt-4 flex flex-col items-center justify-center rounded-md border bg-gray-50 p-4 dark:bg-gray-800">
+                <h3 className="mb-2 text-lg font-semibold">解析结果</h3>
+                <p className="mb-4 break-all text-center">
+                  {decodedResult.text}
+                </p>
+                {isLink(decodedResult.text) && (
+                  <Button
+                    className="flex items-center gap-1.5"
+                    variant="outline"
+                    onClick={handleVisitDecodedUrl}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" />
+                    </svg>
+                    <span className="text-xs">访问链接</span>
+                  </Button>
+                )}
               </div>
             )}
           </div>

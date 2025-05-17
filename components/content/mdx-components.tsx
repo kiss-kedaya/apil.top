@@ -149,7 +149,7 @@ const components = {
           value={__rawString__}
           className={cn(
             "absolute right-4 top-4 z-20",
-            "duration-250 opacity-0 transition-all group-hover:opacity-100",
+            "opacity-80 transition-all hover:opacity-100 hover:bg-gray-700 hover:scale-110"
           )}
         />
       )}
