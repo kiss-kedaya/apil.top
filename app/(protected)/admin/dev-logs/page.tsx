@@ -65,6 +65,7 @@ export default function DevLogsPage() {
   const [copiedDetails, setCopiedDetails] = useState(false);
   const [copiedCaller, setCopiedCaller] = useState(false);
   const [copiedJson, setCopiedJson] = useState(false);
+  const [copiedFullLog, setCopiedFullLog] = useState(false);
 
   // 获取日志
   const fetchLogs = useCallback(async () => {
@@ -210,6 +211,29 @@ export default function DevLogsPage() {
       });
   };
 
+  // 复制整个日志的函数
+  const copyFullLog = (log: Log) => {
+    if (!log) return;
+    
+    const logContent = JSON.stringify({
+      id: log.id,
+      level: log.level,
+      message: log.message,
+      details: log.details,
+      caller: log.caller,
+      createdAt: log.createdAt
+    }, null, 2);
+    
+    navigator.clipboard.writeText(logContent)
+      .then(() => {
+        setCopiedFullLog(true);
+        setTimeout(() => setCopiedFullLog(false), 2000);
+      })
+      .catch(err => {
+        console.error('复制失败:', err);
+      });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
@@ -334,14 +358,25 @@ export default function DevLogsPage() {
       <Dialog open={selectedLog !== null} onOpenChange={(open) => !open && setSelectedLog(null)}>
         {selectedLog && (
           <DialogContent className="max-w-4xl">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                {getLevelBadge(selectedLog.level)}
-                <span>日志详情</span>
-              </DialogTitle>
-              <DialogDescription>
-                {formatDate(selectedLog.createdAt)}
-              </DialogDescription>
+            <DialogHeader className="flex items-start justify-between">
+              <div>
+                <DialogTitle className="flex items-center gap-2">
+                  {getLevelBadge(selectedLog.level)}
+                  <span>日志详情</span>
+                </DialogTitle>
+                <DialogDescription>
+                  {formatDate(selectedLog.createdAt)}
+                </DialogDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => copyFullLog(selectedLog)}
+                className="shrink-0"
+              >
+                {copiedFullLog ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                复制日志
+              </Button>
             </DialogHeader>
 
             <Tabs defaultValue="details" className="mt-4">
@@ -362,14 +397,14 @@ export default function DevLogsPage() {
                     {copiedDetails ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </Button>
                 </div>
-                <div className="bg-muted p-4 rounded-md overflow-auto max-h-60 font-mono text-xs">
+                <div className="bg-muted p-4 rounded-md overflow-auto max-h-60 font-mono text-xs break-all whitespace-pre-wrap">
                   {selectedLog.message}
                 </div>
 
                 {selectedLog.details && (
                   <>
                     <h3 className="text-lg font-semibold mt-4">附加详情</h3>
-                    <div className="bg-muted p-4 rounded-md overflow-auto max-h-60 font-mono text-xs whitespace-pre-wrap">
+                    <div className="bg-muted p-4 rounded-md overflow-auto max-h-80 font-mono text-xs break-all whitespace-pre-wrap">
                       {formatJSON(selectedLog.details)}
                     </div>
                   </>
@@ -387,7 +422,7 @@ export default function DevLogsPage() {
                     {copiedCaller ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </Button>
                 </div>
-                <div className="bg-muted p-4 rounded-md overflow-auto max-h-[300px] font-mono text-xs whitespace-pre-wrap">
+                <div className="bg-muted p-4 rounded-md overflow-auto max-h-80 font-mono text-xs break-all whitespace-pre-wrap">
                   {selectedLog.caller || '无调用栈信息'}
                 </div>
               </TabsContent>
@@ -403,7 +438,7 @@ export default function DevLogsPage() {
                     {copiedJson ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </Button>
                 </div>
-                <div className="bg-muted p-4 rounded-md overflow-auto max-h-[300px] font-mono text-xs whitespace-pre-wrap">
+                <div className="bg-muted p-4 rounded-md overflow-auto max-h-[400px] font-mono text-xs break-all whitespace-pre-wrap">
                   {JSON.stringify(selectedLog, null, 2)}
                 </div>
               </TabsContent>
