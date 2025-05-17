@@ -68,7 +68,3 @@ export const GET = withAuth(async (req, user) => {
   return createSuccessResponse(data);
 });
 ```
-
-## 版本控制
-
-新版API应放在 `/api/v2/` 目录下，旧版API保持不变直到废弃。 
