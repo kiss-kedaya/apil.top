@@ -72,7 +72,7 @@ export const docsConfig: DocsConfig = {
           icon: "page",
         },
         {
-          title: "链接转二维码API",
+          title: "二维码API",
           href: "/docs/open-api/qrcode",
           icon: "page",
         },
