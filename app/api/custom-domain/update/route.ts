@@ -1,18 +1,26 @@
 import { NextRequest } from "next/server";
-import { updateUserCustomDomain, verifyUserCustomDomain } from "@/lib/dto/custom-domain";
-import { checkUserStatus } from "@/lib/dto/user"; 
+
+import {
+  errorResponse,
+  handleApiError,
+  successResponse,
+} from "@/lib/api-response";
+import {
+  updateUserCustomDomain,
+  verifyUserCustomDomain,
+} from "@/lib/dto/custom-domain";
+import { checkUserStatus } from "@/lib/dto/user";
 import { getCurrentUser } from "@/lib/session";
-import { errorResponse, handleApiError, successResponse } from "@/lib/api-response";
 
 // CORS预检请求处理
 export async function OPTIONS() {
   return Response.json(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, PUT, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-    }
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, PUT, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
   });
 }
 
@@ -55,4 +63,4 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     return handleApiError(error, "验证自定义域名失败");
   }
-} 
+}

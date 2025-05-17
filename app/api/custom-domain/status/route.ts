@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { getUserCustomDomainById } from "@/lib/dto/custom-domain";
 import { checkUserStatus } from "@/lib/dto/user";
 import { getCurrentUser } from "@/lib/session";
